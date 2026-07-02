@@ -27,6 +27,7 @@ export default function AdminDashboard() {
   const [mlAccountName, setMlAccountName] = useState("Fashion Shine Oficial");
   const [mlTempAccountName, setMlTempAccountName] = useState("Fashion Shine Oficial");
   const [isConnectingMl, setIsConnectingMl] = useState(false);
+  const [isImportingMl, setIsImportingMl] = useState(false);
 
   const [isMlConfigured, setIsMlConfigured] = useState(false);
   const [isShopeeConfigured, setIsShopeeConfigured] = useState(false);
@@ -128,6 +129,43 @@ export default function AdminDashboard() {
       }
     } catch (err) {
       console.error(err);
+    }
+  };
+
+  const handleImportMlProducts = async () => {
+    if (isImportingMl) return;
+    setIsImportingMl(true);
+    addLog("Mercado Livre: Starting catalog import...", "mercadolivre", "success");
+
+    try {
+      const res = await fetch("/api/sync/mercadolivre/import", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" }
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        addLog(`Mercado Livre: Catalog imported! Imported: ${data.importedCount}, Updated: ${data.updatedCount} listings.`, "mercadolivre", "success");
+        alert(`🎉 Mercado Livre catalog imported successfully!\nImported: ${data.importedCount} new products\nUpdated: ${data.updatedCount} existing products`);
+        
+        // Refresh products list
+        const prodRes = await fetch("/api/sync/products");
+        if (prodRes.ok) {
+          const prodData = await prodRes.json();
+          if (prodData.products) {
+            setProducts(prodData.products);
+          }
+        }
+      } else {
+        const errMsg = data.error || "Failed to import catalog";
+        addLog(`Mercado Livre: Import failed - ${errMsg}`, "mercadolivre", "error");
+        alert(`❌ Import Failed: ${errMsg}`);
+      }
+    } catch (err: any) {
+      console.error("Catalog import error:", err);
+      addLog(`Mercado Livre: Import failed due to server error.`, "mercadolivre", "error");
+      alert(`❌ Import Failed due to server error.`);
+    } finally {
+      setIsImportingMl(false);
     }
   };
 
@@ -455,9 +493,37 @@ export default function AdminDashboard() {
         {activeTab === "inventory" && (
           <div className="animate-fade-in">
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.5rem" }}>
-              <p style={{ color: "var(--foreground-muted)", fontSize: "0.9rem" }}>
+              <p style={{ color: "var(--foreground-muted)", fontSize: "0.9rem", margin: 0 }}>
                 Edit inventory values below. Changing stock level triggers an instant API propagation to sync Shopee and Mercado Livre channels.
               </p>
+              {config.mlConnected && (
+                <button
+                  onClick={handleImportMlProducts}
+                  disabled={isImportingMl}
+                  className="btn-gold"
+                  style={{
+                    padding: "0.6rem 1.2rem",
+                    fontSize: "0.8rem",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "8px"
+                  }}
+                >
+                  <svg 
+                    width="14" 
+                    height="14" 
+                    viewBox="0 0 24 24" 
+                    fill="none" 
+                    stroke="currentColor" 
+                    strokeWidth="2.5"
+                  >
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                    <polyline points="7 10 12 15 17 10"></polyline>
+                    <line x1="12" y1="15" x2="12" y2="3"></line>
+                  </svg>
+                  {isImportingMl ? "Importando..." : "Importar do Mercado Livre"}
+                </button>
+              )}
             </div>
 
             <div className="admin-table-container">
@@ -833,6 +899,34 @@ export default function AdminDashboard() {
                       className="admin-input"
                     />
                   </div>
+                  <button
+                    onClick={handleImportMlProducts}
+                    disabled={isImportingMl}
+                    className="btn-gold"
+                    style={{
+                      padding: "0.75rem",
+                      fontSize: "0.85rem",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      gap: "8px",
+                      marginTop: "0.5rem"
+                    }}
+                  >
+                    <svg 
+                      width="14" 
+                      height="14" 
+                      viewBox="0 0 24 24" 
+                      fill="none" 
+                      stroke="currentColor" 
+                      strokeWidth="2.5"
+                    >
+                      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                      <polyline points="7 10 12 15 17 10"></polyline>
+                      <line x1="12" y1="15" x2="12" y2="3"></line>
+                    </svg>
+                    {isImportingMl ? "Importando Catálogo..." : "Importar Catálogo do Mercado Livre"}
+                  </button>
                 </div>
               ) : (
                 <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>

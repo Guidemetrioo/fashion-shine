@@ -45,13 +45,13 @@ export async function POST(request: NextRequest) {
     if (data && data.ordersn) {
       const orderSn = data.ordersn;
 
-      const processedOrders = getProcessedOrders();
+      const processedOrders = await getProcessedOrders();
       if (processedOrders.includes(orderSn)) {
         console.log(`[Shopee Webhook]: Order ${orderSn} already processed. Skipping deduction.`);
         return NextResponse.json({ status: "already_processed", orderSn });
       }
 
-      const tokens = getTokens();
+      const tokens = await getTokens();
       if (!tokens.shopee.connected) {
         console.warn("[Shopee Webhook]: Shopee account not connected. Cannot fetch order details.");
         return NextResponse.json({ error: "Shopee integration not connected on server" }, { status: 400 });
@@ -82,7 +82,7 @@ export async function POST(request: NextRequest) {
 
       console.log(`[Shopee Webhook]: Processing order ${orderSn} containing ${itemsList.length} listings.`);
 
-      const products = getDBProducts();
+      const products = await getDBProducts();
 
       for (const item of itemsList) {
         const shopeeItemId = String(item.item_id);
@@ -99,7 +99,7 @@ export async function POST(request: NextRequest) {
       }
 
       // Mark order as processed
-      registerProcessedOrder(orderSn);
+      await registerProcessedOrder(orderSn);
       return NextResponse.json({ status: "success", orderSn, processed: true });
     }
 

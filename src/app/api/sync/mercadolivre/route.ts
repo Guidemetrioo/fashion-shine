@@ -4,7 +4,7 @@ import { getDBProducts, getProcessedOrders, registerProcessedOrder } from "../..
 import { processChannelSale } from "../../../../utils/syncEngine";
 
 export async function GET(request: NextRequest) {
-  const tokens = getTokens();
+  const tokens = await getTokens();
 
   if (!tokens.mercadolivre.connected) {
     return NextResponse.json({ connected: false, nickname: "", orders: [] });
@@ -29,8 +29,8 @@ export async function GET(request: NextRequest) {
 
     const mlData = await mlResponse.json();
     const results = mlData.results || [];
-    const processedOrders = getProcessedOrders();
-    const products = getDBProducts();
+    const processedOrders = await getProcessedOrders();
+    const products = await getDBProducts();
 
     // Check for new sales to deduct stock
     for (const order of results) {
@@ -48,7 +48,7 @@ export async function GET(request: NextRequest) {
             await processChannelSale(product.sku, qty, "mercadolivre");
           }
         }
-        registerProcessedOrder(orderIdStr);
+        await registerProcessedOrder(orderIdStr);
       }
     }
 
@@ -81,7 +81,7 @@ export async function GET(request: NextRequest) {
 
 
 export async function POST(request: NextRequest) {
-  const tokens = getTokens();
+  const tokens = await getTokens();
   if (!tokens.mercadolivre.connected) {
     return NextResponse.json({ error: "Mercado Livre account not connected" }, { status: 400 });
   }

@@ -26,13 +26,13 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ error: "Could not parse order ID" }, { status: 400 });
       }
 
-      const processedOrders = getProcessedOrders();
+      const processedOrders = await getProcessedOrders();
       if (processedOrders.includes(orderId)) {
         console.log(`[ML Webhook]: Order ${orderId} already processed. Skipping deduction.`);
         return NextResponse.json({ status: "already_processed", orderId });
       }
 
-      const tokens = getTokens();
+      const tokens = await getTokens();
       if (!tokens.mercadolivre.connected) {
         console.warn("[ML Webhook]: ML account not connected. Cannot fetch order details.");
         return NextResponse.json({ error: "Mercado Livre integration not connected on server" }, { status: 400 });
@@ -56,7 +56,7 @@ export async function POST(request: NextRequest) {
 
       console.log(`[ML Webhook]: Processing order ${orderId} containing ${orderItems.length} listings.`);
 
-      const products = getDBProducts();
+      const products = await getDBProducts();
 
       for (const item of orderItems) {
         const mlItemId = item.item.id;
@@ -73,7 +73,7 @@ export async function POST(request: NextRequest) {
       }
 
       // Mark order as processed
-      registerProcessedOrder(orderId);
+      await registerProcessedOrder(orderId);
       return NextResponse.json({ status: "success", orderId, processed: true });
     }
 
