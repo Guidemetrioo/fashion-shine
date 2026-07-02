@@ -1,0 +1,225 @@
+/* Admin Dashboard Stylesheet */
+
+.admin-layout {
+  min-height: 100vh;
+  background: radial-gradient(circle at top left, #0a0a0c, #141419);
+  color: #f3f3f6;
+  font-family: 'Outfit', sans-serif;
+  display: flex;
+  flex-direction: column;
+}
+
+.admin-header {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(18, 18, 22, 0.85);
+  backdrop-filter: blur(12px);
+  position: sticky;
+  top: 0;
+  zIndex: 90;
+}
+
+.admin-container {
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 2rem;
+  width: 100%;
+}
+
+/* Tabs navigation */
+.admin-tabs {
+  display: flex;
+  gap: 0.5rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  margin-bottom: 2rem;
+  overflow-x: auto;
+  padding-bottom: 1px;
+}
+
+.admin-tab-btn {
+  padding: 1rem 1.5rem;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #a1a1aa;
+  border-bottom: 2px solid transparent;
+  white-space: nowrap;
+}
+
+.admin-tab-btn.active {
+  color: var(--gold);
+  border-bottom-color: var(--gold);
+  font-weight: 500;
+}
+
+.admin-tab-btn:hover:not(.active) {
+  color: #f4f4f6;
+}
+
+/* Stats Card Grid */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2.5rem;
+}
+
+.stats-card {
+  padding: 1.5rem;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  position: relative;
+  overflow: hidden;
+  transition: var(--transition-smooth);
+}
+
+.stats-card:hover {
+  border-color: rgba(212, 175, 55, 0.2);
+  transform: translateY(-2px);
+}
+
+/* Channel branding colors */
+.channel-shopee {
+  color: #ee4d2d !important;
+}
+
+.channel-ml {
+  color: #ffe600 !important;
+}
+
+.bg-shopee {
+  background: #ee4d2d !important;
+  color: #ffffff !important;
+}
+
+.bg-ml {
+  background: #ffe600 !important;
+  color: #000000 !important;
+  font-weight: 600;
+}
+
+.badge {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* Table styling */
+.admin-table-container {
+  overflow-x: auto;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.01);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  font-size: 0.9rem;
+}
+
+.admin-table th {
+  background: rgba(255, 255, 255, 0.03);
+  padding: 1rem 1.5rem;
+  font-weight: 500;
+  color: #a1a1aa;
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  letter-spacing: 0.05em;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.admin-table td {
+  padding: 1.2rem 1.5rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  vertical-align: middle;
+}
+
+.admin-table tr:hover td {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+/* Log console */
+.console-log {
+  background: #060608;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  font-family: 'Courier New', Courier, monospace;
+  padding: 1.5rem;
+  border-radius: 4px;
+  max-height: 250px;
+  overflow-y: auto;
+  font-size: 0.8rem;
+  color: #39ff14; /* neon green */
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+/* Connection Toggles */
+.connection-card {
+  padding: 2rem;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  transition: var(--transition-smooth);
+}
+
+.connection-card.active {
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+/* Forms */
+.admin-input {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  padding: 0.75rem 1rem;
+  color: #ffffff;
+  border-radius: 2px;
+  font-family: inherit;
+  outline: none;
+  transition: var(--transition-smooth);
+}
+
+.admin-input:focus {
+  border-color: var(--gold);
+  background: rgba(255, 255, 255, 0.07);
+}
+
+/* Animations */
+.pulse-green {
+  width: 8px;
+  height: 8px;
+  background-color: #39ff14;
+  border-radius: 50%;
+  display: inline-block;
+  box-shadow: 0 0 8px #39ff14;
+}
+
+.pulse-red {
+  width: 8px;
+  height: 8px;
+  background-color: #ff3333;
+  border-radius: 50%;
+  display: inline-block;
+  box-shadow: 0 0 8px #ff3333;
+}
+
+/* Spin animation for sync button */
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.spin-sync {
+  animation: spin 1s linear infinite;
+}
