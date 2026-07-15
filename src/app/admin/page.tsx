@@ -50,6 +50,19 @@ export default function AdminDashboard() {
   const [newProdMlItemId, setNewProdMlItemId] = useState("");
   const [isCreatingProduct, setIsCreatingProduct] = useState(false);
 
+  // Drag and drop states
+  const [isDragging, setIsDragging] = useState(false);
+  const [imagePreview, setImagePreview] = useState("");
+
+  const handleFileChange = (file: File) => {
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setImagePreview(reader.result as string);
+      setNewProdImageUrl(reader.result as string); // base64 representation!
+    };
+    reader.readAsDataURL(file);
+  };
+
   const handleCreateProduct = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newProdName || !newProdSku) {
@@ -94,6 +107,7 @@ export default function AdminDashboard() {
         setNewProdSku("");
         setNewProdDesc("");
         setNewProdImageUrl("");
+        setImagePreview("");
         setNewProdPrice("");
         setNewProdShopeeStock("");
         setNewProdMlStock("");
@@ -1348,9 +1362,7 @@ export default function AdminDashboard() {
           height: "100%",
           zIndex: 420,
           display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          padding: "1rem"
+          justifyContent: "flex-end"
         }}>
           {/* Backdrop */}
           <div 
@@ -1361,37 +1373,35 @@ export default function AdminDashboard() {
               left: 0,
               width: "100%",
               height: "100%",
-              background: "rgba(0, 0, 0, 0.8)",
+              background: "rgba(0, 0, 0, 0.6)",
               backdropFilter: "blur(4px)",
             }}
           />
 
-          {/* Modal Panel */}
+          {/* Modal Panel (Floating gold-bordered slide-over) */}
           <div style={{
             position: "relative",
-            width: "600px",
-            maxWidth: "100%",
-            maxHeight: "90vh",
-            background: "#1c1c21",
-            color: "#f3f3f6",
-            border: "1px solid var(--gold)",
-            borderRadius: "6px",
-            boxShadow: "0 25px 50px rgba(0,0,0,0.6)",
+            width: "440px",
+            height: "calc(100% - 2rem)",
+            margin: "1rem",
+            background: "#0c0d12",
+            color: "#e3e1e9",
+            border: "1px solid rgba(212, 175, 55, 0.6)",
+            borderRadius: "16px",
+            boxShadow: "0 20px 40px rgba(0,0,0,0.8), 0 0 15px rgba(212, 175, 55, 0.15)",
             display: "flex",
             flexDirection: "column",
             zIndex: 421,
-            animation: "fadeIn 0.3s ease-out",
             overflow: "hidden"
           }}>
             {/* Header */}
             <div style={{
-              padding: "1.2rem 1.5rem",
-              borderBottom: "1px solid rgba(255, 255, 255, 0.08)",
+              padding: "1.5rem 1.5rem 0.5rem 1.5rem",
               display: "flex",
               justifyContent: "space-between",
               alignItems: "center"
             }}>
-              <h3 className="font-serif" style={{ fontSize: "1.3rem", color: "var(--gold)", margin: 0 }}>
+              <h3 className="font-serif" style={{ fontSize: "1.45rem", color: "var(--gold)", margin: 0, fontWeight: "600" }}>
                 Cadastrar Novo Produto
               </h3>
               <button 
@@ -1403,109 +1413,154 @@ export default function AdminDashboard() {
             </div>
 
             {/* Scrollable Form Body */}
-            <form onSubmit={handleCreateProduct} style={{ overflowY: "auto", padding: "1.5rem", display: "flex", flexDirection: "column", gap: "1.2rem" }}>
-              {/* Row: Name and SKU */}
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}>
-                <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
-                  <label style={{ fontSize: "0.75rem", color: "var(--foreground-muted)" }}>Nome do Produto *</label>
+            <form onSubmit={handleCreateProduct} style={{ overflowY: "auto", padding: "1.5rem", display: "flex", flexDirection: "column", gap: "1.1rem" }}>
+              {/* Photo Upload Container */}
+              <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+                <label style={{ fontSize: "0.85rem", fontWeight: "600", color: "#e3e1e9" }}>Foto do Produto</label>
+                <div 
+                  onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
+                  onDragLeave={() => setIsDragging(false)}
+                  onDrop={(e) => {
+                    e.preventDefault();
+                    setIsDragging(false);
+                    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+                      handleFileChange(e.dataTransfer.files[0]);
+                    }
+                  }}
+                  onClick={() => document.getElementById("product-file-upload")?.click()}
+                  style={{
+                    height: "125px",
+                    border: isDragging ? "2px dashed var(--gold)" : "1px dashed rgba(212, 175, 55, 0.4)",
+                    borderRadius: "8px",
+                    background: "rgba(255, 255, 255, 0.02)",
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    cursor: "pointer",
+                    transition: "all 0.2s ease",
+                    position: "relative",
+                    overflow: "hidden"
+                  }}
+                >
                   <input
-                    type="text"
-                    required
-                    value={newProdName}
-                    onChange={(e) => setNewProdName(e.target.value)}
-                    placeholder="Ex: Colar Gargantilha Meteoro"
-                    className="admin-input"
+                    type="file"
+                    id="product-file-upload"
+                    accept="image/*"
+                    onChange={(e) => {
+                      if (e.target.files && e.target.files[0]) {
+                        handleFileChange(e.target.files[0]);
+                      }
+                    }}
+                    style={{ display: "none" }}
                   />
-                </div>
-                <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
-                  <label style={{ fontSize: "0.75rem", color: "var(--foreground-muted)" }}>Código SKU *</label>
-                  <input
-                    type="text"
-                    required
-                    value={newProdSku}
-                    onChange={(e) => setNewProdSku(e.target.value)}
-                    placeholder="Ex: 3655"
-                    className="admin-input"
-                  />
+                  {imagePreview ? (
+                    <>
+                      <img 
+                        src={imagePreview} 
+                        alt="Preview" 
+                        style={{ width: "100%", height: "100%", objectFit: "contain" }} 
+                      />
+                      <div 
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setImagePreview("");
+                          setNewProdImageUrl("");
+                        }}
+                        style={{
+                          position: "absolute",
+                          top: "5px",
+                          right: "5px",
+                          background: "rgba(0,0,0,0.8)",
+                          color: "#ff4d4d",
+                          border: "none",
+                          borderRadius: "50%",
+                          width: "24px",
+                          height: "24px",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          fontSize: "0.9rem",
+                          fontWeight: "bold",
+                          cursor: "pointer"
+                        }}
+                      >
+                        &times;
+                      </div>
+                    </>
+                  ) : (
+                    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", color: "#8a8a93", gap: "6px" }}>
+                      <span className="material-symbols-outlined" style={{ fontSize: "1.8rem" }}>photo_camera</span>
+                      <span style={{ fontSize: "0.75rem", color: "#8a8a93" }}>Arraste uma imagem ou insira a URL</span>
+                    </div>
+                  )}
                 </div>
               </div>
 
-              {/* Description */}
-              <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
-                <label style={{ fontSize: "0.75rem", color: "var(--foreground-muted)" }}>Descrição</label>
-                <textarea
-                  value={newProdDesc}
-                  onChange={(e) => setNewProdDesc(e.target.value)}
-                  placeholder="Insira a descrição detalhada do produto..."
-                  rows={3}
+              {/* Nome do Produto */}
+              <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+                <label style={{ fontSize: "0.85rem", fontWeight: "600", color: "#e3e1e9" }}>Nome do Produto</label>
+                <input
+                  type="text"
+                  required
+                  value={newProdName}
+                  onChange={(e) => setNewProdName(e.target.value)}
+                  placeholder="Ex: Colar Brilhante Ouro"
                   className="admin-input"
-                  style={{ resize: "vertical" }}
+                  style={{ background: "#121216", border: "1px solid rgba(255, 255, 255, 0.08)", padding: "0.7rem 0.9rem", borderRadius: "8px", fontSize: "0.85rem" }}
                 />
               </div>
 
-              {/* Price & Image URL */}
-              <div style={{ display: "grid", gridTemplateColumns: "120px 1fr", gap: "1rem" }}>
-                <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
-                  <label style={{ fontSize: "0.75rem", color: "var(--foreground-muted)" }}>Preço Base (R$)</label>
-                  <input
-                    type="number"
-                    step="0.01"
-                    min="0"
-                    value={newProdPrice}
-                    onChange={(e) => setNewProdPrice(e.target.value)}
-                    placeholder="0.00"
-                    className="admin-input"
-                  />
-                </div>
-                <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
-                  <label style={{ fontSize: "0.75rem", color: "var(--foreground-muted)" }}>URL da Foto / Imagem</label>
-                  <input
-                    type="text"
-                    value={newProdImageUrl}
-                    onChange={(e) => setNewProdImageUrl(e.target.value)}
-                    placeholder="https://exemplo.com/foto.jpg"
-                    className="admin-input"
-                  />
-                </div>
+              {/* SKU */}
+              <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+                <label style={{ fontSize: "0.85rem", fontWeight: "600", color: "#e3e1e9" }}>SKU (Código Único)</label>
+                <input
+                  type="text"
+                  required
+                  value={newProdSku}
+                  onChange={(e) => setNewProdSku(e.target.value)}
+                  placeholder="Ex: FS-1023"
+                  className="admin-input"
+                  style={{ background: "#121216", border: "1px solid rgba(255, 255, 255, 0.08)", padding: "0.7rem 0.9rem", borderRadius: "8px", fontSize: "0.85rem" }}
+                />
               </div>
 
-              {/* Divider */}
-              <div style={{ borderTop: "1px solid rgba(255, 255, 255, 0.05)", margin: "0.5rem 0" }} />
-
-              {/* Shopee Integration Fields */}
-              <div>
-                <h4 style={{ fontSize: "0.85rem", color: "#ee4d2d", marginBottom: "0.5rem", fontWeight: "600" }}>Integração Shopee</h4>
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}>
-                  <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
-                    <label style={{ fontSize: "0.75rem", color: "var(--foreground-muted)" }}>Estoque Inicial Shopee</label>
-                    <input
-                      type="number"
-                      min="0"
-                      value={newProdShopeeStock}
-                      onChange={(e) => setNewProdShopeeStock(e.target.value)}
-                      placeholder="0"
-                      className="admin-input"
-                    />
-                  </div>
-                  <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
-                    <label style={{ fontSize: "0.75rem", color: "var(--foreground-muted)" }}>ID do Anúncio Shopee (Opcional)</label>
-                    <input
-                      type="text"
-                      value={newProdShopeeItemId}
-                      onChange={(e) => setNewProdShopeeItemId(e.target.value)}
-                      placeholder="Ex: 908123791"
-                      className="admin-input"
-                    />
-                  </div>
+              {/* Descrição */}
+              <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+                <div style={{ display: "flex", flexDirection: "column" }}>
+                  <label style={{ fontSize: "0.85rem", fontWeight: "600", color: "#e3e1e9", margin: 0 }}>Descrição</label>
+                  <span style={{ fontSize: "0.72rem", color: "#8a8a93" }}>Descrição do Produto</span>
                 </div>
+                <textarea
+                  value={newProdDesc}
+                  onChange={(e) => setNewProdDesc(e.target.value)}
+                  placeholder="Detalhes do item..."
+                  rows={3}
+                  className="admin-input"
+                  style={{ background: "#121216", border: "1px solid rgba(255, 255, 255, 0.08)", padding: "0.7rem 0.9rem", borderRadius: "8px", fontSize: "0.85rem", resize: "none" }}
+                />
               </div>
 
-              {/* Mercado Livre Integration Fields */}
-              <div>
-                <h4 style={{ fontSize: "0.85rem", color: "#ffe600", marginBottom: "0.5rem", fontWeight: "600" }}>Integração Mercado Livre</h4>
+              {/* Preço Base */}
+              <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+                <label style={{ fontSize: "0.85rem", fontWeight: "600", color: "#e3e1e9" }}>Preço Base (R$)</label>
+                <input
+                  type="text"
+                  value={newProdPrice}
+                  onChange={(e) => setNewProdPrice(e.target.value)}
+                  placeholder="0,00"
+                  className="admin-input"
+                  style={{ background: "#121216", border: "1px solid rgba(255, 255, 255, 0.08)", padding: "0.7rem 0.9rem", borderRadius: "8px", fontSize: "0.85rem" }}
+                />
+              </div>
+
+              {/* Estoques Iniciais */}
+              <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                <label style={{ fontSize: "0.85rem", fontWeight: "600", color: "#e3e1e9" }}>Estoque Inicial:</label>
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}>
                   <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
-                    <label style={{ fontSize: "0.75rem", color: "var(--foreground-muted)" }}>Estoque Inicial Mercado Livre</label>
+                    <span style={{ fontSize: "0.75rem", fontWeight: "600", color: "#e3e1e9" }}>Mercado Livre</span>
+                    <span style={{ fontSize: "0.68rem", color: "#8a8a93" }}>Qtd. Estoque ML</span>
                     <input
                       type="number"
                       min="0"
@@ -1513,38 +1568,61 @@ export default function AdminDashboard() {
                       onChange={(e) => setNewProdMlStock(e.target.value)}
                       placeholder="0"
                       className="admin-input"
+                      style={{ background: "#121216", border: "1px solid rgba(255, 255, 255, 0.08)", padding: "0.7rem 0.9rem", borderRadius: "8px", fontSize: "0.85rem" }}
                     />
                   </div>
                   <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
-                    <label style={{ fontSize: "0.75rem", color: "var(--foreground-muted)" }}>ID do Anúncio ML (Opcional)</label>
+                    <span style={{ fontSize: "0.75rem", fontWeight: "600", color: "#e3e1e9" }}>Shopee</span>
+                    <span style={{ fontSize: "0.68rem", color: "#8a8a93" }}>Qtd. Estoque Shopee</span>
                     <input
-                      type="text"
-                      value={newProdMlItemId}
-                      onChange={(e) => setNewProdMlItemId(e.target.value)}
-                      placeholder="Ex: MLB4470637973"
+                      type="number"
+                      min="0"
+                      value={newProdShopeeStock}
+                      onChange={(e) => setNewProdShopeeStock(e.target.value)}
+                      placeholder="0"
                       className="admin-input"
+                      style={{ background: "#121216", border: "1px solid rgba(255, 255, 255, 0.08)", padding: "0.7rem 0.9rem", borderRadius: "8px", fontSize: "0.85rem" }}
                     />
                   </div>
                 </div>
               </div>
 
-              {/* Submit / Cancel Buttons */}
-              <div style={{ display: "flex", gap: "10px", marginTop: "1rem", borderTop: "1px solid rgba(255, 255, 255, 0.08)", paddingTop: "1rem" }}>
+              {/* Botões */}
+              <div style={{ display: "flex", gap: "10px", marginTop: "0.6rem" }}>
                 <button
                   type="submit"
                   disabled={isCreatingProduct}
-                  className="btn-gold"
-                  style={{ flex: 1, padding: "0.75rem", fontWeight: "600", fontSize: "0.85rem" }}
+                  style={{
+                    flex: 1.3,
+                    background: "linear-gradient(to right, #d4af37, #f3e5ab)",
+                    color: "#000000",
+                    border: "none",
+                    borderRadius: "8px",
+                    padding: "0.75rem",
+                    fontWeight: "700",
+                    fontSize: "0.85rem",
+                    cursor: "pointer",
+                    transition: "opacity 0.2s"
+                  }}
                 >
-                  {isCreatingProduct ? "Cadastrando..." : "Cadastrar Produto"}
+                  {isCreatingProduct ? "Cadastrando..." : "Adicionar Produto"}
                 </button>
                 <button
                   type="button"
                   onClick={() => setShowAddProductModal(false)}
-                  className="btn-outline"
-                  style={{ flex: 1, padding: "0.75rem", fontSize: "0.85rem" }}
+                  style={{
+                    flex: 1,
+                    background: "#1c1c24",
+                    color: "#e3e1e9",
+                    border: "1px solid rgba(255, 255, 255, 0.08)",
+                    borderRadius: "8px",
+                    padding: "0.75rem",
+                    fontWeight: "500",
+                    fontSize: "0.85rem",
+                    cursor: "pointer"
+                  }}
                 >
-                  Cancelar
+                  Cancel
                 </button>
               </div>
             </form>
