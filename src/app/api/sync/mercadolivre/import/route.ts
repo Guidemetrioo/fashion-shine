@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getTokens } from "../../../../../utils/tokenStorage";
+import { getTokens, fetchMeli } from "../../../../../utils/tokenStorage";
 import { getDBProducts, saveDBProducts, DBProduct } from "../../../../../utils/productStorage";
 
 export async function POST(request: NextRequest) {
@@ -11,12 +11,7 @@ export async function POST(request: NextRequest) {
 
   try {
     // 1. Search item IDs of the seller
-    const searchUrl = `https://api.mercadolibre.com/users/${tokens.mercadolivre.userId}/items/search?limit=100`;
-    const searchRes = await fetch(searchUrl, {
-      headers: {
-        Authorization: `Bearer ${tokens.mercadolivre.accessToken}`,
-      },
-    });
+    const searchRes = await fetchMeli(`/users/${tokens.mercadolivre.userId}/items/search?limit=100`);
 
     if (!searchRes.ok) {
       console.error("Failed to fetch product list from ML API.");
@@ -40,12 +35,7 @@ export async function POST(request: NextRequest) {
     const batchSize = 20;
     for (let i = 0; i < itemIds.length; i += batchSize) {
       const batchIds = itemIds.slice(i, i + batchSize).join(",");
-      const detailUrl = `https://api.mercadolibre.com/items?ids=${batchIds}`;
-      const detailRes = await fetch(detailUrl, {
-        headers: {
-          Authorization: `Bearer ${tokens.mercadolivre.accessToken}`,
-        },
-      });
+      const detailRes = await fetchMeli(`/items?ids=${batchIds}`);
 
       if (detailRes.ok) {
         const detailData = await detailRes.json();

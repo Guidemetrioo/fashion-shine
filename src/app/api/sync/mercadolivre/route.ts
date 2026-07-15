@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getTokens } from "../../../../utils/tokenStorage";
+import { getTokens, fetchMeli } from "../../../../utils/tokenStorage";
 import { getDBProducts, getProcessedOrders, registerProcessedOrder } from "../../../../utils/productStorage";
 import { processChannelSale } from "../../../../utils/syncEngine";
 
@@ -11,11 +11,7 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    const mlResponse = await fetch(`https://api.mercadolibre.com/orders/search?seller=${tokens.mercadolivre.userId}`, {
-      headers: {
-        Authorization: `Bearer ${tokens.mercadolivre.accessToken}`,
-      },
-    });
+    const mlResponse = await fetchMeli(`/orders/search?seller=${tokens.mercadolivre.userId}`);
 
     if (!mlResponse.ok) {
       console.warn("Mercado Livre API error or token expired. Returning fallback data.");
@@ -93,12 +89,8 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Missing itemId" }, { status: 400 });
     }
 
-    const response = await fetch(`https://api.mercadolibre.com/items/${itemId}`, {
+    const response = await fetchMeli(`/items/${itemId}`, {
       method: "PUT",
-      headers: {
-        Authorization: `Bearer ${tokens.mercadolivre.accessToken}`,
-        "Content-Type": "application/json",
-      },
       body: JSON.stringify({
         available_quantity: stock,
       }),

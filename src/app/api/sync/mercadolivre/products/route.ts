@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getTokens } from "../../../../../utils/tokenStorage";
+import { getTokens, fetchMeli } from "../../../../../utils/tokenStorage";
 
 export async function GET(request: NextRequest) {
   const tokens = await getTokens();
@@ -10,12 +10,7 @@ export async function GET(request: NextRequest) {
 
   try {
     // 1. Search item IDs of the seller
-    const searchUrl = `https://api.mercadolibre.com/users/${tokens.mercadolivre.userId}/items/search`;
-    const searchRes = await fetch(searchUrl, {
-      headers: {
-        Authorization: `Bearer ${tokens.mercadolivre.accessToken}`,
-      },
-    });
+    const searchRes = await fetchMeli(`/users/${tokens.mercadolivre.userId}/items/search`);
 
     if (!searchRes.ok) {
       console.warn("Failed to fetch product list from ML API. Token might be expired.");
@@ -35,12 +30,7 @@ export async function GET(request: NextRequest) {
 
     // 2. Fetch details for items (Meli supports querying up to 20 IDs comma separated)
     const detailIds = itemIds.slice(0, 20).join(",");
-    const detailUrl = `https://api.mercadolibre.com/items?ids=${detailIds}`;
-    const detailRes = await fetch(detailUrl, {
-      headers: {
-        Authorization: `Bearer ${tokens.mercadolivre.accessToken}`,
-      },
-    });
+    const detailRes = await fetchMeli(`/items?ids=${detailIds}`);
 
     if (!detailRes.ok) {
       return NextResponse.json({

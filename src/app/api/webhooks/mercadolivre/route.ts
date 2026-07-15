@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getTokens } from "../../../../utils/tokenStorage";
+import { getTokens, fetchMeli } from "../../../../utils/tokenStorage";
 import { getDBProducts, getProcessedOrders, registerProcessedOrder } from "../../../../utils/productStorage";
 import { processChannelSale } from "../../../../utils/syncEngine";
 
@@ -38,13 +38,8 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ error: "Mercado Livre integration not connected on server" }, { status: 400 });
       }
 
-      // Fetch order details from Mercado Livre
-      const orderDetailsUrl = `https://api.mercadolibre.com${resource}`;
-      const response = await fetch(orderDetailsUrl, {
-        headers: {
-          Authorization: `Bearer ${tokens.mercadolivre.accessToken}`,
-        },
-      });
+      // Fetch order details from Mercado Livre using fetchMeli helper
+      const response = await fetchMeli(resource);
 
       if (!response.ok) {
         console.error(`[ML Webhook]: Failed to fetch order details for ${resource}.`);

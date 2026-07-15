@@ -1,5 +1,5 @@
 import crypto from "crypto";
-import { getTokens } from "./tokenStorage";
+import { getTokens, fetchMeli } from "./tokenStorage";
 import { getDBProducts, saveDBProducts, DBProduct } from "./productStorage";
 
 const PARTNER_ID = Number(process.env.SHOPEE_PARTNER_ID || "0");
@@ -33,13 +33,8 @@ export async function pushStockToMercadoLivre(itemId: string, stock: number): Pr
   }
 
   try {
-    const url = `https://api.mercadolibre.com/items/${itemId}`;
-    const response = await fetch(url, {
+    const response = await fetchMeli(`/items/${itemId}`, {
       method: "PUT",
-      headers: {
-        Authorization: `Bearer ${tokens.mercadolivre.accessToken}`,
-        "Content-Type": "application/json",
-      },
       body: JSON.stringify({
         available_quantity: stock,
       }),

@@ -1,6 +1,6 @@
 import fs from "fs";
 import path from "path";
-import { supabase, isSupabaseConfigured } from "./supabaseClient";
+import { sql, isNeonConfigured } from "./neonClient";
 
 const PRODUCTS_FILE = path.join(process.cwd(), "products.json");
 const ORDERS_LOG_FILE = path.join(process.cwd(), "orders.json");
@@ -47,19 +47,14 @@ export function getLocalProcessedOrders(): string[] {
 }
 
 export async function getDBProducts(): Promise<DBProduct[]> {
-  if (!isSupabaseConfigured()) {
+  if (!isNeonConfigured()) {
     return getLocalProducts();
   }
 
   try {
-    const { data, error } = await supabase
-      .from("products")
-      .select("*")
-      .order("sku", { ascending: true });
+    const data = await sql`SELECT * FROM products ORDER BY sku ASC`;
 
-    if (error) throw error;
-
-    const mapped: DBProduct[] = (data || []).map((row) => ({
+    const mapped: DBProduct[] = (data || []).map((row: any) => ({
       id: row.id,
       name: row.name,
       sku: row.sku,
@@ -78,7 +73,7 @@ export async function getDBProducts(): Promise<DBProduct[]> {
     fs.writeFileSync(PRODUCTS_FILE, JSON.stringify(mapped, null, 2), "utf8");
     return mapped;
   } catch (err) {
-    console.warn("Supabase load products error, falling back to local storage:", err);
+    console.warn("Neon load products error, falling back to local storage:", err);
     return getLocalProducts();
   }
 }
@@ -91,51 +86,51 @@ export async function saveDBProducts(products: DBProduct[]): Promise<void> {
     console.error("Error writing products database locally:", error);
   }
 
-  // 2. Upsert to Supabase if configured
-  if (isSupabaseConfigured()) {
+  // 2. Upsert to Neon if configured
+  if (isNeonConfigured()) {
     try {
-      const dbRows = products.map((p) => ({
-        id: p.id,
-        name: p.name,
-        sku: p.sku,
-        base_price: p.basePrice,
-        shopee_stock: p.shopeeStock,
-        shopee_synced: p.shopeeSynced,
-        shopee_item_id: p.shopeeItemId,
-        ml_stock: p.mlStock,
-        ml_synced: p.mlSynced,
-        ml_item_id: p.mlItemId,
-        total_stock: p.totalStock,
-        last_sync: p.lastSync,
-      }));
-
-      const { error } = await supabase.from("products").upsert(dbRows);
-      if (error) throw error;
+      for (const p of products) {
+        await sql`
+          INSERT INTO products (
+            id, name, sku, base_price, shopee_stock, shopee_synced, shopee_item_id, ml_stock, ml_synced, ml_item_id, total_stock, last_sync
+          ) VALUES (
+            ${p.id}, ${p.name}, ${p.sku}, ${p.basePrice}, ${p.shopeeStock}, ${p.shopeeSynced}, ${p.shopeeItemId || null}, ${p.mlStock}, ${p.mlSynced}, ${p.mlItemId || null}, ${p.totalStock}, ${p.lastSync}
+          )
+          ON CONFLICT (id)
+          DO UPDATE SET
+            name = EXCLUDED.name,
+            sku = EXCLUDED.sku,
+            base_price = EXCLUDED.base_price,
+            shopee_stock = EXCLUDED.shopee_stock,
+            shopee_synced = EXCLUDED.shopee_synced,
+            shopee_item_id = EXCLUDED.shopee_item_id,
+            ml_stock = EXCLUDED.ml_stock,
+            ml_synced = EXCLUDED.ml_synced,
+            ml_item_id = EXCLUDED.ml_item_id,
+            total_stock = EXCLUDED.total_stock,
+            last_sync = EXCLUDED.last_sync
+        `;
+      }
     } catch (err) {
-      console.error("Supabase products upsert failed:", err);
+      console.error("Neon products upsert failed:", err);
     }
   }
 }
 
 export async function getProcessedOrders(): Promise<string[]> {
-  if (!isSupabaseConfigured()) {
+  if (!isNeonConfigured()) {
     return getLocalProcessedOrders();
   }
 
   try {
-    const { data, error } = await supabase
-      .from("processed_orders")
-      .select("order_id");
-
-    if (error) throw error;
-
-    const list = (data || []).map(r => r.order_id);
+    const data = await sql`SELECT order_id FROM processed_orders`;
+    const list = (data || []).map((r: any) => r.order_id);
     
     // Backup locally
     fs.writeFileSync(ORDERS_LOG_FILE, JSON.stringify(list, null, 2), "utf8");
     return list;
   } catch (err) {
-    console.warn("Supabase load orders error, falling back to local storage:", err);
+    console.warn("Neon load orders error, falling back to local storage:", err);
     return getLocalProcessedOrders();
   }
 }
@@ -152,17 +147,16 @@ export async function registerProcessedOrder(orderId: string): Promise<void> {
     console.error("Error writing orders log locally:", error);
   }
 
-  // 2. Write to Supabase if configured
-  if (isSupabaseConfigured()) {
+  // 2. Write to Neon if configured
+  if (isNeonConfigured()) {
     try {
-      const { error } = await supabase
-        .from("processed_orders")
-        .insert({ order_id: orderId });
-      if (error && error.code !== "23505") { // Ignore unique constraint violation
-        throw error;
-      }
+      await sql`
+        INSERT INTO processed_orders (order_id)
+        VALUES (${orderId})
+        ON CONFLICT (order_id) DO NOTHING
+      `;
     } catch (err) {
-      console.error("Supabase order insert failed:", err);
+      console.error("Neon order insert failed:", err);
     }
   }
 }

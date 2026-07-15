@@ -36,8 +36,8 @@ export async function POST(request: NextRequest) {
 
     await saveDBProducts(products);
 
-    // Push the updated stock level to connected APIs
-    await syncStockToChannels(p.sku, newStock, channel);
+    // Push the updated stock level to all connected APIs
+    await syncStockToChannels(p.sku, newStock, undefined);
 
     return NextResponse.json({ success: true, product: p });
   } catch (err: any) {
