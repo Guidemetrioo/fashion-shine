@@ -52,6 +52,8 @@ export interface ChannelProduct {
   mlSynced: boolean;
   totalStock: number;
   lastSync: string;
+  description?: string;
+  imageUrl?: string;
 }
 
 export interface IntegrationConfig {

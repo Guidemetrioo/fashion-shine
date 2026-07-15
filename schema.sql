@@ -27,7 +27,9 @@ CREATE TABLE IF NOT EXISTS products (
     ml_synced BOOLEAN DEFAULT FALSE,
     ml_item_id VARCHAR(100),
     total_stock INTEGER DEFAULT 0,
-    last_sync VARCHAR(100)
+    last_sync VARCHAR(100),
+    description TEXT,
+    image_url TEXT
 );
 
 -- Tabela para logs e controle de duplicidade de pedidos

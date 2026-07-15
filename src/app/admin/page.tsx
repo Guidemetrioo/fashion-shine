@@ -36,6 +36,81 @@ export default function AdminDashboard() {
   const [mlInputClientId, setMlInputClientId] = useState("");
   const [mlInputClientSecret, setMlInputClientSecret] = useState("");
 
+  // Product Search & Registration States
+  const [productSearchQuery, setProductSearchQuery] = useState("");
+  const [showAddProductModal, setShowAddProductModal] = useState(false);
+  const [newProdName, setNewProdName] = useState("");
+  const [newProdSku, setNewProdSku] = useState("");
+  const [newProdDesc, setNewProdDesc] = useState("");
+  const [newProdImageUrl, setNewProdImageUrl] = useState("");
+  const [newProdPrice, setNewProdPrice] = useState("");
+  const [newProdShopeeStock, setNewProdShopeeStock] = useState("");
+  const [newProdMlStock, setNewProdMlStock] = useState("");
+  const [newProdShopeeItemId, setNewProdShopeeItemId] = useState("");
+  const [newProdMlItemId, setNewProdMlItemId] = useState("");
+  const [isCreatingProduct, setIsCreatingProduct] = useState(false);
+
+  const handleCreateProduct = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newProdName || !newProdSku) {
+      alert("Nome e SKU são obrigatórios.");
+      return;
+    }
+
+    setIsCreatingProduct(true);
+    try {
+      const res = await fetch("/api/products/create", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: newProdName,
+          sku: newProdSku,
+          description: newProdDesc,
+          imageUrl: newProdImageUrl,
+          basePrice: Number(newProdPrice || 0),
+          shopeeStock: Number(newProdShopeeStock || 0),
+          mlStock: Number(newProdMlStock || 0),
+          shopeeItemId: newProdShopeeItemId || undefined,
+          mlItemId: newProdMlItemId || undefined
+        })
+      });
+
+      const data = await res.json();
+      if (res.ok) {
+        // Refresh products list
+        const prodRes = await fetch("/api/sync/products");
+        if (prodRes.ok) {
+          const prodData = await prodRes.json();
+          if (prodData.products) {
+            setProducts(prodData.products);
+          }
+        }
+        
+        addLog(`Central Inventory: Registered new product SKU ${newProdSku} successfully.`, "all", "success");
+        alert("✨ Produto cadastrado com sucesso!");
+        
+        // Reset form
+        setNewProdName("");
+        setNewProdSku("");
+        setNewProdDesc("");
+        setNewProdImageUrl("");
+        setNewProdPrice("");
+        setNewProdShopeeStock("");
+        setNewProdMlStock("");
+        setNewProdShopeeItemId("");
+        setNewProdMlItemId("");
+        setShowAddProductModal(false);
+      } else {
+        alert(`❌ Erro ao cadastrar produto: ${data.error}`);
+      }
+    } catch (err: any) {
+      console.error(err);
+      alert("❌ Erro de rede ao cadastrar produto.");
+    } finally {
+      setIsCreatingProduct(false);
+    }
+  };
+
   // Load real products from API if connected
   const loadRealProducts = async () => {
     try {
@@ -297,6 +372,15 @@ export default function AdminDashboard() {
     return matchesChannel && matchesStatus;
   });
 
+  const filteredProducts = products.filter((p) => {
+    const query = productSearchQuery.toLowerCase().trim();
+    if (!query) return true;
+    return (
+      (p.name && p.name.toLowerCase().includes(query)) ||
+      (p.sku && p.sku.toLowerCase().includes(query))
+    );
+  });
+
   return (
     <div className="admin-layout">
       {/* Top sticky nav bar */}
@@ -492,38 +576,75 @@ export default function AdminDashboard() {
         {/* Tab 2: Inventory Stock Sync */}
         {activeTab === "inventory" && (
           <div className="animate-fade-in">
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.5rem" }}>
-              <p style={{ color: "var(--foreground-muted)", fontSize: "0.9rem", margin: 0 }}>
-                Edit inventory values below. Changing stock level triggers an instant API propagation to sync Shopee and Mercado Livre channels.
-              </p>
-              {config.mlConnected && (
+            <div style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              flexWrap: "wrap",
+              gap: "1.5rem",
+              marginBottom: "1.5rem",
+              background: "rgba(255, 255, 255, 0.02)",
+              padding: "1rem",
+              borderRadius: "4px",
+              border: "1px solid rgba(255, 255, 255, 0.04)"
+            }}>
+              {/* Search Bar */}
+              <div style={{ display: "flex", alignItems: "center", gap: "10px", flex: "1 1 300px" }}>
+                <input
+                  type="text"
+                  placeholder="Pesquisar por SKU ou Nome do produto..."
+                  value={productSearchQuery}
+                  onChange={(e) => setProductSearchQuery(e.target.value)}
+                  className="admin-input"
+                  style={{ width: "100%", padding: "8px 12px", fontSize: "0.85rem" }}
+                />
+              </div>
+
+              {/* Actions */}
+              <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
                 <button
-                  onClick={handleImportMlProducts}
-                  disabled={isImportingMl}
+                  onClick={() => setShowAddProductModal(true)}
                   className="btn-gold"
                   style={{
                     padding: "0.6rem 1.2rem",
                     fontSize: "0.8rem",
                     display: "flex",
                     alignItems: "center",
-                    gap: "8px"
+                    gap: "6px"
                   }}
                 >
-                  <svg 
-                    width="14" 
-                    height="14" 
-                    viewBox="0 0 24 24" 
-                    fill="none" 
-                    stroke="currentColor" 
-                    strokeWidth="2.5"
-                  >
-                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                    <polyline points="7 10 12 15 17 10"></polyline>
-                    <line x1="12" y1="15" x2="12" y2="3"></line>
-                  </svg>
-                  {isImportingMl ? "Importando..." : "Importar do Mercado Livre"}
+                  <span style={{ fontSize: "1.1rem", fontWeight: "bold" }}>+</span> Novo Produto
                 </button>
-              )}
+                
+                {config.mlConnected && (
+                  <button
+                    onClick={handleImportMlProducts}
+                    disabled={isImportingMl}
+                    className="btn-outline"
+                    style={{
+                      padding: "0.6rem 1.2rem",
+                      fontSize: "0.8rem",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "8px"
+                    }}
+                  >
+                    <svg 
+                      width="14" 
+                      height="14" 
+                      viewBox="0 0 24 24" 
+                      fill="none" 
+                      stroke="currentColor" 
+                      strokeWidth="2.5"
+                    >
+                      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                      <polyline points="7 10 12 15 17 10"></polyline>
+                      <line x1="12" y1="15" x2="12" y2="3"></line>
+                    </svg>
+                    {isImportingMl ? "Importando..." : "Importar do Mercado Livre"}
+                  </button>
+                )}
+              </div>
             </div>
 
             <div className="admin-table-container">
@@ -540,7 +661,7 @@ export default function AdminDashboard() {
                   </tr>
                 </thead>
                 <tbody>
-                  {products.map((prod) => (
+                  {filteredProducts.map((prod) => (
                     <tr key={prod.id}>
                       <td>
                         <div style={{ display: "flex", flexDirection: "column" }}>
@@ -1214,6 +1335,219 @@ export default function AdminDashboard() {
                 </>
               )}
             </div>
+          </div>
+        </div>
+      )}
+      {/* Product Registration Modal */}
+      {showAddProductModal && (
+        <div style={{
+          position: "fixed",
+          top: 0,
+          left: 0,
+          width: "100%",
+          height: "100%",
+          zIndex: 420,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          padding: "1rem"
+        }}>
+          {/* Backdrop */}
+          <div 
+            onClick={() => setShowAddProductModal(false)}
+            style={{
+              position: "absolute",
+              top: 0,
+              left: 0,
+              width: "100%",
+              height: "100%",
+              background: "rgba(0, 0, 0, 0.8)",
+              backdropFilter: "blur(4px)",
+            }}
+          />
+
+          {/* Modal Panel */}
+          <div style={{
+            position: "relative",
+            width: "600px",
+            maxWidth: "100%",
+            maxHeight: "90vh",
+            background: "#1c1c21",
+            color: "#f3f3f6",
+            border: "1px solid var(--gold)",
+            borderRadius: "6px",
+            boxShadow: "0 25px 50px rgba(0,0,0,0.6)",
+            display: "flex",
+            flexDirection: "column",
+            zIndex: 421,
+            animation: "fadeIn 0.3s ease-out",
+            overflow: "hidden"
+          }}>
+            {/* Header */}
+            <div style={{
+              padding: "1.2rem 1.5rem",
+              borderBottom: "1px solid rgba(255, 255, 255, 0.08)",
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center"
+            }}>
+              <h3 className="font-serif" style={{ fontSize: "1.3rem", color: "var(--gold)", margin: 0 }}>
+                Cadastrar Novo Produto
+              </h3>
+              <button 
+                onClick={() => setShowAddProductModal(false)}
+                style={{ background: "none", border: "none", color: "#a1a1aa", fontSize: "1.5rem", cursor: "pointer", padding: "0 5px" }}
+              >
+                &times;
+              </button>
+            </div>
+
+            {/* Scrollable Form Body */}
+            <form onSubmit={handleCreateProduct} style={{ overflowY: "auto", padding: "1.5rem", display: "flex", flexDirection: "column", gap: "1.2rem" }}>
+              {/* Row: Name and SKU */}
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}>
+                <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+                  <label style={{ fontSize: "0.75rem", color: "var(--foreground-muted)" }}>Nome do Produto *</label>
+                  <input
+                    type="text"
+                    required
+                    value={newProdName}
+                    onChange={(e) => setNewProdName(e.target.value)}
+                    placeholder="Ex: Colar Gargantilha Meteoro"
+                    className="admin-input"
+                  />
+                </div>
+                <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+                  <label style={{ fontSize: "0.75rem", color: "var(--foreground-muted)" }}>Código SKU *</label>
+                  <input
+                    type="text"
+                    required
+                    value={newProdSku}
+                    onChange={(e) => setNewProdSku(e.target.value)}
+                    placeholder="Ex: 3655"
+                    className="admin-input"
+                  />
+                </div>
+              </div>
+
+              {/* Description */}
+              <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+                <label style={{ fontSize: "0.75rem", color: "var(--foreground-muted)" }}>Descrição</label>
+                <textarea
+                  value={newProdDesc}
+                  onChange={(e) => setNewProdDesc(e.target.value)}
+                  placeholder="Insira a descrição detalhada do produto..."
+                  rows={3}
+                  className="admin-input"
+                  style={{ resize: "vertical" }}
+                />
+              </div>
+
+              {/* Price & Image URL */}
+              <div style={{ display: "grid", gridTemplateColumns: "120px 1fr", gap: "1rem" }}>
+                <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+                  <label style={{ fontSize: "0.75rem", color: "var(--foreground-muted)" }}>Preço Base (R$)</label>
+                  <input
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    value={newProdPrice}
+                    onChange={(e) => setNewProdPrice(e.target.value)}
+                    placeholder="0.00"
+                    className="admin-input"
+                  />
+                </div>
+                <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+                  <label style={{ fontSize: "0.75rem", color: "var(--foreground-muted)" }}>URL da Foto / Imagem</label>
+                  <input
+                    type="text"
+                    value={newProdImageUrl}
+                    onChange={(e) => setNewProdImageUrl(e.target.value)}
+                    placeholder="https://exemplo.com/foto.jpg"
+                    className="admin-input"
+                  />
+                </div>
+              </div>
+
+              {/* Divider */}
+              <div style={{ borderTop: "1px solid rgba(255, 255, 255, 0.05)", margin: "0.5rem 0" }} />
+
+              {/* Shopee Integration Fields */}
+              <div>
+                <h4 style={{ fontSize: "0.85rem", color: "#ee4d2d", marginBottom: "0.5rem", fontWeight: "600" }}>Integração Shopee</h4>
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}>
+                  <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+                    <label style={{ fontSize: "0.75rem", color: "var(--foreground-muted)" }}>Estoque Inicial Shopee</label>
+                    <input
+                      type="number"
+                      min="0"
+                      value={newProdShopeeStock}
+                      onChange={(e) => setNewProdShopeeStock(e.target.value)}
+                      placeholder="0"
+                      className="admin-input"
+                    />
+                  </div>
+                  <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+                    <label style={{ fontSize: "0.75rem", color: "var(--foreground-muted)" }}>ID do Anúncio Shopee (Opcional)</label>
+                    <input
+                      type="text"
+                      value={newProdShopeeItemId}
+                      onChange={(e) => setNewProdShopeeItemId(e.target.value)}
+                      placeholder="Ex: 908123791"
+                      className="admin-input"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Mercado Livre Integration Fields */}
+              <div>
+                <h4 style={{ fontSize: "0.85rem", color: "#ffe600", marginBottom: "0.5rem", fontWeight: "600" }}>Integração Mercado Livre</h4>
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}>
+                  <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+                    <label style={{ fontSize: "0.75rem", color: "var(--foreground-muted)" }}>Estoque Inicial Mercado Livre</label>
+                    <input
+                      type="number"
+                      min="0"
+                      value={newProdMlStock}
+                      onChange={(e) => setNewProdMlStock(e.target.value)}
+                      placeholder="0"
+                      className="admin-input"
+                    />
+                  </div>
+                  <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+                    <label style={{ fontSize: "0.75rem", color: "var(--foreground-muted)" }}>ID do Anúncio ML (Opcional)</label>
+                    <input
+                      type="text"
+                      value={newProdMlItemId}
+                      onChange={(e) => setNewProdMlItemId(e.target.value)}
+                      placeholder="Ex: MLB4470637973"
+                      className="admin-input"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Submit / Cancel Buttons */}
+              <div style={{ display: "flex", gap: "10px", marginTop: "1rem", borderTop: "1px solid rgba(255, 255, 255, 0.08)", paddingTop: "1rem" }}>
+                <button
+                  type="submit"
+                  disabled={isCreatingProduct}
+                  className="btn-gold"
+                  style={{ flex: 1, padding: "0.75rem", fontWeight: "600", fontSize: "0.85rem" }}
+                >
+                  {isCreatingProduct ? "Cadastrando..." : "Cadastrar Produto"}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setShowAddProductModal(false)}
+                  className="btn-outline"
+                  style={{ flex: 1, padding: "0.75rem", fontSize: "0.85rem" }}
+                >
+                  Cancelar
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}

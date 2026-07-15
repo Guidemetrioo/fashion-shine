@@ -18,6 +18,8 @@ export interface DBProduct {
   mlItemId?: string;
   totalStock: number;
   lastSync: string;
+  description?: string;
+  imageUrl?: string;
 }
 
 export function getLocalProducts(): DBProduct[] {
@@ -67,6 +69,8 @@ export async function getDBProducts(): Promise<DBProduct[]> {
       mlItemId: row.ml_item_id ?? undefined,
       totalStock: row.total_stock ?? 0,
       lastSync: row.last_sync ?? "",
+      description: row.description ?? undefined,
+      imageUrl: row.image_url ?? undefined,
     }));
 
     // Backup locally
@@ -92,9 +96,9 @@ export async function saveDBProducts(products: DBProduct[]): Promise<void> {
       for (const p of products) {
         await sql`
           INSERT INTO products (
-            id, name, sku, base_price, shopee_stock, shopee_synced, shopee_item_id, ml_stock, ml_synced, ml_item_id, total_stock, last_sync
+            id, name, sku, base_price, shopee_stock, shopee_synced, shopee_item_id, ml_stock, ml_synced, ml_item_id, total_stock, last_sync, description, image_url
           ) VALUES (
-            ${p.id}, ${p.name}, ${p.sku}, ${p.basePrice}, ${p.shopeeStock}, ${p.shopeeSynced}, ${p.shopeeItemId || null}, ${p.mlStock}, ${p.mlSynced}, ${p.mlItemId || null}, ${p.totalStock}, ${p.lastSync}
+            ${p.id}, ${p.name}, ${p.sku}, ${p.basePrice}, ${p.shopeeStock}, ${p.shopeeSynced}, ${p.shopeeItemId || null}, ${p.mlStock}, ${p.mlSynced}, ${p.mlItemId || null}, ${p.totalStock}, ${p.lastSync}, ${p.description || null}, ${p.imageUrl || null}
           )
           ON CONFLICT (id)
           DO UPDATE SET
@@ -108,7 +112,9 @@ export async function saveDBProducts(products: DBProduct[]): Promise<void> {
             ml_synced = EXCLUDED.ml_synced,
             ml_item_id = EXCLUDED.ml_item_id,
             total_stock = EXCLUDED.total_stock,
-            last_sync = EXCLUDED.last_sync
+            last_sync = EXCLUDED.last_sync,
+            description = EXCLUDED.description,
+            image_url = EXCLUDED.image_url
         `;
       }
     } catch (err) {
