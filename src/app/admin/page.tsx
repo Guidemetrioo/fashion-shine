@@ -50,6 +50,10 @@ export default function AdminDashboard() {
   const [newProdMlItemId, setNewProdMlItemId] = useState("");
   const [isCreatingProduct, setIsCreatingProduct] = useState(false);
 
+  // New Meli publishing states
+  const [publishToMeli, setPublishToMeli] = useState(false);
+  const [meliCategoryId, setMeliCategoryId] = useState("MLB1434"); // Defaults to Necklaces
+
   // Drag and drop states
   const [isDragging, setIsDragging] = useState(false);
   const [imagePreview, setImagePreview] = useState("");
@@ -84,7 +88,9 @@ export default function AdminDashboard() {
           shopeeStock: Number(newProdShopeeStock || 0),
           mlStock: Number(newProdMlStock || 0),
           shopeeItemId: newProdShopeeItemId || undefined,
-          mlItemId: newProdMlItemId || undefined
+          mlItemId: newProdMlItemId || undefined,
+          publishToMeli,
+          categoryId: meliCategoryId
         })
       });
 
@@ -113,6 +119,8 @@ export default function AdminDashboard() {
         setNewProdMlStock("");
         setNewProdShopeeItemId("");
         setNewProdMlItemId("");
+        setPublishToMeli(false);
+        setMeliCategoryId("MLB1434");
         setShowAddProductModal(false);
       } else {
         alert(`❌ Erro ao cadastrar produto: ${data.error}`);
@@ -1585,6 +1593,50 @@ export default function AdminDashboard() {
                     />
                   </div>
                 </div>
+              </div>
+
+              {/* Configurações de Publicação (Meli API) */}
+              <div style={{
+                background: "rgba(255, 255, 255, 0.02)",
+                padding: "1rem",
+                borderRadius: "8px",
+                border: "1px solid rgba(255, 255, 255, 0.05)",
+                display: "flex",
+                flexDirection: "column",
+                gap: "10px",
+                marginTop: "0.5rem"
+              }}>
+                <span style={{ fontSize: "0.8rem", fontWeight: "600", color: "var(--gold)" }}>Integração Mercado Livre</span>
+                
+                <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                  <input
+                    type="checkbox"
+                    id="publish-to-meli-checkbox"
+                    checked={publishToMeli}
+                    onChange={(e) => setPublishToMeli(e.target.checked)}
+                    style={{ accentColor: "var(--gold)", cursor: "pointer" }}
+                  />
+                  <label htmlFor="publish-to-meli-checkbox" style={{ fontSize: "0.78rem", color: "#e3e1e9", cursor: "pointer" }}>
+                    Publicar no Mercado Livre imediatamente
+                  </label>
+                </div>
+
+                {publishToMeli && (
+                  <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+                    <label style={{ fontSize: "0.72rem", color: "#8a8a93" }}>Categoria MLB (ID)</label>
+                    <input
+                      type="text"
+                      value={meliCategoryId}
+                      onChange={(e) => setMeliCategoryId(e.target.value)}
+                      placeholder="Ex: MLB1434"
+                      className="admin-input"
+                      style={{ background: "#121216", border: "1px solid rgba(255, 255, 255, 0.08)", padding: "0.5rem 0.7rem", borderRadius: "6px", fontSize: "0.8rem" }}
+                    />
+                    <span style={{ fontSize: "0.68rem", color: "#8a8a93" }}>
+                      * Padrão: MLB1434 (Colares e Pingentes).
+                    </span>
+                  </div>
+                )}
               </div>
 
               {/* Botões */}
