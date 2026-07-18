@@ -54,6 +54,19 @@ export default function AdminDashboard() {
   const [publishToMeli, setPublishToMeli] = useState(false);
   const [meliCategoryId, setMeliCategoryId] = useState("MLB1434"); // Defaults to Necklaces
 
+  // Mercado Livre required fields (API POST /items)
+  const [newProdCondition, setNewProdCondition] = useState<"new" | "used">("new");
+  const [newProdListingType, setNewProdListingType] = useState("gold_special");
+  const [newProdGtin, setNewProdGtin] = useState("");
+  const [newProdBrand, setNewProdBrand] = useState("");
+  const [newProdColor, setNewProdColor] = useState("");
+  const [newProdGender, setNewProdGender] = useState("");
+  const [newProdSizes, setNewProdSizes] = useState("");
+  const [newProdWeight, setNewProdWeight] = useState("");
+  const [newProdLength, setNewProdLength] = useState("");
+  const [newProdWidth, setNewProdWidth] = useState("");
+  const [newProdHeight, setNewProdHeight] = useState("");
+
   // Drag and drop states
   const [isDragging, setIsDragging] = useState(false);
   const [imagePreview, setImagePreview] = useState("");
@@ -90,7 +103,19 @@ export default function AdminDashboard() {
           shopeeItemId: newProdShopeeItemId || undefined,
           mlItemId: newProdMlItemId || undefined,
           publishToMeli,
-          categoryId: meliCategoryId
+          categoryId: meliCategoryId,
+          // Mercado Livre required API fields
+          condition: newProdCondition,
+          listing_type_id: newProdListingType,
+          gtin: newProdGtin || undefined,
+          brand: newProdBrand || undefined,
+          color: newProdColor || undefined,
+          gender: newProdGender || undefined,
+          sizes: newProdSizes || undefined,
+          weight: newProdWeight ? Number(newProdWeight) : undefined,
+          length: newProdLength ? Number(newProdLength) : undefined,
+          width: newProdWidth ? Number(newProdWidth) : undefined,
+          height: newProdHeight ? Number(newProdHeight) : undefined,
         })
       });
 
@@ -121,6 +146,18 @@ export default function AdminDashboard() {
         setNewProdMlItemId("");
         setPublishToMeli(false);
         setMeliCategoryId("MLB1434");
+        // Reset ML fields
+        setNewProdCondition("new");
+        setNewProdListingType("gold_special");
+        setNewProdGtin("");
+        setNewProdBrand("");
+        setNewProdColor("");
+        setNewProdGender("");
+        setNewProdSizes("");
+        setNewProdWeight("");
+        setNewProdLength("");
+        setNewProdWidth("");
+        setNewProdHeight("");
         setShowAddProductModal(false);
       } else {
         alert(`❌ Erro ao cadastrar produto: ${data.error}`);
@@ -1389,7 +1426,7 @@ export default function AdminDashboard() {
           {/* Modal Panel (Floating gold-bordered slide-over) */}
           <div style={{
             position: "relative",
-            width: "440px",
+            width: "560px",
             height: "calc(100% - 2rem)",
             margin: "1rem",
             background: "#0c0d12",
@@ -1505,138 +1542,397 @@ export default function AdminDashboard() {
                 </div>
               </div>
 
-              {/* Nome do Produto */}
-              <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-                <label style={{ fontSize: "0.85rem", fontWeight: "600", color: "#e3e1e9" }}>Nome do Produto</label>
-                <input
-                  type="text"
-                  required
-                  value={newProdName}
-                  onChange={(e) => setNewProdName(e.target.value)}
-                  placeholder="Ex: Colar Brilhante Ouro"
-                  className="admin-input"
-                  style={{ background: "#121216", border: "1px solid rgba(255, 255, 255, 0.08)", padding: "0.7rem 0.9rem", borderRadius: "8px", fontSize: "0.85rem" }}
-                />
-              </div>
-
-              {/* SKU */}
-              <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-                <label style={{ fontSize: "0.85rem", fontWeight: "600", color: "#e3e1e9" }}>SKU (Código Único)</label>
-                <input
-                  type="text"
-                  required
-                  value={newProdSku}
-                  onChange={(e) => setNewProdSku(e.target.value)}
-                  placeholder="Ex: FS-1023"
-                  className="admin-input"
-                  style={{ background: "#121216", border: "1px solid rgba(255, 255, 255, 0.08)", padding: "0.7rem 0.9rem", borderRadius: "8px", fontSize: "0.85rem" }}
-                />
-              </div>
-
-              {/* Descrição */}
-              <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-                <div style={{ display: "flex", flexDirection: "column" }}>
-                  <label style={{ fontSize: "0.85rem", fontWeight: "600", color: "#e3e1e9", margin: 0 }}>Descrição</label>
-                  <span style={{ fontSize: "0.72rem", color: "#8a8a93" }}>Descrição do Produto</span>
-                </div>
-                <textarea
-                  value={newProdDesc}
-                  onChange={(e) => setNewProdDesc(e.target.value)}
-                  placeholder="Detalhes do item..."
-                  rows={3}
-                  className="admin-input"
-                  style={{ background: "#121216", border: "1px solid rgba(255, 255, 255, 0.08)", padding: "0.7rem 0.9rem", borderRadius: "8px", fontSize: "0.85rem", resize: "none" }}
-                />
-              </div>
-
-              {/* Preço Base */}
-              <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-                <label style={{ fontSize: "0.85rem", fontWeight: "600", color: "#e3e1e9" }}>Preço Base (R$)</label>
-                <input
-                  type="text"
-                  value={newProdPrice}
-                  onChange={(e) => setNewProdPrice(e.target.value)}
-                  placeholder="0,00"
-                  className="admin-input"
-                  style={{ background: "#121216", border: "1px solid rgba(255, 255, 255, 0.08)", padding: "0.7rem 0.9rem", borderRadius: "8px", fontSize: "0.85rem" }}
-                />
-              </div>
-
-              {/* Estoques Iniciais */}
-              <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-                <label style={{ fontSize: "0.85rem", fontWeight: "600", color: "#e3e1e9" }}>Estoque Inicial:</label>
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}>
-                  <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
-                    <span style={{ fontSize: "0.75rem", fontWeight: "600", color: "#e3e1e9" }}>Mercado Livre</span>
-                    <span style={{ fontSize: "0.68rem", color: "#8a8a93" }}>Qtd. Estoque ML</span>
-                    <input
-                      type="number"
-                      min="0"
-                      value={newProdMlStock}
-                      onChange={(e) => setNewProdMlStock(e.target.value)}
-                      placeholder="0"
-                      className="admin-input"
-                      style={{ background: "#121216", border: "1px solid rgba(255, 255, 255, 0.08)", padding: "0.7rem 0.9rem", borderRadius: "8px", fontSize: "0.85rem" }}
-                    />
-                  </div>
-                  <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
-                    <span style={{ fontSize: "0.75rem", fontWeight: "600", color: "#e3e1e9" }}>Shopee</span>
-                    <span style={{ fontSize: "0.68rem", color: "#8a8a93" }}>Qtd. Estoque Shopee</span>
-                    <input
-                      type="number"
-                      min="0"
-                      value={newProdShopeeStock}
-                      onChange={(e) => setNewProdShopeeStock(e.target.value)}
-                      placeholder="0"
-                      className="admin-input"
-                      style={{ background: "#121216", border: "1px solid rgba(255, 255, 255, 0.08)", padding: "0.7rem 0.9rem", borderRadius: "8px", fontSize: "0.85rem" }}
-                    />
-                  </div>
-                </div>
-              </div>
-
-              {/* Configurações de Publicação (Meli API) */}
+              {/* ── SEÇÃO 1: INFORMAÇÕES BÁSICAS ── */}
               <div style={{
-                background: "rgba(255, 255, 255, 0.02)",
+                background: "rgba(255,255,255,0.02)",
+                border: "1px solid rgba(255,255,255,0.06)",
+                borderRadius: "10px",
                 padding: "1rem",
-                borderRadius: "8px",
-                border: "1px solid rgba(255, 255, 255, 0.05)",
                 display: "flex",
                 flexDirection: "column",
-                gap: "10px",
-                marginTop: "0.5rem"
+                gap: "0.9rem"
               }}>
-                <span style={{ fontSize: "0.8rem", fontWeight: "600", color: "var(--gold)" }}>Integração Mercado Livre</span>
-                
-                <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                <span style={{ fontSize: "0.72rem", fontWeight: "700", color: "#a1a1aa", textTransform: "uppercase", letterSpacing: "0.1em" }}>📋 Informações Básicas</span>
+
+                {/* Nome do Produto */}
+                <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+                  <label style={{ fontSize: "0.8rem", fontWeight: "600", color: "#e3e1e9" }}>
+                    Título do Anúncio <span style={{ color: "#ff4d4d" }}>*</span>
+                  </label>
+                  <span style={{ fontSize: "0.68rem", color: "#8a8a93" }}>Máx. 60 caracteres. Seja claro e use palavras-chave.</span>
+                  <input
+                    type="text"
+                    required
+                    maxLength={60}
+                    value={newProdName}
+                    onChange={(e) => setNewProdName(e.target.value)}
+                    placeholder="Ex: Colar Brilhante Ouro 18k Feminino"
+                    className="admin-input"
+                    style={{ background: "#121216", border: "1px solid rgba(255,255,255,0.08)", padding: "0.65rem 0.85rem", borderRadius: "8px", fontSize: "0.85rem" }}
+                  />
+                  <span style={{ fontSize: "0.68rem", color: newProdName.length > 50 ? "#f59e0b" : "#8a8a93", textAlign: "right" }}>{newProdName.length}/60</span>
+                </div>
+
+                {/* SKU */}
+                <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+                  <label style={{ fontSize: "0.8rem", fontWeight: "600", color: "#e3e1e9" }}>
+                    SKU Interno <span style={{ color: "#ff4d4d" }}>*</span>
+                  </label>
+                  <span style={{ fontSize: "0.68rem", color: "#8a8a93" }}>Seu código único de controle (seller_custom_field no ML).</span>
+                  <input
+                    type="text"
+                    required
+                    value={newProdSku}
+                    onChange={(e) => setNewProdSku(e.target.value)}
+                    placeholder="Ex: FS-1023"
+                    className="admin-input"
+                    style={{ background: "#121216", border: "1px solid rgba(255,255,255,0.08)", padding: "0.65rem 0.85rem", borderRadius: "8px", fontSize: "0.85rem" }}
+                  />
+                </div>
+
+                {/* Condição */}
+                <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+                  <label style={{ fontSize: "0.8rem", fontWeight: "600", color: "#e3e1e9" }}>
+                    Condição <span style={{ color: "#ff4d4d" }}>*</span>
+                  </label>
+                  <div style={{ display: "flex", gap: "8px" }}>
+                    {(["new", "used"] as const).map((c) => (
+                      <button
+                        key={c}
+                        type="button"
+                        onClick={() => setNewProdCondition(c)}
+                        style={{
+                          flex: 1,
+                          padding: "0.55rem",
+                          borderRadius: "6px",
+                          fontSize: "0.8rem",
+                          fontWeight: "600",
+                          border: newProdCondition === c ? "1px solid var(--gold)" : "1px solid rgba(255,255,255,0.08)",
+                          background: newProdCondition === c ? "rgba(212,175,55,0.15)" : "#121216",
+                          color: newProdCondition === c ? "var(--gold)" : "#8a8a93",
+                          cursor: "pointer",
+                          transition: "all 0.2s"
+                        }}
+                      >
+                        {c === "new" ? "✨ Novo" : "♻️ Usado"}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Descrição */}
+                <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+                  <label style={{ fontSize: "0.8rem", fontWeight: "600", color: "#e3e1e9" }}>Descrição Completa</label>
+                  <span style={{ fontSize: "0.68rem", color: "#8a8a93" }}>Enviada como plain_text para a API do ML.</span>
+                  <textarea
+                    value={newProdDesc}
+                    onChange={(e) => setNewProdDesc(e.target.value)}
+                    placeholder="Descreva o material, dimensões, diferenciais..."
+                    rows={3}
+                    className="admin-input"
+                    style={{ background: "#121216", border: "1px solid rgba(255,255,255,0.08)", padding: "0.65rem 0.85rem", borderRadius: "8px", fontSize: "0.85rem", resize: "vertical" }}
+                  />
+                </div>
+              </div>
+
+              {/* ── SEÇÃO 2: CLASSIFICAÇÃO NO MERCADO LIVRE ── */}
+              <div style={{
+                background: "rgba(255,230,0,0.03)",
+                border: "1px solid rgba(255,230,0,0.12)",
+                borderRadius: "10px",
+                padding: "1rem",
+                display: "flex",
+                flexDirection: "column",
+                gap: "0.9rem"
+              }}>
+                <span style={{ fontSize: "0.72rem", fontWeight: "700", color: "#ffe600", textTransform: "uppercase", letterSpacing: "0.1em" }}>🛒 Classificação Mercado Livre</span>
+
+                {/* Categoria MLB */}
+                <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+                  <label style={{ fontSize: "0.8rem", fontWeight: "600", color: "#e3e1e9" }}>
+                    Categoria MLB (category_id) <span style={{ color: "#ff4d4d" }}>*</span>
+                  </label>
+                  <span style={{ fontSize: "0.68rem", color: "#8a8a93" }}>Consulte em: developers.mercadolivre.com.br/categories</span>
+                  <input
+                    type="text"
+                    value={meliCategoryId}
+                    onChange={(e) => setMeliCategoryId(e.target.value)}
+                    placeholder="Ex: MLB1434"
+                    className="admin-input"
+                    style={{ background: "#121216", border: "1px solid rgba(255,230,0,0.15)", padding: "0.65rem 0.85rem", borderRadius: "8px", fontSize: "0.85rem" }}
+                  />
+                  <span style={{ fontSize: "0.68rem", color: "#8a8a93" }}>MLB1434 = Colares e Pingentes · MLB1467 = Brincos · MLB1471 = Pulseiras</span>
+                </div>
+
+                {/* Tipo de Anúncio */}
+                <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+                  <label style={{ fontSize: "0.8rem", fontWeight: "600", color: "#e3e1e9" }}>
+                    Tipo de Anúncio (listing_type_id) <span style={{ color: "#ff4d4d" }}>*</span>
+                  </label>
+                  <span style={{ fontSize: "0.68rem", color: "#8a8a93" }}>Define visibilidade e tarifa cobrada pelo ML.</span>
+                  <select
+                    value={newProdListingType}
+                    onChange={(e) => setNewProdListingType(e.target.value)}
+                    className="admin-input"
+                    style={{ background: "#121216", border: "1px solid rgba(255,230,0,0.15)", padding: "0.65rem 0.85rem", borderRadius: "8px", fontSize: "0.85rem" }}
+                  >
+                    <option value="gold_pro">🥇 Gold Pro — Máxima exposição (16% tarifa)</option>
+                    <option value="gold_special">⭐ Gold Special — Alta exposição (12% tarifa)</option>
+                    <option value="gold">🥈 Gold — Boa exposição (9% tarifa)</option>
+                    <option value="silver">🥉 Silver — Exposição padrão (6% tarifa)</option>
+                    <option value="free">🆓 Grátis — Sem tarifa, sem destaque</option>
+                  </select>
+                </div>
+
+                {/* Publicar no ML */}
+                <div style={{ display: "flex", alignItems: "center", gap: "8px", padding: "0.5rem 0.75rem", background: "rgba(255,230,0,0.06)", borderRadius: "6px" }}>
                   <input
                     type="checkbox"
                     id="publish-to-meli-checkbox"
                     checked={publishToMeli}
                     onChange={(e) => setPublishToMeli(e.target.checked)}
-                    style={{ accentColor: "var(--gold)", cursor: "pointer" }}
+                    style={{ accentColor: "var(--gold)", cursor: "pointer", width: "16px", height: "16px" }}
                   />
-                  <label htmlFor="publish-to-meli-checkbox" style={{ fontSize: "0.78rem", color: "#e3e1e9", cursor: "pointer" }}>
-                    Publicar no Mercado Livre imediatamente
+                  <label htmlFor="publish-to-meli-checkbox" style={{ fontSize: "0.8rem", color: "#e3e1e9", cursor: "pointer" }}>
+                    Publicar anúncio no Mercado Livre imediatamente após salvar
                   </label>
                 </div>
+              </div>
 
-                {publishToMeli && (
+              {/* ── SEÇÃO 3: PREÇO E ESTOQUE ── */}
+              <div style={{
+                background: "rgba(255,255,255,0.02)",
+                border: "1px solid rgba(255,255,255,0.06)",
+                borderRadius: "10px",
+                padding: "1rem",
+                display: "flex",
+                flexDirection: "column",
+                gap: "0.9rem"
+              }}>
+                <span style={{ fontSize: "0.72rem", fontWeight: "700", color: "#a1a1aa", textTransform: "uppercase", letterSpacing: "0.1em" }}>💰 Preço e Estoque</span>
+
+                {/* Preço Base */}
+                <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+                  <label style={{ fontSize: "0.8rem", fontWeight: "600", color: "#e3e1e9" }}>
+                    Preço de Venda (R$) <span style={{ color: "#ff4d4d" }}>*</span>
+                  </label>
+                  <span style={{ fontSize: "0.68rem", color: "#8a8a93" }}>Enviado como `price` na API. Moeda fixada em BRL.</span>
+                  <input
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    value={newProdPrice}
+                    onChange={(e) => setNewProdPrice(e.target.value)}
+                    placeholder="0.00"
+                    className="admin-input"
+                    style={{ background: "#121216", border: "1px solid rgba(255,255,255,0.08)", padding: "0.65rem 0.85rem", borderRadius: "8px", fontSize: "0.85rem" }}
+                  />
+                </div>
+
+                {/* Estoques */}
+                <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+                  <label style={{ fontSize: "0.8rem", fontWeight: "600", color: "#e3e1e9" }}>Estoque Inicial <span style={{ color: "#ff4d4d" }}>*</span></label>
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.75rem" }}>
+                    <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+                      <span style={{ fontSize: "0.72rem", fontWeight: "600", color: "#ffe600" }}>Mercado Livre</span>
+                      <input
+                        type="number"
+                        min="0"
+                        value={newProdMlStock}
+                        onChange={(e) => setNewProdMlStock(e.target.value)}
+                        placeholder="0"
+                        className="admin-input"
+                        style={{ background: "#121216", border: "1px solid rgba(255,230,0,0.15)", padding: "0.65rem 0.85rem", borderRadius: "8px", fontSize: "0.85rem" }}
+                      />
+                    </div>
+                    <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+                      <span style={{ fontSize: "0.72rem", fontWeight: "600", color: "#ee4d2d" }}>Shopee</span>
+                      <input
+                        type="number"
+                        min="0"
+                        value={newProdShopeeStock}
+                        onChange={(e) => setNewProdShopeeStock(e.target.value)}
+                        placeholder="0"
+                        className="admin-input"
+                        style={{ background: "#121216", border: "1px solid rgba(238,77,45,0.2)", padding: "0.65rem 0.85rem", borderRadius: "8px", fontSize: "0.85rem" }}
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* ── SEÇÃO 4: ATRIBUTOS DO PRODUTO ── */}
+              <div style={{
+                background: "rgba(99,102,241,0.04)",
+                border: "1px solid rgba(99,102,241,0.15)",
+                borderRadius: "10px",
+                padding: "1rem",
+                display: "flex",
+                flexDirection: "column",
+                gap: "0.9rem"
+              }}>
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                  <span style={{ fontSize: "0.72rem", fontWeight: "700", color: "#a78bfa", textTransform: "uppercase", letterSpacing: "0.1em" }}>🏷️ Atributos do Produto</span>
+                  <span style={{ fontSize: "0.65rem", color: "#8a8a93", fontStyle: "italic" }}>Enviados como `attributes[]` na API</span>
+                </div>
+
+                {/* Marca + EAN — 2 colunas */}
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.75rem" }}>
                   <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
-                    <label style={{ fontSize: "0.72rem", color: "#8a8a93" }}>Categoria MLB (ID)</label>
+                    <label style={{ fontSize: "0.78rem", fontWeight: "600", color: "#e3e1e9" }}>
+                      Marca (BRAND) <span style={{ color: "#ff4d4d" }}>*</span>
+                    </label>
                     <input
                       type="text"
-                      value={meliCategoryId}
-                      onChange={(e) => setMeliCategoryId(e.target.value)}
-                      placeholder="Ex: MLB1434"
+                      value={newProdBrand}
+                      onChange={(e) => setNewProdBrand(e.target.value)}
+                      placeholder="Ex: Fashion Shine"
                       className="admin-input"
-                      style={{ background: "#121216", border: "1px solid rgba(255, 255, 255, 0.08)", padding: "0.5rem 0.7rem", borderRadius: "6px", fontSize: "0.8rem" }}
+                      style={{ background: "#121216", border: "1px solid rgba(99,102,241,0.2)", padding: "0.6rem 0.75rem", borderRadius: "8px", fontSize: "0.82rem" }}
                     />
-                    <span style={{ fontSize: "0.68rem", color: "#8a8a93" }}>
-                      * Padrão: MLB1434 (Colares e Pingentes).
-                    </span>
                   </div>
-                )}
+                  <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+                    <label style={{ fontSize: "0.78rem", fontWeight: "600", color: "#e3e1e9" }}>Código EAN / GTIN</label>
+                    <span style={{ fontSize: "0.65rem", color: "#8a8a93" }}>13 dígitos. Obrigatório em muitas categorias.</span>
+                    <input
+                      type="text"
+                      maxLength={14}
+                      value={newProdGtin}
+                      onChange={(e) => setNewProdGtin(e.target.value.replace(/\D/g, ""))}
+                      placeholder="Ex: 7891234567890"
+                      className="admin-input"
+                      style={{ background: "#121216", border: "1px solid rgba(99,102,241,0.2)", padding: "0.6rem 0.75rem", borderRadius: "8px", fontSize: "0.82rem", fontFamily: "monospace" }}
+                    />
+                  </div>
+                </div>
+
+                {/* Gênero */}
+                <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+                  <label style={{ fontSize: "0.78rem", fontWeight: "600", color: "#e3e1e9" }}>Gênero (GENDER)</label>
+                  <div style={{ display: "flex", gap: "6px" }}>
+                    {["", "Feminino", "Masculino", "Unissex"].map((g) => (
+                      <button
+                        key={g}
+                        type="button"
+                        onClick={() => setNewProdGender(g)}
+                        style={{
+                          flex: 1,
+                          padding: "0.45rem 0.3rem",
+                          borderRadius: "6px",
+                          fontSize: "0.72rem",
+                          fontWeight: "500",
+                          border: newProdGender === g ? "1px solid #a78bfa" : "1px solid rgba(255,255,255,0.08)",
+                          background: newProdGender === g ? "rgba(167,139,250,0.15)" : "#121216",
+                          color: newProdGender === g ? "#a78bfa" : "#8a8a93",
+                          cursor: "pointer",
+                          transition: "all 0.2s"
+                        }}
+                      >
+                        {g === "" ? "—" : g === "Feminino" ? "♀️ Fem." : g === "Masculino" ? "♂️ Masc." : "🔁 Uni."}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Cor */}
+                <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+                  <label style={{ fontSize: "0.78rem", fontWeight: "600", color: "#e3e1e9" }}>Cor Principal (COLOR)</label>
+                  <input
+                    type="text"
+                    value={newProdColor}
+                    onChange={(e) => setNewProdColor(e.target.value)}
+                    placeholder="Ex: Dourado, Prata, Rose Gold"
+                    className="admin-input"
+                    style={{ background: "#121216", border: "1px solid rgba(99,102,241,0.2)", padding: "0.6rem 0.75rem", borderRadius: "8px", fontSize: "0.82rem" }}
+                  />
+                </div>
+
+                {/* Tamanhos */}
+                <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+                  <label style={{ fontSize: "0.78rem", fontWeight: "600", color: "#e3e1e9" }}>Tamanhos Disponíveis (SIZE)</label>
+                  <span style={{ fontSize: "0.65rem", color: "#8a8a93" }}>Separados por vírgula. Ex: PP, P, M, G, GG · ou: 36, 38, 40</span>
+                  <input
+                    type="text"
+                    value={newProdSizes}
+                    onChange={(e) => setNewProdSizes(e.target.value)}
+                    placeholder="Ex: P, M, G, GG"
+                    className="admin-input"
+                    style={{ background: "#121216", border: "1px solid rgba(99,102,241,0.2)", padding: "0.6rem 0.75rem", borderRadius: "8px", fontSize: "0.82rem" }}
+                  />
+                </div>
+              </div>
+
+              {/* ── SEÇÃO 5: LOGÍSTICA E FRETE ── */}
+              <div style={{
+                background: "rgba(16,185,129,0.03)",
+                border: "1px solid rgba(16,185,129,0.15)",
+                borderRadius: "10px",
+                padding: "1rem",
+                display: "flex",
+                flexDirection: "column",
+                gap: "0.9rem"
+              }}>
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                  <span style={{ fontSize: "0.72rem", fontWeight: "700", color: "#34d399", textTransform: "uppercase", letterSpacing: "0.1em" }}>📦 Logística & Frete</span>
+                  <span style={{ fontSize: "0.65rem", color: "#8a8a93", fontStyle: "italic" }}>Afeta cálculo de frete pelo ML</span>
+                </div>
+
+                {/* Peso */}
+                <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+                  <label style={{ fontSize: "0.78rem", fontWeight: "600", color: "#e3e1e9" }}>Peso do Produto (gramas)</label>
+                  <input
+                    type="number"
+                    min="0"
+                    value={newProdWeight}
+                    onChange={(e) => setNewProdWeight(e.target.value)}
+                    placeholder="Ex: 150 (em gramas)"
+                    className="admin-input"
+                    style={{ background: "#121216", border: "1px solid rgba(16,185,129,0.2)", padding: "0.6rem 0.75rem", borderRadius: "8px", fontSize: "0.82rem" }}
+                  />
+                </div>
+
+                {/* Dimensões — 3 colunas */}
+                <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+                  <label style={{ fontSize: "0.78rem", fontWeight: "600", color: "#e3e1e9" }}>Dimensões da Embalagem (cm)</label>
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "0.5rem" }}>
+                    <div style={{ display: "flex", flexDirection: "column", gap: "3px" }}>
+                      <span style={{ fontSize: "0.65rem", color: "#8a8a93" }}>Comprimento</span>
+                      <input
+                        type="number"
+                        min="0"
+                        value={newProdLength}
+                        onChange={(e) => setNewProdLength(e.target.value)}
+                        placeholder="0"
+                        className="admin-input"
+                        style={{ background: "#121216", border: "1px solid rgba(16,185,129,0.2)", padding: "0.55rem 0.7rem", borderRadius: "8px", fontSize: "0.82rem" }}
+                      />
+                    </div>
+                    <div style={{ display: "flex", flexDirection: "column", gap: "3px" }}>
+                      <span style={{ fontSize: "0.65rem", color: "#8a8a93" }}>Largura</span>
+                      <input
+                        type="number"
+                        min="0"
+                        value={newProdWidth}
+                        onChange={(e) => setNewProdWidth(e.target.value)}
+                        placeholder="0"
+                        className="admin-input"
+                        style={{ background: "#121216", border: "1px solid rgba(16,185,129,0.2)", padding: "0.55rem 0.7rem", borderRadius: "8px", fontSize: "0.82rem" }}
+                      />
+                    </div>
+                    <div style={{ display: "flex", flexDirection: "column", gap: "3px" }}>
+                      <span style={{ fontSize: "0.65rem", color: "#8a8a93" }}>Altura</span>
+                      <input
+                        type="number"
+                        min="0"
+                        value={newProdHeight}
+                        onChange={(e) => setNewProdHeight(e.target.value)}
+                        placeholder="0"
+                        className="admin-input"
+                        style={{ background: "#121216", border: "1px solid rgba(16,185,129,0.2)", padding: "0.55rem 0.7rem", borderRadius: "8px", fontSize: "0.82rem" }}
+                      />
+                    </div>
+                  </div>
+                </div>
               </div>
 
               {/* Botões */}
