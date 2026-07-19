@@ -1,14 +1,14 @@
 :root {
   /* Warm cream/off-white theme matching the logo background */
-  --background-start: #f6f4ee;
-  --background-end: #eae8df;
+  --background-start: #F5F4EF;
+  --background-end: #F5F4EF;
   --foreground: #2d2b27;
   --foreground-muted: #78736a;
   --gold: #b3975a;         /* Elegant warm gold matching logo artwork */
   --gold-light: #e5dcc6;   /* Soft lighter gold tint */
   --gold-hover: #a18347;   /* Rich gold hover */
   --dark-accent: #fbfaf8;  /* Light background accent for cards */
-  --glass-bg: rgba(251, 250, 247, 0.85); /* Milky warm glass */
+  --glass-bg: rgba(245, 244, 239, 0.85); /* Milky warm glass matching #F5F4EF */
   --glass-border: rgba(179, 151, 90, 0.25);
   --glass-border-light: rgba(45, 43, 39, 0.08);
   --transition-smooth: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
