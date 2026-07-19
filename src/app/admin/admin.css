@@ -83,21 +83,22 @@
 
 /* Channel branding colors */
 .channel-shopee {
-  color: #ee4d2d !important;
+  color: #b84c37 !important;
 }
 
 .channel-ml {
-  color: #c9af00 !important; /* Slightly darker gold/yellow for light theme readability */
+  color: var(--gold) !important;
 }
 
 .bg-shopee {
-  background: #ee4d2d !important;
+  background: #b84c37 !important;
   color: #ffffff !important;
 }
 
 .bg-ml {
-  background: #ffe600 !important;
-  color: #000000 !important;
+  background: var(--gold-light) !important;
+  color: var(--foreground) !important;
+  border: 1px solid var(--gold) !important;
   font-weight: 600;
 }
 

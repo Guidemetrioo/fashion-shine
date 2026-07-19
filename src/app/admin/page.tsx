@@ -1020,7 +1020,7 @@ export default function AdminDashboard() {
                       <span>{Math.round((shopeeRevenue / (totalRevenue || 1)) * 100)}% ({orders.filter(o => o.channel === "shopee").length} Vendas)</span>
                     </div>
                     <div style={{ background: "rgba(45, 43, 39, 0.06)", height: "12px", borderRadius: "6px", overflow: "hidden" }}>
-                      <div style={{ background: "#ee4d2d", height: "100%", width: `${(shopeeRevenue / (totalRevenue || 1)) * 100}%` }} />
+                      <div style={{ background: "#b84c37", height: "100%", width: `${(shopeeRevenue / (totalRevenue || 1)) * 100}%` }} />
                     </div>
                   </div>
 
