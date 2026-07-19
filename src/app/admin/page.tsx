@@ -1989,7 +1989,7 @@ export default function AdminDashboard() {
             width: "560px",
             height: "calc(100% - 2rem)",
             margin: "1rem",
-            background: "#ffffff",
+            background: "#EFEBE0",
             color: "var(--foreground)",
             border: "1px solid var(--gold)",
             borderRadius: "16px",
@@ -2021,7 +2021,7 @@ export default function AdminDashboard() {
             <form onSubmit={handleCreateProduct} style={{ overflowY: "auto", padding: "1.5rem", display: "flex", flexDirection: "column", gap: "1.1rem" }}>
               {/* Photo Upload Container */}
               <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-                <label style={{ fontSize: "0.85rem", fontWeight: "600", color: "#e3e1e9" }}>Foto do Produto</label>
+                <label style={{ fontSize: "0.85rem", fontWeight: "600", color: "var(--foreground)" }}>Foto do Produto</label>
                 <div 
                   onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
                   onDragLeave={() => setIsDragging(false)}
@@ -2037,7 +2037,7 @@ export default function AdminDashboard() {
                     height: "125px",
                     border: isDragging ? "2px dashed var(--gold)" : "1px dashed rgba(212, 175, 55, 0.4)",
                     borderRadius: "8px",
-                    background: "rgba(255, 255, 255, 0.02)",
+                    background: "rgba(255, 255, 255, 0.6)",
                     display: "flex",
                     flexDirection: "column",
                     alignItems: "center",
@@ -2094,9 +2094,9 @@ export default function AdminDashboard() {
                       </div>
                     </>
                   ) : (
-                    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", color: "#8a8a93", gap: "6px" }}>
+                    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", color: "var(--foreground-muted)", gap: "6px" }}>
                       <span className="material-symbols-outlined" style={{ fontSize: "1.8rem" }}>photo_camera</span>
-                      <span style={{ fontSize: "0.75rem", color: "#8a8a93" }}>Arraste uma imagem ou insira a URL</span>
+                      <span style={{ fontSize: "0.75rem", color: "var(--foreground-muted)" }}>Arraste uma imagem ou insira a URL</span>
                     </div>
                   )}
                 </div>
@@ -2104,22 +2104,22 @@ export default function AdminDashboard() {
 
               {/* ── SEÇÃO 1: INFORMAÇÕES BÁSICAS ── */}
               <div style={{
-                background: "rgba(255,255,255,0.02)",
-                border: "1px solid rgba(255,255,255,0.06)",
+                background: "rgba(255, 255, 255, 0.4)",
+                border: "1px solid rgba(45, 43, 39, 0.08)",
                 borderRadius: "10px",
                 padding: "1rem",
                 display: "flex",
                 flexDirection: "column",
                 gap: "0.9rem"
               }}>
-                <span style={{ fontSize: "0.72rem", fontWeight: "700", color: "#a1a1aa", textTransform: "uppercase", letterSpacing: "0.1em" }}>📋 Informações Básicas</span>
+                <span style={{ fontSize: "0.72rem", fontWeight: "700", color: "var(--foreground-muted)", textTransform: "uppercase", letterSpacing: "0.1em" }}>📋 Informações Básicas</span>
 
                 {/* Nome do Produto */}
                 <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
-                  <label style={{ fontSize: "0.8rem", fontWeight: "600", color: "#e3e1e9" }}>
+                  <label style={{ fontSize: "0.8rem", fontWeight: "600", color: "var(--foreground)" }}>
                     Título do Anúncio <span style={{ color: "#ff4d4d" }}>*</span>
                   </label>
-                  <span style={{ fontSize: "0.68rem", color: "#8a8a93" }}>Máx. 60 caracteres. Seja claro e use palavras-chave.</span>
+                  <span style={{ fontSize: "0.68rem", color: "var(--foreground-muted)" }}>Máx. 60 caracteres. Seja claro e use palavras-chave.</span>
                   <input
                     type="text"
                     required
@@ -2128,17 +2128,17 @@ export default function AdminDashboard() {
                     onChange={(e) => setNewProdName(e.target.value)}
                     placeholder="Ex: Colar Brilhante Ouro 18k Feminino"
                     className="admin-input"
-                    style={{ background: "#121216", border: "1px solid rgba(255,255,255,0.08)", padding: "0.65rem 0.85rem", borderRadius: "8px", fontSize: "0.85rem" }}
+                    style={{ background: "#ffffff", border: "1px solid rgba(45, 43, 39, 0.15)", color: "var(--foreground)", padding: "0.65rem 0.85rem", borderRadius: "8px", fontSize: "0.85rem" }}
                   />
-                  <span style={{ fontSize: "0.68rem", color: newProdName.length > 50 ? "#f59e0b" : "#8a8a93", textAlign: "right" }}>{newProdName.length}/60</span>
+                  <span style={{ fontSize: "0.68rem", color: newProdName.length > 50 ? "#f59e0b" : "var(--foreground-muted)", textAlign: "right" }}>{newProdName.length}/60</span>
                 </div>
 
                 {/* SKU */}
                 <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
-                  <label style={{ fontSize: "0.8rem", fontWeight: "600", color: "#e3e1e9" }}>
+                  <label style={{ fontSize: "0.8rem", fontWeight: "600", color: "var(--foreground)" }}>
                     SKU Interno <span style={{ color: "#ff4d4d" }}>*</span>
                   </label>
-                  <span style={{ fontSize: "0.68rem", color: "#8a8a93" }}>Seu código único de controle (seller_custom_field no ML).</span>
+                  <span style={{ fontSize: "0.68rem", color: "var(--foreground-muted)" }}>Seu código único de controle (seller_custom_field no ML).</span>
                   <input
                     type="text"
                     required
@@ -2146,13 +2146,13 @@ export default function AdminDashboard() {
                     onChange={(e) => setNewProdSku(e.target.value)}
                     placeholder="Ex: FS-1023"
                     className="admin-input"
-                    style={{ background: "#121216", border: "1px solid rgba(255,255,255,0.08)", padding: "0.65rem 0.85rem", borderRadius: "8px", fontSize: "0.85rem" }}
+                    style={{ background: "#ffffff", border: "1px solid rgba(45, 43, 39, 0.15)", color: "var(--foreground)", padding: "0.65rem 0.85rem", borderRadius: "8px", fontSize: "0.85rem" }}
                   />
                 </div>
 
                 {/* Condição */}
                 <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
-                  <label style={{ fontSize: "0.8rem", fontWeight: "600", color: "#e3e1e9" }}>
+                  <label style={{ fontSize: "0.8rem", fontWeight: "600", color: "var(--foreground)" }}>
                     Condição <span style={{ color: "#ff4d4d" }}>*</span>
                   </label>
                   <div style={{ display: "flex", gap: "8px" }}>
@@ -2167,9 +2167,9 @@ export default function AdminDashboard() {
                           borderRadius: "6px",
                           fontSize: "0.8rem",
                           fontWeight: "600",
-                          border: newProdCondition === c ? "1px solid var(--gold)" : "1px solid rgba(255,255,255,0.08)",
-                          background: newProdCondition === c ? "rgba(212,175,55,0.15)" : "#121216",
-                          color: newProdCondition === c ? "var(--gold)" : "#8a8a93",
+                          border: newProdCondition === c ? "1px solid var(--gold)" : "1px solid rgba(45, 43, 39, 0.12)",
+                          background: newProdCondition === c ? "rgba(212,175,55,0.15)" : "#ffffff",
+                          color: newProdCondition === c ? "var(--gold)" : "var(--foreground-muted)",
                           cursor: "pointer",
                           transition: "all 0.2s"
                         }}
@@ -2182,59 +2182,59 @@ export default function AdminDashboard() {
 
                 {/* Descrição */}
                 <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
-                  <label style={{ fontSize: "0.8rem", fontWeight: "600", color: "#e3e1e9" }}>Descrição Completa</label>
-                  <span style={{ fontSize: "0.68rem", color: "#8a8a93" }}>Enviada como plain_text para a API do ML.</span>
+                  <label style={{ fontSize: "0.8rem", fontWeight: "600", color: "var(--foreground)" }}>Descrição Completa</label>
+                  <span style={{ fontSize: "0.68rem", color: "var(--foreground-muted)" }}>Enviada como plain_text para a API do ML.</span>
                   <textarea
                     value={newProdDesc}
                     onChange={(e) => setNewProdDesc(e.target.value)}
                     placeholder="Descreva o material, dimensões, diferenciais..."
                     rows={3}
                     className="admin-input"
-                    style={{ background: "#121216", border: "1px solid rgba(255,255,255,0.08)", padding: "0.65rem 0.85rem", borderRadius: "8px", fontSize: "0.85rem", resize: "vertical" }}
+                    style={{ background: "#ffffff", border: "1px solid rgba(45, 43, 39, 0.15)", color: "var(--foreground)", padding: "0.65rem 0.85rem", borderRadius: "8px", fontSize: "0.85rem", resize: "vertical" }}
                   />
                 </div>
               </div>
 
               {/* ── SEÇÃO 2: CLASSIFICAÇÃO NO MERCADO LIVRE ── */}
               <div style={{
-                background: "rgba(255,230,0,0.03)",
-                border: "1px solid rgba(255,230,0,0.12)",
+                background: "rgba(212, 175, 55, 0.05)",
+                border: "1px solid rgba(212, 175, 55, 0.15)",
                 borderRadius: "10px",
                 padding: "1rem",
                 display: "flex",
                 flexDirection: "column",
                 gap: "0.9rem"
               }}>
-                <span style={{ fontSize: "0.72rem", fontWeight: "700", color: "#ffe600", textTransform: "uppercase", letterSpacing: "0.1em" }}>🛒 Classificação Mercado Livre</span>
+                <span style={{ fontSize: "0.72rem", fontWeight: "700", color: "var(--gold)", textTransform: "uppercase", letterSpacing: "0.1em" }}>🛒 Classificação Mercado Livre</span>
 
                 {/* Categoria MLB */}
                 <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
-                  <label style={{ fontSize: "0.8rem", fontWeight: "600", color: "#e3e1e9" }}>
+                  <label style={{ fontSize: "0.8rem", fontWeight: "600", color: "var(--foreground)" }}>
                     Categoria MLB (category_id) <span style={{ color: "#ff4d4d" }}>*</span>
                   </label>
-                  <span style={{ fontSize: "0.68rem", color: "#8a8a93" }}>Consulte em: developers.mercadolivre.com.br/categories</span>
+                  <span style={{ fontSize: "0.68rem", color: "var(--foreground-muted)" }}>Consulte em: developers.mercadolivre.com.br/categories</span>
                   <input
                     type="text"
                     value={meliCategoryId}
                     onChange={(e) => setMeliCategoryId(e.target.value)}
                     placeholder="Ex: MLB1434"
                     className="admin-input"
-                    style={{ background: "#121216", border: "1px solid rgba(255,230,0,0.15)", padding: "0.65rem 0.85rem", borderRadius: "8px", fontSize: "0.85rem" }}
+                    style={{ background: "#ffffff", border: "1px solid rgba(212, 175, 55, 0.25)", color: "var(--foreground)", padding: "0.65rem 0.85rem", borderRadius: "8px", fontSize: "0.85rem" }}
                   />
-                  <span style={{ fontSize: "0.68rem", color: "#8a8a93" }}>MLB1434 = Colares e Pingentes · MLB1467 = Brincos · MLB1471 = Pulseiras</span>
+                  <span style={{ fontSize: "0.68rem", color: "var(--foreground-muted)" }}>MLB1434 = Colares e Pingentes · MLB1467 = Brincos · MLB1471 = Pulseiras</span>
                 </div>
 
                 {/* Tipo de Anúncio */}
                 <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
-                  <label style={{ fontSize: "0.8rem", fontWeight: "600", color: "#e3e1e9" }}>
+                  <label style={{ fontSize: "0.8rem", fontWeight: "600", color: "var(--foreground)" }}>
                     Tipo de Anúncio (listing_type_id) <span style={{ color: "#ff4d4d" }}>*</span>
                   </label>
-                  <span style={{ fontSize: "0.68rem", color: "#8a8a93" }}>Define visibilidade e tarifa cobrada pelo ML.</span>
+                  <span style={{ fontSize: "0.68rem", color: "var(--foreground-muted)" }}>Define visibilidade e tarifa cobrada pelo ML.</span>
                   <select
                     value={newProdListingType}
                     onChange={(e) => setNewProdListingType(e.target.value)}
                     className="admin-input"
-                    style={{ background: "#121216", border: "1px solid rgba(255,230,0,0.15)", padding: "0.65rem 0.85rem", borderRadius: "8px", fontSize: "0.85rem" }}
+                    style={{ background: "#ffffff", border: "1px solid rgba(212, 175, 55, 0.25)", color: "var(--foreground)", padding: "0.65rem 0.85rem", borderRadius: "8px", fontSize: "0.85rem" }}
                   >
                     <option value="gold_pro">🥇 Gold Pro — Máxima exposição (16% tarifa)</option>
                     <option value="gold_special">⭐ Gold Special — Alta exposição (12% tarifa)</option>
@@ -2245,7 +2245,7 @@ export default function AdminDashboard() {
                 </div>
 
                 {/* Publicar no ML */}
-                <div style={{ display: "flex", alignItems: "center", gap: "8px", padding: "0.5rem 0.75rem", background: "rgba(255,230,0,0.06)", borderRadius: "6px" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: "8px", padding: "0.5rem 0.75rem", background: "rgba(212, 175, 55, 0.08)", borderRadius: "6px" }}>
                   <input
                     type="checkbox"
                     id="publish-to-meli-checkbox"
@@ -2253,7 +2253,7 @@ export default function AdminDashboard() {
                     onChange={(e) => setPublishToMeli(e.target.checked)}
                     style={{ accentColor: "var(--gold)", cursor: "pointer", width: "16px", height: "16px" }}
                   />
-                  <label htmlFor="publish-to-meli-checkbox" style={{ fontSize: "0.8rem", color: "#e3e1e9", cursor: "pointer" }}>
+                  <label htmlFor="publish-to-meli-checkbox" style={{ fontSize: "0.8rem", color: "var(--foreground)", cursor: "pointer" }}>
                     Publicar anúncio no Mercado Livre imediatamente após salvar
                   </label>
                 </div>
@@ -2261,22 +2261,22 @@ export default function AdminDashboard() {
 
               {/* ── SEÇÃO 3: PREÇO E ESTOQUE ── */}
               <div style={{
-                background: "rgba(255,255,255,0.02)",
-                border: "1px solid rgba(255,255,255,0.06)",
+                background: "rgba(255, 255, 255, 0.4)",
+                border: "1px solid rgba(45, 43, 39, 0.08)",
                 borderRadius: "10px",
                 padding: "1rem",
                 display: "flex",
                 flexDirection: "column",
                 gap: "0.9rem"
               }}>
-                <span style={{ fontSize: "0.72rem", fontWeight: "700", color: "#a1a1aa", textTransform: "uppercase", letterSpacing: "0.1em" }}>💰 Preço e Estoque</span>
+                <span style={{ fontSize: "0.72rem", fontWeight: "700", color: "var(--foreground-muted)", textTransform: "uppercase", letterSpacing: "0.1em" }}>💰 Preço e Estoque</span>
 
                 {/* Preço Base */}
                 <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
-                  <label style={{ fontSize: "0.8rem", fontWeight: "600", color: "#e3e1e9" }}>
+                  <label style={{ fontSize: "0.8rem", fontWeight: "600", color: "var(--foreground)" }}>
                     Preço de Venda (R$) <span style={{ color: "#ff4d4d" }}>*</span>
                   </label>
-                  <span style={{ fontSize: "0.68rem", color: "#8a8a93" }}>Enviado como `price` na API. Moeda fixada em BRL.</span>
+                  <span style={{ fontSize: "0.68rem", color: "var(--foreground-muted)" }}>Enviado como `price` na API. Moeda fixada em BRL.</span>
                   <input
                     type="number"
                     min="0"
@@ -2285,16 +2285,16 @@ export default function AdminDashboard() {
                     onChange={(e) => setNewProdPrice(e.target.value)}
                     placeholder="0.00"
                     className="admin-input"
-                    style={{ background: "#121216", border: "1px solid rgba(255,255,255,0.08)", padding: "0.65rem 0.85rem", borderRadius: "8px", fontSize: "0.85rem" }}
+                    style={{ background: "#ffffff", border: "1px solid rgba(45, 43, 39, 0.15)", color: "var(--foreground)", padding: "0.65rem 0.85rem", borderRadius: "8px", fontSize: "0.85rem" }}
                   />
                 </div>
 
                 {/* Estoques */}
                 <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
-                  <label style={{ fontSize: "0.8rem", fontWeight: "600", color: "#e3e1e9" }}>Estoque Inicial <span style={{ color: "#ff4d4d" }}>*</span></label>
+                  <label style={{ fontSize: "0.8rem", fontWeight: "600", color: "var(--foreground)" }}>Estoque Inicial <span style={{ color: "#ff4d4d" }}>*</span></label>
                   <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.75rem" }}>
                     <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
-                      <span style={{ fontSize: "0.72rem", fontWeight: "600", color: "#ffe600" }}>Mercado Livre</span>
+                      <span style={{ fontSize: "0.72rem", fontWeight: "600", color: "var(--gold)" }}>Mercado Livre</span>
                       <input
                         type="number"
                         min="0"
@@ -2302,7 +2302,7 @@ export default function AdminDashboard() {
                         onChange={(e) => setNewProdMlStock(e.target.value)}
                         placeholder="0"
                         className="admin-input"
-                        style={{ background: "#121216", border: "1px solid rgba(255,230,0,0.15)", padding: "0.65rem 0.85rem", borderRadius: "8px", fontSize: "0.85rem" }}
+                        style={{ background: "#ffffff", border: "1px solid rgba(212, 175, 55, 0.25)", color: "var(--foreground)", padding: "0.65rem 0.85rem", borderRadius: "8px", fontSize: "0.85rem" }}
                       />
                     </div>
                     <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
@@ -2314,7 +2314,7 @@ export default function AdminDashboard() {
                         onChange={(e) => setNewProdShopeeStock(e.target.value)}
                         placeholder="0"
                         className="admin-input"
-                        style={{ background: "#121216", border: "1px solid rgba(238,77,45,0.2)", padding: "0.65rem 0.85rem", borderRadius: "8px", fontSize: "0.85rem" }}
+                        style={{ background: "#ffffff", border: "1px solid rgba(238,77,45,0.25)", color: "var(--foreground)", padding: "0.65rem 0.85rem", borderRadius: "8px", fontSize: "0.85rem" }}
                       />
                     </div>
                   </div>
@@ -2323,8 +2323,8 @@ export default function AdminDashboard() {
 
               {/* ── SEÇÃO 4: ATRIBUTOS DO PRODUTO ── */}
               <div style={{
-                background: "rgba(99,102,241,0.04)",
-                border: "1px solid rgba(99,102,241,0.15)",
+                background: "rgba(99, 102, 241, 0.04)",
+                border: "1px solid rgba(99, 102, 241, 0.12)",
                 borderRadius: "10px",
                 padding: "1rem",
                 display: "flex",
@@ -2332,14 +2332,14 @@ export default function AdminDashboard() {
                 gap: "0.9rem"
               }}>
                 <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                  <span style={{ fontSize: "0.72rem", fontWeight: "700", color: "#a78bfa", textTransform: "uppercase", letterSpacing: "0.1em" }}>🏷️ Atributos do Produto</span>
-                  <span style={{ fontSize: "0.65rem", color: "#8a8a93", fontStyle: "italic" }}>Enviados como `attributes[]` na API</span>
+                  <span style={{ fontSize: "0.72rem", fontWeight: "700", color: "#6366f1", textTransform: "uppercase", letterSpacing: "0.1em" }}>🏷️ Atributos do Produto</span>
+                  <span style={{ fontSize: "0.65rem", color: "var(--foreground-muted)", fontStyle: "italic" }}>Enviados como `attributes[]` na API</span>
                 </div>
 
                 {/* Marca + EAN — 2 colunas */}
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.75rem" }}>
                   <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
-                    <label style={{ fontSize: "0.78rem", fontWeight: "600", color: "#e3e1e9" }}>
+                    <label style={{ fontSize: "0.78rem", fontWeight: "600", color: "var(--foreground)" }}>
                       Marca (BRAND) {publishToMeli && <span style={{ color: "#ff4d4d" }}>*</span>}
                     </label>
                     <input
@@ -2349,12 +2349,12 @@ export default function AdminDashboard() {
                       onChange={(e) => setNewProdBrand(e.target.value)}
                       placeholder="Ex: Fashion Shine"
                       className="admin-input"
-                      style={{ background: "#121216", border: "1px solid rgba(99,102,241,0.2)", padding: "0.6rem 0.75rem", borderRadius: "8px", fontSize: "0.82rem" }}
+                      style={{ background: "#ffffff", border: "1px solid rgba(99,102,241,0.25)", color: "var(--foreground)", padding: "0.6rem 0.75rem", borderRadius: "8px", fontSize: "0.82rem" }}
                     />
                   </div>
                   <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
-                    <label style={{ fontSize: "0.78rem", fontWeight: "600", color: "#e3e1e9" }}>Código EAN / GTIN</label>
-                    <span style={{ fontSize: "0.65rem", color: "#8a8a93" }}>13 dígitos. Obrigatório em muitas categorias.</span>
+                    <label style={{ fontSize: "0.78rem", fontWeight: "600", color: "var(--foreground)" }}>Código EAN / GTIN</label>
+                    <span style={{ fontSize: "0.65rem", color: "var(--foreground-muted)" }}>13 dígitos. Obrigatório em muitas categorias.</span>
                     <input
                       type="text"
                       maxLength={14}
@@ -2362,14 +2362,14 @@ export default function AdminDashboard() {
                       onChange={(e) => setNewProdGtin(e.target.value.replace(/\D/g, ""))}
                       placeholder="Ex: 7891234567890"
                       className="admin-input"
-                      style={{ background: "#121216", border: "1px solid rgba(99,102,241,0.2)", padding: "0.6rem 0.75rem", borderRadius: "8px", fontSize: "0.82rem", fontFamily: "monospace" }}
+                      style={{ background: "#ffffff", border: "1px solid rgba(99,102,241,0.25)", color: "var(--foreground)", padding: "0.6rem 0.75rem", borderRadius: "8px", fontSize: "0.82rem", fontFamily: "monospace" }}
                     />
                   </div>
                 </div>
 
                 {/* Material */}
                 <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
-                  <label style={{ fontSize: "0.78rem", fontWeight: "600", color: "#e3e1e9" }}>
+                  <label style={{ fontSize: "0.78rem", fontWeight: "600", color: "var(--foreground)" }}>
                     Material Principal (MATERIAL) {publishToMeli && <span style={{ color: "#ff4d4d" }}>*</span>}
                   </label>
                   <input
@@ -2379,13 +2379,13 @@ export default function AdminDashboard() {
                     onChange={(e) => setNewProdMaterial(e.target.value)}
                     placeholder="Ex: Prata 925, Aço Inoxidável, Liga de metal, Acrílico"
                     className="admin-input"
-                    style={{ background: "#121216", border: "1px solid rgba(99,102,241,0.2)", padding: "0.6rem 0.75rem", borderRadius: "8px", fontSize: "0.82rem" }}
+                    style={{ background: "#ffffff", border: "1px solid rgba(99,102,241,0.25)", color: "var(--foreground)", padding: "0.6rem 0.75rem", borderRadius: "8px", fontSize: "0.82rem" }}
                   />
                 </div>
 
                 {/* Gênero */}
                 <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
-                  <label style={{ fontSize: "0.78rem", fontWeight: "600", color: "#e3e1e9" }}>
+                  <label style={{ fontSize: "0.78rem", fontWeight: "600", color: "var(--foreground)" }}>
                     Gênero (GENDER) {publishToMeli && <span style={{ color: "#ff4d4d" }}>*</span>}
                   </label>
                   <div style={{ display: "flex", gap: "6px" }}>
@@ -2400,9 +2400,9 @@ export default function AdminDashboard() {
                           borderRadius: "6px",
                           fontSize: "0.72rem",
                           fontWeight: "500",
-                          border: newProdGender === g ? "1px solid #a78bfa" : "1px solid rgba(255,255,255,0.08)",
-                          background: newProdGender === g ? "rgba(167,139,250,0.15)" : "#121216",
-                          color: newProdGender === g ? "#a78bfa" : "#8a8a93",
+                          border: newProdGender === g ? "1px solid #6366f1" : "1px solid rgba(45, 43, 39, 0.12)",
+                          background: newProdGender === g ? "rgba(99,102,241,0.15)" : "#ffffff",
+                          color: newProdGender === g ? "#6366f1" : "var(--foreground-muted)",
                           cursor: "pointer",
                           transition: "all 0.2s"
                         }}
@@ -2415,36 +2415,36 @@ export default function AdminDashboard() {
 
                 {/* Cor */}
                 <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
-                  <label style={{ fontSize: "0.78rem", fontWeight: "600", color: "#e3e1e9" }}>Cor Principal (COLOR)</label>
+                  <label style={{ fontSize: "0.78rem", fontWeight: "600", color: "var(--foreground)" }}>Cor Principal (COLOR)</label>
                   <input
                     type="text"
                     value={newProdColor}
                     onChange={(e) => setNewProdColor(e.target.value)}
                     placeholder="Ex: Dourado, Prata, Rose Gold"
                     className="admin-input"
-                    style={{ background: "#121216", border: "1px solid rgba(99,102,241,0.2)", padding: "0.6rem 0.75rem", borderRadius: "8px", fontSize: "0.82rem" }}
+                    style={{ background: "#ffffff", border: "1px solid rgba(99,102,241,0.25)", color: "var(--foreground)", padding: "0.6rem 0.75rem", borderRadius: "8px", fontSize: "0.82rem" }}
                   />
                 </div>
 
                 {/* Tamanhos */}
                 <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
-                  <label style={{ fontSize: "0.78rem", fontWeight: "600", color: "#e3e1e9" }}>Tamanhos Disponíveis (SIZE)</label>
-                  <span style={{ fontSize: "0.65rem", color: "#8a8a93" }}>Separados por vírgula. Ex: PP, P, M, G, GG · ou: 36, 38, 40</span>
+                  <label style={{ fontSize: "0.78rem", fontWeight: "600", color: "var(--foreground)" }}>Tamanhos Disponíveis (SIZE)</label>
+                  <span style={{ fontSize: "0.65rem", color: "var(--foreground-muted)" }}>Separados por vírgula. Ex: PP, P, M, G, GG · ou: 36, 38, 40</span>
                   <input
                     type="text"
                     value={newProdSizes}
                     onChange={(e) => setNewProdSizes(e.target.value)}
                     placeholder="Ex: P, M, G, GG"
                     className="admin-input"
-                    style={{ background: "#121216", border: "1px solid rgba(99,102,241,0.2)", padding: "0.6rem 0.75rem", borderRadius: "8px", fontSize: "0.82rem" }}
+                    style={{ background: "#ffffff", border: "1px solid rgba(99,102,241,0.25)", color: "var(--foreground)", padding: "0.6rem 0.75rem", borderRadius: "8px", fontSize: "0.82rem" }}
                   />
                 </div>
               </div>
 
               {/* ── SEÇÃO 5: LOGÍSTICA E FRETE ── */}
               <div style={{
-                background: "rgba(16,185,129,0.03)",
-                border: "1px solid rgba(16,185,129,0.15)",
+                background: "rgba(16, 185, 129, 0.04)",
+                border: "1px solid rgba(16, 185, 129, 0.12)",
                 borderRadius: "10px",
                 padding: "1rem",
                 display: "flex",
@@ -2452,13 +2452,13 @@ export default function AdminDashboard() {
                 gap: "0.9rem"
               }}>
                 <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                  <span style={{ fontSize: "0.72rem", fontWeight: "700", color: "#34d399", textTransform: "uppercase", letterSpacing: "0.1em" }}>📦 Logística & Frete</span>
-                  <span style={{ fontSize: "0.65rem", color: "#8a8a93", fontStyle: "italic" }}>Afeta cálculo de frete pelo ML</span>
+                  <span style={{ fontSize: "0.72rem", fontWeight: "700", color: "#059669", textTransform: "uppercase", letterSpacing: "0.1em" }}>📦 Logística & Frete</span>
+                  <span style={{ fontSize: "0.65rem", color: "var(--foreground-muted)", fontStyle: "italic" }}>Afeta cálculo de frete pelo ML</span>
                 </div>
 
                 {/* Peso */}
                 <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
-                  <label style={{ fontSize: "0.78rem", fontWeight: "600", color: "#e3e1e9" }}>Peso do Produto (gramas)</label>
+                  <label style={{ fontSize: "0.78rem", fontWeight: "600", color: "var(--foreground)" }}>Peso do Produto (gramas)</label>
                   <input
                     type="number"
                     min="0"
@@ -2466,16 +2466,16 @@ export default function AdminDashboard() {
                     onChange={(e) => setNewProdWeight(e.target.value)}
                     placeholder="Ex: 150 (em gramas)"
                     className="admin-input"
-                    style={{ background: "#121216", border: "1px solid rgba(16,185,129,0.2)", padding: "0.6rem 0.75rem", borderRadius: "8px", fontSize: "0.82rem" }}
+                    style={{ background: "#ffffff", border: "1px solid rgba(16,185,129,0.25)", color: "var(--foreground)", padding: "0.6rem 0.75rem", borderRadius: "8px", fontSize: "0.82rem" }}
                   />
                 </div>
 
                 {/* Dimensões — 3 colunas */}
                 <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
-                  <label style={{ fontSize: "0.78rem", fontWeight: "600", color: "#e3e1e9" }}>Dimensões da Embalagem (cm)</label>
+                  <label style={{ fontSize: "0.78rem", fontWeight: "600", color: "var(--foreground)" }}>Dimensões da Embalagem (cm)</label>
                   <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "0.5rem" }}>
                     <div style={{ display: "flex", flexDirection: "column", gap: "3px" }}>
-                      <span style={{ fontSize: "0.65rem", color: "#8a8a93" }}>Comprimento</span>
+                      <span style={{ fontSize: "0.65rem", color: "var(--foreground-muted)" }}>Comprimento</span>
                       <input
                         type="number"
                         min="0"
@@ -2483,11 +2483,11 @@ export default function AdminDashboard() {
                         onChange={(e) => setNewProdLength(e.target.value)}
                         placeholder="0"
                         className="admin-input"
-                        style={{ background: "#121216", border: "1px solid rgba(16,185,129,0.2)", padding: "0.55rem 0.7rem", borderRadius: "8px", fontSize: "0.82rem" }}
+                        style={{ background: "#ffffff", border: "1px solid rgba(16,185,129,0.25)", color: "var(--foreground)", padding: "0.55rem 0.7rem", borderRadius: "8px", fontSize: "0.82rem" }}
                       />
                     </div>
                     <div style={{ display: "flex", flexDirection: "column", gap: "3px" }}>
-                      <span style={{ fontSize: "0.65rem", color: "#8a8a93" }}>Largura</span>
+                      <span style={{ fontSize: "0.65rem", color: "var(--foreground-muted)" }}>Largura</span>
                       <input
                         type="number"
                         min="0"
@@ -2495,11 +2495,11 @@ export default function AdminDashboard() {
                         onChange={(e) => setNewProdWidth(e.target.value)}
                         placeholder="0"
                         className="admin-input"
-                        style={{ background: "#121216", border: "1px solid rgba(16,185,129,0.2)", padding: "0.55rem 0.7rem", borderRadius: "8px", fontSize: "0.82rem" }}
+                        style={{ background: "#ffffff", border: "1px solid rgba(16,185,129,0.25)", color: "var(--foreground)", padding: "0.55rem 0.7rem", borderRadius: "8px", fontSize: "0.82rem" }}
                       />
                     </div>
                     <div style={{ display: "flex", flexDirection: "column", gap: "3px" }}>
-                      <span style={{ fontSize: "0.65rem", color: "#8a8a93" }}>Altura</span>
+                      <span style={{ fontSize: "0.65rem", color: "var(--foreground-muted)" }}>Altura</span>
                       <input
                         type="number"
                         min="0"
@@ -2507,7 +2507,7 @@ export default function AdminDashboard() {
                         onChange={(e) => setNewProdHeight(e.target.value)}
                         placeholder="0"
                         className="admin-input"
-                        style={{ background: "#121216", border: "1px solid rgba(16,185,129,0.2)", padding: "0.55rem 0.7rem", borderRadius: "8px", fontSize: "0.82rem" }}
+                        style={{ background: "#ffffff", border: "1px solid rgba(16,185,129,0.25)", color: "var(--foreground)", padding: "0.55rem 0.7rem", borderRadius: "8px", fontSize: "0.82rem" }}
                       />
                     </div>
                   </div>
@@ -2521,7 +2521,7 @@ export default function AdminDashboard() {
                   disabled={isCreatingProduct}
                   style={{
                     flex: 1.3,
-                    background: "linear-gradient(to right, #d4af37, #f3e5ab)",
+                    background: "var(--gold)",
                     color: "#000000",
                     border: "none",
                     borderRadius: "8px",
@@ -2539,9 +2539,9 @@ export default function AdminDashboard() {
                   onClick={() => setShowAddProductModal(false)}
                   style={{
                     flex: 1,
-                    background: "#1c1c24",
-                    color: "#e3e1e9",
-                    border: "1px solid rgba(255, 255, 255, 0.08)",
+                    background: "rgba(45, 43, 39, 0.06)",
+                    color: "var(--foreground)",
+                    border: "1px solid rgba(45, 43, 39, 0.12)",
                     borderRadius: "8px",
                     padding: "0.75rem",
                     fontWeight: "500",
@@ -2549,7 +2549,7 @@ export default function AdminDashboard() {
                     cursor: "pointer"
                   }}
                 >
-                  Cancel
+                  Cancelar
                 </button>
               </div>
             </form>
