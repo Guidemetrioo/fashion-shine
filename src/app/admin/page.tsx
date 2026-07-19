@@ -68,6 +68,11 @@ export default function AdminDashboard() {
   const [newProdWidth, setNewProdWidth] = useState("");
   const [newProdHeight, setNewProdHeight] = useState("");
 
+  // Mercado Livre Inspired Shipping Dashboard States
+  const [shippingTab, setShippingTab] = useState<"today" | "next_days" | "in_transit" | "completed">("today");
+  const [dashOrderSearch, setDashOrderSearch] = useState("");
+  const [selectedOrderIds, setSelectedOrderIds] = useState<string[]>([]);
+
   // Drag and drop states
   const [isDragging, setIsDragging] = useState(false);
   const [imagePreview, setImagePreview] = useState("");
@@ -453,6 +458,29 @@ export default function AdminDashboard() {
     return matchesChannel && matchesStatus;
   });
 
+  const filteredTabOrders = orders.filter((o) => {
+    // 1. Filter by Logistical Stage (shippingTab)
+    let matchesTab = false;
+    if (shippingTab === "today") {
+      matchesTab = o.status === "ready_to_ship";
+    } else if (shippingTab === "next_days") {
+      matchesTab = o.status === "pending";
+    } else if (shippingTab === "in_transit") {
+      matchesTab = o.status === "shipped";
+    } else if (shippingTab === "completed") {
+      matchesTab = o.status === "delivered";
+    }
+
+    // 2. Filter by search input
+    const query = dashOrderSearch.toLowerCase().trim();
+    const matchesQuery = !query || 
+      o.orderId.toLowerCase().includes(query) ||
+      o.buyerName.toLowerCase().includes(query) ||
+      o.items.some(item => item.name.toLowerCase().includes(query));
+
+    return matchesTab && matchesQuery;
+  });
+
   const filteredProducts = products.filter((p) => {
     const query = productSearchQuery.toLowerCase().trim();
     if (!query) return true;
@@ -596,20 +624,330 @@ export default function AdminDashboard() {
               </div>
             </div>
 
-            {/* Middle panel layout */}
+            {/* Shipping & Sales Dashboard inspired by Mercado Livre */}
+            <div className="stats-card" style={{ marginBottom: "2rem", padding: "1.5rem" }}>
+              {/* Tabs capsule list */}
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "1px solid rgba(45,43,39,0.08)", paddingBottom: "1rem", flexWrap: "wrap", gap: "1rem" }}>
+                <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
+                  {[
+                    { id: "today", label: "Envios de hoje", count: orders.filter(o => o.status === "ready_to_ship").length },
+                    { id: "next_days", label: "Próximos dias", count: orders.filter(o => o.status === "pending").length },
+                    { id: "in_transit", label: "Em trânsito", count: orders.filter(o => o.status === "shipped").length },
+                    { id: "completed", label: "Finalizadas", count: orders.filter(o => o.status === "delivered").length }
+                  ].map((tab) => (
+                    <button
+                      key={tab.id}
+                      type="button"
+                      onClick={() => {
+                        setShippingTab(tab.id as any);
+                        setSelectedOrderIds([]);
+                      }}
+                      style={{
+                        padding: "8px 16px",
+                        fontSize: "0.85rem",
+                        borderRadius: "30px",
+                        background: shippingTab === tab.id ? "var(--foreground)" : "rgba(45, 43, 39, 0.05)",
+                        color: shippingTab === tab.id ? "#ffffff" : "var(--foreground-muted)",
+                        border: shippingTab === tab.id ? "1px solid var(--foreground)" : "1px solid rgba(45, 43, 39, 0.08)",
+                        fontWeight: "500",
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "6px"
+                      }}
+                    >
+                      {tab.label}
+                      <span style={{
+                        fontSize: "0.75rem",
+                        background: shippingTab === tab.id ? "var(--gold)" : "rgba(45,43,39,0.1)",
+                        color: shippingTab === tab.id ? "#000000" : "var(--foreground)",
+                        padding: "2px 6px",
+                        borderRadius: "10px",
+                        fontWeight: "bold"
+                      }}>
+                        {tab.count}
+                      </span>
+                    </button>
+                  ))}
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setActiveTab("orders")}
+                  style={{
+                    color: "var(--gold)",
+                    fontSize: "0.85rem",
+                    fontWeight: "600",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "4px"
+                  }}
+                >
+                  Gerenciar Pós-venda &gt;
+                </button>
+              </div>
+
+              {/* Filters bar: Buscar, Últimos 2 meses, etc */}
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", margin: "1rem 0", flexWrap: "wrap", gap: "1rem" }}>
+                <div style={{ display: "flex", gap: "10px", alignItems: "center", flex: "1 1 350px", maxWidth: "500px" }}>
+                  <div style={{ position: "relative", width: "100%" }}>
+                    <input
+                      type="text"
+                      placeholder="Buscar por comprador, item ou código do pedido..."
+                      value={dashOrderSearch}
+                      onChange={(e) => setDashOrderSearch(e.target.value)}
+                      className="admin-input"
+                      style={{ width: "100%", height: "38px", fontSize: "0.85rem", paddingLeft: "1rem" }}
+                    />
+                  </div>
+                </div>
+
+                <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
+                  <select
+                    className="admin-input"
+                    style={{ height: "38px", fontSize: "0.85rem", padding: "0 10px" }}
+                    defaultValue="last_2_months"
+                  >
+                    <option value="last_2_months">Últimos 2 meses</option>
+                    <option value="last_month">Último mês</option>
+                    <option value="all">Todo o histórico</option>
+                  </select>
+                  <button
+                    type="button"
+                    className="btn-outline"
+                    onClick={() => {
+                      setDashOrderSearch("");
+                      setSelectedOrderIds([]);
+                    }}
+                    style={{ padding: "0 16px", height: "38px", fontSize: "0.85rem", display: "flex", alignItems: "center", justifyContent: "center" }}
+                  >
+                    Limpar Filtros
+                  </button>
+                  <span style={{ fontSize: "0.85rem", color: "var(--foreground-muted)", marginLeft: "10px" }}>
+                    {filteredTabOrders.length} vendas
+                  </span>
+                </div>
+              </div>
+
+              {/* Mass Action bar */}
+              <div style={{
+                background: "rgba(45, 43, 39, 0.02)",
+                border: "1px solid rgba(45, 43, 39, 0.08)",
+                borderRadius: "6px",
+                padding: "10px 16px",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                marginBottom: "1rem",
+                flexWrap: "wrap",
+                gap: "1rem"
+              }}>
+                <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                  <input
+                    type="checkbox"
+                    checked={filteredTabOrders.length > 0 && selectedOrderIds.length === filteredTabOrders.length}
+                    onChange={(e) => {
+                      if (e.target.checked) {
+                        setSelectedOrderIds(filteredTabOrders.map(o => o.id));
+                      } else {
+                        setSelectedOrderIds([]);
+                      }
+                    }}
+                    disabled={filteredTabOrders.length === 0}
+                    style={{ width: "16px", height: "16px", accentColor: "var(--gold)" }}
+                  />
+                  <span style={{ fontSize: "0.85rem", fontWeight: selectedOrderIds.length > 0 ? "600" : "normal" }}>
+                    {selectedOrderIds.length > 0 
+                      ? `${selectedOrderIds.length} vendas selecionadas` 
+                      : "Selecione vendas para acionar em massa"
+                    }
+                  </span>
+                </div>
+                <div style={{ display: "flex", gap: "10px" }}>
+                  <button
+                    type="button"
+                    disabled={selectedOrderIds.length === 0}
+                    onClick={() => alert(`NF-e emitida com sucesso para as ${selectedOrderIds.length} vendas selecionadas!`)}
+                    style={{
+                      background: selectedOrderIds.length > 0 ? "rgba(45,43,39,0.06)" : "transparent",
+                      color: selectedOrderIds.length > 0 ? "var(--foreground)" : "var(--foreground-muted)",
+                      border: "1px solid rgba(45,43,39,0.12)",
+                      borderRadius: "4px",
+                      padding: "6px 12px",
+                      fontSize: "0.8rem",
+                      cursor: selectedOrderIds.length > 0 ? "pointer" : "default"
+                    }}
+                  >
+                    Informar a NF-e
+                  </button>
+                  <button
+                    type="button"
+                    disabled={selectedOrderIds.length === 0}
+                    onClick={() => {
+                      selectedOrderIds.forEach(id => {
+                        const order = orders.find(o => o.id === id);
+                        if (order) handlePrintLabel(order.orderId, order.channel);
+                      });
+                      setSelectedOrderIds([]);
+                    }}
+                    style={{
+                      background: selectedOrderIds.length > 0 ? "var(--gold)" : "transparent",
+                      color: selectedOrderIds.length > 0 ? "#000000" : "var(--foreground-muted)",
+                      border: selectedOrderIds.length > 0 ? "1px solid var(--gold)" : "1px solid rgba(45,43,39,0.12)",
+                      borderRadius: "4px",
+                      padding: "6px 12px",
+                      fontSize: "0.8rem",
+                      fontWeight: selectedOrderIds.length > 0 ? "600" : "normal",
+                      cursor: selectedOrderIds.length > 0 ? "pointer" : "default"
+                    }}
+                  >
+                    Imprimir etiquetas
+                  </button>
+                </div>
+              </div>
+
+              {/* Orders List / Empty State */}
+              {filteredTabOrders.length === 0 ? (
+                <div style={{ textAlign: "center", padding: "3rem 1rem", display: "flex", flexDirection: "column", alignItems: "center", gap: "1rem" }}>
+                  {/* Empty state Magnifier Icon */}
+                  <div style={{
+                    width: "80px",
+                    height: "80px",
+                    borderRadius: "50%",
+                    background: "rgba(45,43,39,0.04)",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    border: "1px dashed rgba(179,151,90,0.3)"
+                  }}>
+                    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <circle cx="11" cy="11" r="8"></circle>
+                      <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                      <line x1="8" y1="8" x2="14" y2="14"></line>
+                      <line x1="14" y1="8" x2="8" y2="14"></line>
+                    </svg>
+                  </div>
+                  <div>
+                    <h4 style={{ fontWeight: "600", fontSize: "1.1rem", color: "var(--foreground)" }}>
+                      {dashOrderSearch ? "Nenhum resultado para a busca" : `Você não tem vendas com envios para: ${
+                        shippingTab === "today" ? "Hoje" :
+                        shippingTab === "next_days" ? "Próximos dias" :
+                        shippingTab === "in_transit" ? "Em trânsito" : "Finalizadas"
+                      }`}
+                    </h4>
+                    <p style={{ color: "var(--foreground-muted)", fontSize: "0.85rem", marginTop: "4px" }}>
+                      {dashOrderSearch 
+                        ? "Limpe os filtros para buscar outras opções de pedidos." 
+                        : "Os pedidos integrados de Shopee e Mercado Livre aparecerão aqui divididos pelo estágio logístico correspondente."
+                      }
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setDashOrderSearch("");
+                      setSelectedOrderIds([]);
+                    }}
+                    style={{
+                      background: "rgba(179,151,90,0.12)",
+                      border: "1px solid var(--gold)",
+                      color: "var(--gold)",
+                      padding: "8px 20px",
+                      borderRadius: "30px",
+                      fontSize: "0.85rem",
+                      fontWeight: "600"
+                    }}
+                  >
+                    Limpar Filtros
+                  </button>
+                </div>
+              ) : (
+                <div className="admin-table-container">
+                  <table className="admin-table">
+                    <thead>
+                      <tr>
+                        <th style={{ width: "40px" }}></th>
+                        <th>Pedido & Canal</th>
+                        <th>Comprador</th>
+                        <th>Itens Comprados</th>
+                        <th>Total</th>
+                        <th>Código de Rastreamento</th>
+                        <th>Ações</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {filteredTabOrders.map((ord) => {
+                        const isSelected = selectedOrderIds.includes(ord.id);
+                        return (
+                          <tr key={ord.id} style={{ background: isSelected ? "rgba(179,151,90,0.03)" : "transparent" }}>
+                            <td>
+                              <input
+                                type="checkbox"
+                                checked={isSelected}
+                                onChange={(e) => {
+                                  if (e.target.checked) {
+                                    setSelectedOrderIds(prev => [...prev, ord.id]);
+                                  } else {
+                                    setSelectedOrderIds(prev => prev.filter(id => id !== ord.id));
+                                  }
+                                }}
+                                style={{ width: "16px", height: "16px", accentColor: "var(--gold)", cursor: "pointer" }}
+                              />
+                            </td>
+                            <td>
+                              <div style={{ display: "flex", flexDirection: "column" }}>
+                                <span style={{ fontWeight: "600" }}>{ord.orderId}</span>
+                                <span className={`badge ${ord.channel === "shopee" ? "bg-shopee" : "bg-ml"}`} style={{ width: "fit-content", marginTop: "4px" }}>
+                                  {ord.channel === "shopee" ? "Shopee" : "Mercado Livre"}
+                                </span>
+                              </div>
+                            </td>
+                            <td>{ord.buyerName}</td>
+                            <td>
+                              {ord.items.map((item, i) => (
+                                <div key={i} style={{ fontSize: "0.85rem", color: "var(--foreground)" }}>
+                                  {item.quantity}x {item.name}
+                                </div>
+                              ))}
+                            </td>
+                            <td style={{ fontWeight: "600", color: "var(--gold)" }}>R$ {ord.total.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</td>
+                            <td style={{ fontFamily: "monospace", fontSize: "0.8rem" }}>{ord.trackingCode}</td>
+                            <td>
+                              <button
+                                type="button"
+                                onClick={() => handlePrintLabel(ord.orderId, ord.channel)}
+                                style={{
+                                  background: "var(--gold)",
+                                  color: "#000000",
+                                  fontSize: "0.75rem",
+                                  padding: "4px 10px",
+                                  borderRadius: "4px",
+                                  fontWeight: "600"
+                                }}
+                              >
+                                Imprimir Etiqueta
+                              </button>
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
+
+            {/* Bottom Row side-by-side layout (Visualizer and Logs Console) */}
             <div style={{ display: "flex", flexWrap: "wrap", gap: "2rem", marginBottom: "2rem" }}>
               {/* Sales Channels visualizer */}
               <div className="stats-card" style={{ flex: "2 1 500px", padding: "2rem" }}>
                 <h4 className="font-serif" style={{ fontSize: "1.2rem", marginBottom: "1.5rem" }}>Channel Sales Performance</h4>
                 <div style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
-                  
                   {/* Shopee Bar */}
                   <div>
                     <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.85rem", marginBottom: "0.5rem" }}>
                       <span className="channel-shopee" style={{ fontWeight: "500" }}>Orange Channel (Shopee)</span>
                       <span>{Math.round((shopeeRevenue / totalRevenue) * 100)}% ({orders.filter(o => o.channel === "shopee").length} Sales)</span>
                     </div>
-                    <div style={{ background: "rgba(255,255,255,0.06)", height: "12px", borderRadius: "6px", overflow: "hidden" }}>
+                    <div style={{ background: "rgba(45, 43, 39, 0.06)", height: "12px", borderRadius: "6px", overflow: "hidden" }}>
                       <div style={{ background: "#ee4d2d", height: "100%", width: `${(shopeeRevenue / totalRevenue) * 100}%` }} />
                     </div>
                   </div>
@@ -620,8 +958,8 @@ export default function AdminDashboard() {
                       <span className="channel-ml" style={{ fontWeight: "500" }}>Yellow Channel (Mercado Livre)</span>
                       <span>{Math.round((mlRevenue / totalRevenue) * 100)}% ({orders.filter(o => o.channel === "mercadolivre").length} Sales)</span>
                     </div>
-                    <div style={{ background: "rgba(255,255,255,0.06)", height: "12px", borderRadius: "6px", overflow: "hidden" }}>
-                      <div style={{ background: "#ffe600", height: "100%", width: `${(mlRevenue / totalRevenue) * 100}%` }} />
+                    <div style={{ background: "rgba(45, 43, 39, 0.06)", height: "12px", borderRadius: "6px", overflow: "hidden" }}>
+                      <div style={{ background: "var(--gold)", height: "100%", width: `${(mlRevenue / totalRevenue) * 100}%` }} />
                     </div>
                   </div>
                 </div>
@@ -632,6 +970,7 @@ export default function AdminDashboard() {
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem" }}>
                   <h4 className="font-serif" style={{ fontSize: "1.1rem" }}>API Channel Logs</h4>
                   <button 
+                    type="button"
                     onClick={() => setSyncLogs([])}
                     style={{ fontSize: "0.75rem", color: "var(--foreground-muted)" }}
                   >
