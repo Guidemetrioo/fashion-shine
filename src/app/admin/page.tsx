@@ -32,9 +32,19 @@ export default function AdminDashboard() {
   const [isMlConfigured, setIsMlConfigured] = useState(false);
   const [isShopeeConfigured, setIsShopeeConfigured] = useState(false);
   const [showMlCredsWarning, setShowMlCredsWarning] = useState(false);
+  const [showShopeeCredsWarning, setShowShopeeCredsWarning] = useState(false);
 
   const [mlInputClientId, setMlInputClientId] = useState("");
   const [mlInputClientSecret, setMlInputClientSecret] = useState("");
+
+  // Shopee connection states
+  const [showShopeeOAuth, setShowShopeeOAuth] = useState(false);
+  const [shopeeAccountName, setShopeeAccountName] = useState("Fashion Shine Shopee Oficial");
+  const [shopeeTempAccountName, setShopeeTempAccountName] = useState("Fashion Shine Shopee Oficial");
+  const [isConnectingShopee, setIsConnectingShopee] = useState(false);
+  const [isImportingShopee, setIsImportingShopee] = useState(false);
+  const [shopeeInputPartnerId, setShopeeInputPartnerId] = useState("");
+  const [shopeeInputPartnerKey, setShopeeInputPartnerKey] = useState("");
 
   // Product Search & Registration States
   const [productSearchQuery, setProductSearchQuery] = useState("");
@@ -231,6 +241,9 @@ export default function AdminDashboard() {
           if (data.mercadolivre.clientId) {
             setMlInputClientId(data.mercadolivre.clientId);
           }
+          if (data.shopee.partnerId) {
+            setShopeeInputPartnerId(data.shopee.partnerId);
+          }
           
           if (data.mercadolivre.connected) {
             setMlAccountName(data.mercadolivre.nickname);
@@ -329,6 +342,44 @@ export default function AdminDashboard() {
       setIsImportingMl(false);
     }
   };
+
+  const handleSaveShopeeCredentials = async () => {
+    if (!shopeeInputPartnerId || !shopeeInputPartnerKey) {
+      alert("Por favor, preencha o Partner ID e Partner Key.");
+      return;
+    }
+    try {
+      const res = await fetch("/api/auth/status", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          channel: "shopee",
+          partnerId: shopeeInputPartnerId,
+          partnerKey: shopeeInputPartnerKey
+        })
+      });
+      if (res.ok) {
+        setIsShopeeConfigured(true);
+        addLog("API Shopee: Credenciais salvas com segurança.", "shopee", "success");
+        alert("✨ Credenciais da API da Shopee salvas com sucesso!");
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const handleImportShopeeProducts = async () => {
+    if (isImportingShopee) return;
+    setIsImportingShopee(true);
+    addLog("Shopee: Iniciando importação do catálogo...", "shopee", "success");
+
+    setTimeout(() => {
+      setIsImportingShopee(false);
+      addLog("Shopee: Importação concluída! 4 anúncios sincronizados.", "shopee", "success");
+      alert("🎉 Catálogo da Shopee importado com sucesso!\nSincronizados: 4 produtos");
+    }, 1500);
+  };
+
 
   // Mock Synced Products Data
   const [products, setProducts] = useState<ChannelProduct[]>([
@@ -543,66 +594,12 @@ export default function AdminDashboard() {
     <div className="admin-layout">
       {/* Top sticky nav bar */}
       <header className="admin-header">
-        <div className="admin-container" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "0.8rem 2rem" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: "1.2rem" }}>
-            <img 
-              src="/logo.png" 
-              alt="Fashion Shine Semijoias" 
-              style={{ height: "80px", width: "auto", objectFit: "contain" }}
-            />
-            <span style={{
-              background: "rgba(179, 151, 90, 0.12)",
-              color: "var(--gold)",
-              fontSize: "0.72rem",
-              fontWeight: "600",
-              padding: "4px 10px",
-              borderRadius: "4px",
-              letterSpacing: "0.05em",
-              textTransform: "uppercase"
-            }}>
-              Channel Hub
-            </span>
-          </div>
-
-          <div style={{ display: "flex", alignItems: "center", gap: "1.5rem" }}>
-            {/* Sync Indicators */}
-            <div style={{ display: "flex", gap: "1rem", fontSize: "0.85rem" }}>
-              <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-                <span className={config.shopeeConnected ? "pulse-green" : "pulse-red"} />
-                <span>Shopee API</span>
-              </div>
-              <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-                <span className={config.mlConnected ? "pulse-green" : "pulse-red"} />
-                <span>Mercado Livre API</span>
-              </div>
-            </div>
-
-            <button 
-              onClick={handleSyncAll}
-              disabled={isSyncing}
-              className="btn-gold"
-              style={{
-                padding: "0.5rem 1.2rem",
-                fontSize: "0.8rem",
-                display: "flex",
-                alignItems: "center",
-                gap: "8px"
-              }}
-            >
-              <svg 
-                className={isSyncing ? "spin-sync" : ""} 
-                width="14" 
-                height="14" 
-                viewBox="0 0 24 24" 
-                fill="none" 
-                stroke="currentColor" 
-                strokeWidth="2"
-              >
-                <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"></path>
-              </svg>
-              {isSyncing ? "Sincronizando..." : "Sincronizar Canais"}
-            </button>
-          </div>
+        <div className="admin-container" style={{ display: "flex", justifyContent: "flex-start", alignItems: "center", padding: "0.8rem 2rem" }}>
+          <img 
+            src="/logo.png" 
+            alt="Fashion Shine Semijoias" 
+            style={{ height: "80px", width: "auto", objectFit: "contain" }}
+          />
         </div>
       </header>
 
@@ -621,7 +618,7 @@ export default function AdminDashboard() {
             className={`admin-tab-btn ${activeTab === "inventory" ? "active" : ""}`}
             onClick={() => setActiveTab("inventory")}
           >
-            Sincronização de Estoque ({totalSyncCount})
+            Estoque ({totalSyncCount})
           </button>
           <button 
             className={`admin-tab-btn ${activeTab === "orders" ? "active" : ""}`}
@@ -1365,59 +1362,182 @@ export default function AdminDashboard() {
 
         {/* Tab 4: Integration Settings */}
         {activeTab === "settings" && (
-          <div className="animate-fade-in" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))", gap: "2rem" }}>
+          <div className="animate-fade-in" style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
             
-            {/* Shopee Integration Card */}
-            <div className={`connection-card ${config.shopeeConnected ? "active" : ""}`}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                  <span className="badge bg-shopee">Shopee</span>
-                  <h4 className="font-serif" style={{ fontSize: "1.2rem" }}>Shopee API Setup</h4>
-                </div>
-                <button
-                  onClick={() => {
-                    setConfig(prev => ({ ...prev, shopeeConnected: !prev.shopeeConnected }));
-                    addLog(
-                      config.shopeeConnected ? "Disabled Shopee API channel integration." : "Enabled Shopee API channel integration.",
-                      "shopee",
-                      config.shopeeConnected ? "warning" : "success"
-                    );
-                  }}
-                  style={{
-                    padding: "6px 12px",
-                    borderRadius: "4px",
-                    background: config.shopeeConnected ? "rgba(255, 77, 77, 0.15)" : "var(--gold)",
-                    color: config.shopeeConnected ? "#ff4d4d" : "#000000",
-                    fontSize: "0.8rem",
-                    fontWeight: "500"
-                  }}
-                >
-                  {config.shopeeConnected ? "Desconectar" : "Conectar"}
-                </button>
+            {/* Header row with Title and Sincronizar Canais button */}
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", background: "rgba(255, 255, 255, 0.03)", padding: "1rem 1.5rem", borderRadius: "8px", border: "1px solid rgba(255,255,255,0.05)" }}>
+              <div>
+                <h3 className="font-serif" style={{ fontSize: "1.3rem", color: "var(--gold)", margin: 0 }}>Gerenciamento de Integrações</h3>
+                <p style={{ fontSize: "0.8rem", color: "var(--foreground-muted)", margin: "4px 0 0 0" }}>Configure suas credenciais de API oficiais e sincronize as conexões ativas.</p>
               </div>
-
-              {config.shopeeConnected && (
-                <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
-                  <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
-                    <label style={{ fontSize: "0.75rem", color: "var(--foreground-muted)" }}>Chave de API do App</label>
-                    <input
-                      type="password"
-                      value={config.shopeeApiKey}
-                      onChange={(e) => setConfig(prev => ({ ...prev, shopeeApiKey: e.target.value }))}
-                      className="admin-input"
-                    />
-                  </div>
-                  <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
-                    <label style={{ fontSize: "0.75rem", color: "var(--foreground-muted)" }}>Mapeamento do ID da Loja</label>
-                    <input
-                      type="text"
-                      defaultValue="shp_shop_5510293"
-                      className="admin-input"
-                    />
-                  </div>
-                </div>
-              )}
+              <button 
+                onClick={handleSyncAll}
+                disabled={isSyncing}
+                className="btn-gold"
+                style={{
+                  padding: "0.6rem 1.5rem",
+                  fontSize: "0.85rem",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "8px",
+                  cursor: "pointer"
+                }}
+              >
+                <svg 
+                  className={isSyncing ? "spin-sync" : ""} 
+                  width="14" 
+                  height="14" 
+                  viewBox="0 0 24 24" 
+                  fill="none" 
+                  stroke="currentColor" 
+                  strokeWidth="2.5"
+                >
+                  <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"></path>
+                </svg>
+                {isSyncing ? "Sincronizando..." : "Sincronizar Canais"}
+              </button>
             </div>
+
+            {/* Integration Cards Grid */}
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))", gap: "2rem" }}>
+              
+              {/* Shopee Integration Card */}
+              <div className={`connection-card ${config.shopeeConnected ? "active" : ""}`}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                    <span className="badge bg-shopee">Shopee</span>
+                    <h4 className="font-serif" style={{ fontSize: "1.2rem", margin: 0 }}>Configuração da API da Shopee</h4>
+                  </div>
+                  <button
+                    onClick={() => {
+                      if (config.shopeeConnected) {
+                        // Disconnect Shopee
+                        fetch("/api/auth/status", {
+                          method: "POST",
+                          headers: { "Content-Type": "application/json" },
+                          body: JSON.stringify({ channel: "shopee", disconnect: true })
+                        }).then(() => {
+                          setConfig(prev => ({ ...prev, shopeeConnected: false }));
+                          addLog("Desconectou a integração com o canal da API Shopee.", "shopee", "warning");
+                        });
+                      } else {
+                        if (isShopeeConfigured) {
+                          setShowShopeeOAuth(true);
+                        } else {
+                          setShowShopeeCredsWarning(true);
+                        }
+                      }
+                    }}
+                    style={{
+                      padding: "6px 12px",
+                      borderRadius: "4px",
+                      background: config.shopeeConnected ? "rgba(255, 77, 77, 0.15)" : "var(--gold)",
+                      color: config.shopeeConnected ? "#ff4d4d" : "#000000",
+                      fontSize: "0.8rem",
+                      fontWeight: "500",
+                      border: "none",
+                      cursor: "pointer"
+                    }}
+                  >
+                    {config.shopeeConnected ? "Desconectar" : "Conectar Conta"}
+                  </button>
+                </div>
+
+                {config.shopeeConnected ? (
+                  <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+                    <div style={{
+                      background: "rgba(238, 77, 45, 0.05)",
+                      border: "1px solid rgba(238, 77, 45, 0.15)",
+                      padding: "1rem",
+                      borderRadius: "4px",
+                      fontSize: "0.85rem"
+                    }}>
+                      <span style={{ color: "var(--foreground-muted)" }}>Loja Conectada: </span>
+                      <strong style={{ color: "#ee4d2d" }}>{shopeeAccountName}</strong>
+                    </div>
+                    <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+                      <label style={{ fontSize: "0.75rem", color: "var(--foreground-muted)" }}>Token de Acesso (OAuth 2.0)</label>
+                      <input
+                        type="password"
+                        value={config.shopeeApiKey}
+                        onChange={(e) => setConfig(prev => ({ ...prev, shopeeApiKey: e.target.value }))}
+                        className="admin-input"
+                      />
+                    </div>
+                    <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+                      <label style={{ fontSize: "0.75rem", color: "var(--foreground-muted)" }}>Mapeamento do ID da Loja</label>
+                      <input
+                        type="text"
+                        defaultValue="shp_shop_5510293"
+                        className="admin-input"
+                      />
+                    </div>
+                    <button
+                      onClick={handleImportShopeeProducts}
+                      disabled={isImportingShopee}
+                      className="btn-gold"
+                      style={{
+                        padding: "0.75rem",
+                        fontSize: "0.85rem",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        gap: "8px",
+                        marginTop: "0.5rem"
+                      }}
+                    >
+                      <svg 
+                        width="14" 
+                        height="14" 
+                        viewBox="0 0 24 24" 
+                        fill="none" 
+                        stroke="currentColor" 
+                        strokeWidth="2.5"
+                      >
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                        <polyline points="7 10 12 15 17 10"></polyline>
+                        <line x1="12" y1="15" x2="12" y2="3"></line>
+                      </svg>
+                      {isImportingShopee ? "Importando Catálogo..." : "Importar Catálogo da Shopee"}
+                    </button>
+                  </div>
+                ) : (
+                  <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+                    <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+                      <label style={{ fontSize: "0.75rem", color: "var(--foreground-muted)" }}>ID do Parceiro (Partner ID)</label>
+                      <input
+                        type="text"
+                        placeholder="Ex: 1002938"
+                        value={shopeeInputPartnerId}
+                        onChange={(e) => setShopeeInputPartnerId(e.target.value)}
+                        className="admin-input"
+                      />
+                    </div>
+                    <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+                      <label style={{ fontSize: "0.75rem", color: "var(--foreground-muted)" }}>Chave de Assinatura (Partner Key)</label>
+                      <input
+                        type="password"
+                        placeholder="Sua chave de parceiro da Shopee"
+                        value={shopeeInputPartnerKey}
+                        onChange={(e) => setShopeeInputPartnerKey(e.target.value)}
+                        className="admin-input"
+                      />
+                    </div>
+                    <button
+                      onClick={handleSaveShopeeCredentials}
+                      className="btn-outline"
+                      style={{ padding: "0.5rem 0", fontSize: "0.8rem", width: "100%" }}
+                    >
+                      Salvar Credenciais da API
+                    </button>
+                    <div style={{ color: "var(--foreground-muted)", fontSize: "0.8rem", fontStyle: "italic", marginTop: "4px" }}>
+                      {isShopeeConfigured 
+                        ? "✓ Credenciais configuradas. Clique em Conectar Conta para autorizar."
+                        : "ⓘ Credenciais não configuradas. Preencha os campos para integração real, ou clique em Conectar Conta para acessar o Simulador."}
+                    </div>
+                  </div>
+                )}
+              </div>
 
             {/* Mercado Livre Integration Card */}
             <div className={`connection-card ${config.mlConnected ? "active" : ""}`}>
@@ -1556,9 +1676,10 @@ export default function AdminDashboard() {
                 </div>
               )}
             </div>
+          </div>
 
-            {/* General sync parameters */}
-            <div className="connection-card" style={{ gridColumn: "1 / -1" }}>
+          {/* General sync parameters */}
+            <div className="connection-card">
               <h4 className="font-serif" style={{ fontSize: "1.2rem", marginBottom: "0.5rem" }}>Parâmetros de Sincronização Automatizada</h4>
               
               <div style={{ display: "flex", flexWrap: "wrap", gap: "3rem", alignItems: "center" }}>
@@ -2516,6 +2637,298 @@ export default function AdminDashboard() {
               </button>
               <button
                 onClick={() => setShowMlCredsWarning(false)}
+                className="btn-outline"
+                style={{ flex: 1, padding: "0.6rem 0", fontSize: "0.8rem" }}
+              >
+                Voltar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Shopee OAuth Simulator Modal */}
+      {showShopeeOAuth && (
+        <div style={{
+          position: "fixed",
+          top: 0,
+          left: 0,
+          width: "100%",
+          height: "100%",
+          zIndex: 400,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          padding: "1rem"
+        }}>
+          {/* Backdrop */}
+          <div 
+            onClick={() => { if (!isConnectingShopee) setShowShopeeOAuth(false); }}
+            style={{
+              position: "absolute",
+              top: 0,
+              left: 0,
+              width: "100%",
+              height: "100%",
+              background: "rgba(0, 0, 0, 0.85)",
+              backdropFilter: "blur(5px)",
+            }}
+          />
+
+          {/* OAuth Windows Panel */}
+          <div style={{
+            position: "relative",
+            width: "480px",
+            maxWidth: "100%",
+            background: "#ffffff",
+            color: "#333333",
+            borderRadius: "8px",
+            boxShadow: "0 25px 50px rgba(0,0,0,0.5)",
+            overflow: "hidden",
+            display: "flex",
+            flexDirection: "column",
+            zIndex: 401,
+            animation: "fadeIn 0.3s ease-out"
+          }}>
+            {/* Header: Shopee styling */}
+            <div style={{
+              background: "#ee4d2d",
+              padding: "1.2rem 1.5rem",
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              borderBottom: "1px solid rgba(0,0,0,0.08)",
+              color: "#ffffff"
+            }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                {/* Shopee S Logo Icon */}
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
+                  <line x1="3" y1="6" x2="21" y2="6"></line>
+                  <path d="M16 10a4 4 0 0 1-8 0"></path>
+                </svg>
+                <span style={{ fontSize: "1.2rem", fontWeight: "700", fontFamily: "sans-serif" }}>
+                  shopee <span style={{ fontWeight: "400" }}>partner</span>
+                </span>
+              </div>
+              {!isConnectingShopee && (
+                <button 
+                  onClick={() => setShowShopeeOAuth(false)}
+                  style={{ color: "#ffffff", padding: "0.25rem", fontSize: "1.2rem", fontWeight: "bold", background: "none", border: "none", cursor: "pointer" }}
+                >
+                  &times;
+                </button>
+              )}
+            </div>
+
+            {/* Body */}
+            <div style={{ padding: "2rem", display: "flex", flexDirection: "column", gap: "1.5rem" }}>
+              {isConnectingShopee ? (
+                <div style={{ textAlign: "center", padding: "2rem 0", display: "flex", flexDirection: "column", alignItems: "center", gap: "1.2rem" }}>
+                  <div style={{
+                    width: "40px",
+                    height: "40px",
+                    border: "3px solid rgba(0, 0, 0, 0.1)",
+                    borderTopColor: "#ee4d2d",
+                    borderRadius: "50%",
+                    animation: "spin 0.8s linear infinite"
+                  }} />
+                  <div>
+                    <h4 style={{ fontWeight: "600", fontSize: "1.05rem", color: "#333" }}>Autenticando...</h4>
+                    <p style={{ color: "#666666", fontSize: "0.85rem", marginTop: "4px" }}>
+                      Solicitando autorização segura ao Shopee Open Platform...
+                    </p>
+                  </div>
+                </div>
+              ) : (
+                <>
+                  <div>
+                    <h3 style={{ fontSize: "1.1rem", fontWeight: "700", color: "#111111", marginBottom: "0.5rem" }}>
+                      Conectar Fashion Shine Shopee
+                    </h3>
+                    <p style={{ fontSize: "0.85rem", color: "#555555", lineHeight: "1.5" }}>
+                      Para vincular sua loja da Shopee e habilitar a sincronização automática de estoque e pedidos, você precisa conceder as seguintes permissões:
+                    </p>
+                  </div>
+
+                  {/* Permissions Checklist */}
+                  <div style={{
+                    background: "#f7f7f9",
+                    padding: "1rem",
+                    borderRadius: "6px",
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: "0.8rem",
+                    fontSize: "0.85rem",
+                    color: "#444444"
+                  }}>
+                    <div style={{ display: "flex", gap: "8px", alignItems: "baseline" }}>
+                      <span style={{ color: "#ee4d2d", fontWeight: "bold" }}>✓</span>
+                      <span>Ler dados básicos do perfil da loja.</span>
+                    </div>
+                    <div style={{ display: "flex", gap: "8px", alignItems: "baseline" }}>
+                      <span style={{ color: "#ee4d2d", fontWeight: "bold" }}>✓</span>
+                      <span>Criar e atualizar anúncios de produtos e semijoias.</span>
+                    </div>
+                    <div style={{ display: "flex", gap: "8px", alignItems: "baseline" }}>
+                      <span style={{ color: "#ee4d2d", fontWeight: "bold" }}>✓</span>
+                      <span>Sincronizar estoque e ler pedidos de vendas.</span>
+                    </div>
+                  </div>
+
+                  {/* Nickname input */}
+                  <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+                    <label style={{ fontSize: "0.8rem", fontWeight: "600", color: "#444444" }}>
+                      Nome/Apelido da Loja Shopee
+                    </label>
+                    <input
+                      type="text"
+                      value={shopeeTempAccountName}
+                      onChange={(e) => setShopeeTempAccountName(e.target.value)}
+                      placeholder="ex: Fashion_Shine_Shopee_Oficial"
+                      style={{
+                        padding: "0.6rem 0.8rem",
+                        border: "1px solid #cccccc",
+                        borderRadius: "4px",
+                        fontSize: "0.9rem",
+                        color: "#333333"
+                      }}
+                    />
+                  </div>
+
+                  {/* Action buttons */}
+                  <div style={{ display: "flex", gap: "10px", marginTop: "0.5rem" }}>
+                    <button
+                      onClick={() => {
+                        setIsConnectingShopee(true);
+                        setTimeout(() => {
+                          setShopeeAccountName(shopeeTempAccountName || "Fashion Shine Shopee Oficial");
+                          setConfig(prev => ({ ...prev, shopeeConnected: true, shopeeApiKey: `shp_oauth_tok_fashion_shine_live_${Date.now()}` }));
+                          addLog(`API Shopee: Loja '${shopeeTempAccountName || "Fashion Shine Shopee Oficial"}' conectada via OAuth 2.0.`, "shopee", "success");
+                          setIsConnectingShopee(false);
+                          setShowShopeeOAuth(false);
+                        }, 1600);
+                      }}
+                      style={{
+                        flex: 1,
+                        background: "#ee4d2d",
+                        color: "#ffffff",
+                        padding: "0.75rem 0",
+                        borderRadius: "4px",
+                        fontWeight: "600",
+                        fontSize: "0.9rem",
+                        textAlign: "center",
+                        border: "none",
+                        cursor: "pointer"
+                      }}
+                    >
+                      Autorizar Acesso
+                    </button>
+                    <button
+                      onClick={() => setShowShopeeOAuth(false)}
+                      style={{
+                        flex: 1,
+                        background: "#f0f0f2",
+                        color: "#555555",
+                        padding: "0.75rem 0",
+                        borderRadius: "4px",
+                        fontWeight: "500",
+                        fontSize: "0.9rem",
+                        textAlign: "center",
+                        border: "none",
+                        cursor: "pointer"
+                      }}
+                    >
+                      Cancelar
+                    </button>
+                  </div>
+                </>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Shopee Credentials Warning Modal */}
+      {showShopeeCredsWarning && (
+        <div style={{
+          position: "fixed",
+          top: 0,
+          left: 0,
+          width: "100%",
+          height: "100%",
+          zIndex: 450,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          padding: "1rem"
+        }}>
+          {/* Backdrop */}
+          <div 
+            onClick={() => setShowShopeeCredsWarning(false)}
+            style={{
+              position: "absolute",
+              top: 0,
+              left: 0,
+              width: "100%",
+              height: "100%",
+              background: "rgba(0, 0, 0, 0.4)",
+              backdropFilter: "blur(4px)",
+            }}
+          />
+
+          {/* Modal Panel */}
+          <div style={{
+            position: "relative",
+            width: "480px",
+            maxWidth: "100%",
+            background: "#ffffff",
+            color: "var(--foreground)",
+            border: "1px solid var(--gold)",
+            borderRadius: "12px",
+            boxShadow: "0 25px 50px rgba(45,43,39,0.15)",
+            padding: "2rem",
+            display: "flex",
+            flexDirection: "column",
+            gap: "1.5rem",
+            zIndex: 451,
+            animation: "fadeIn 0.3s ease-out"
+          }}>
+            <h3 className="font-serif" style={{ fontSize: "1.3rem", color: "var(--gold)", fontWeight: "600" }}>
+              Credenciais de API da Shopee Requeridas
+            </h3>
+            <p style={{ fontSize: "0.85rem", color: "var(--foreground-muted)", lineHeight: "1.6" }}>
+              Para conectar-se efetivamente à sua conta real da Shopee, você deve primeiro configurar as chaves de API do parceiro obtidas no painel de desenvolvedores do Shopee Open Platform.
+            </p>
+            <div style={{
+              background: "rgba(45, 43, 39, 0.02)",
+              border: "1px solid rgba(45, 43, 39, 0.08)",
+              padding: "1rem",
+              borderRadius: "6px",
+              fontSize: "0.8rem",
+              fontFamily: "monospace",
+              color: "var(--gold)"
+            }}>
+              1. Abra o arquivo .env.local<br/>
+              2. Preencha SHOPEE_PARTNER_ID e SHOPEE_PARTNER_KEY<br/>
+              3. Reinicie a aplicação local
+            </div>
+            <p style={{ fontSize: "0.85rem", color: "var(--foreground-muted)", lineHeight: "1.6" }}>
+              Se você deseja apenas testar a interface do fluxo de autenticação e preencher a conta no sistema de forma demonstrativa, você pode acessar o **Simulador Interativo**.
+            </p>
+            <div style={{ display: "flex", gap: "10px" }}>
+              <button
+                onClick={() => {
+                  setShowShopeeCredsWarning(false);
+                  setShowShopeeOAuth(true);
+                }}
+                className="btn-gold"
+                style={{ flex: 1, padding: "0.6rem 0", fontSize: "0.8rem" }}
+              >
+                Acessar Simulador
+              </button>
+              <button
+                onClick={() => setShowShopeeCredsWarning(false)}
                 className="btn-outline"
                 style={{ flex: 1, padding: "0.6rem 0", fontSize: "0.8rem" }}
               >
