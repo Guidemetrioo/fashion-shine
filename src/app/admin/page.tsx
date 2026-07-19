@@ -339,12 +339,25 @@ export default function AdminDashboard() {
   ]);
 
   // Mock Synced Orders Data
-  const [orders, setOrders] = useState<ChannelOrder[]>([
-    { id: "ord-101", orderId: "SHP-908237198", buyerName: "Ana Silva", channel: "shopee", items: [{ name: "Satin Evening Gown", quantity: 1, price: 1899 }], total: 1899, status: "pending", trackingCode: "BR987654321SH", date: "2026-07-01 18:22" },
-    { id: "ord-102", orderId: "MLB-450912384", buyerName: "Carlos Santos", channel: "mercadolivre", items: [{ name: "Cashmere Double Coat", quantity: 1, price: 2450 }], total: 2450, status: "ready_to_ship", trackingCode: "ML123456789BR", date: "2026-07-01 16:45" },
-    { id: "ord-103", orderId: "SHP-776123091", buyerName: "Mariana Souza", channel: "shopee", items: [{ name: "Aurelia Leather Handbag", quantity: 1, price: 3120 }], total: 3120, status: "shipped", trackingCode: "BR888777666SH", date: "2026-07-01 12:10" },
-    { id: "ord-104", orderId: "MLB-882390129", buyerName: "Julia Rocha", channel: "mercadolivre", items: [{ name: "Stella Metallic Heels", quantity: 1, price: 1490 }], total: 1490, status: "delivered", trackingCode: "ML999888777BR", date: "2026-06-30 15:30" },
-  ]);
+  const [orders, setOrders] = useState<ChannelOrder[]>(() => {
+    const getTodayDateString = (offsetHours = 0) => {
+      const d = new Date();
+      d.setHours(d.getHours() - offsetHours);
+      const yyyy = d.getFullYear();
+      const mm = String(d.getMonth() + 1).padStart(2, '0');
+      const dd = String(d.getDate()).padStart(2, '0');
+      const hh = String(d.getHours()).padStart(2, '0');
+      const min = String(d.getMinutes()).padStart(2, '0');
+      return `${yyyy}-${mm}-${dd} ${hh}:${min}`;
+    };
+
+    return [
+      { id: "ord-101", orderId: "SHP-908237198", buyerName: "Ana Silva", channel: "shopee", items: [{ name: "Satin Evening Gown", quantity: 1, price: 1899 }], total: 1899, status: "pending", trackingCode: "BR987654321SH", date: getTodayDateString(1) },
+      { id: "ord-102", orderId: "MLB-450912384", buyerName: "Carlos Santos", channel: "mercadolivre", items: [{ name: "Cashmere Double Coat", quantity: 1, price: 2450 }], total: 2450, status: "ready_to_ship", trackingCode: "ML123456789BR", date: getTodayDateString(3) },
+      { id: "ord-103", orderId: "SHP-776123091", buyerName: "Mariana Souza", channel: "shopee", items: [{ name: "Aurelia Leather Handbag", quantity: 1, price: 3120 }], total: 3120, status: "shipped", trackingCode: "BR888777666SH", date: getTodayDateString(25) },
+      { id: "ord-104", orderId: "MLB-882390129", buyerName: "Julia Rocha", channel: "mercadolivre", items: [{ name: "Stella Metallic Heels", quantity: 1, price: 1490 }], total: 1490, status: "delivered", trackingCode: "ML999888777BR", date: getTodayDateString(49) },
+    ];
+  });
 
   // Orders table filters
   const [orderChannelFilter, setOrderChannelFilter] = useState<"all" | "shopee" | "mercadolivre">("all");
@@ -451,6 +464,23 @@ export default function AdminDashboard() {
   const shopeeRevenue = orders.filter((o) => o.channel === "shopee").reduce((sum, o) => sum + o.total, 0);
   const mlRevenue = orders.filter((o) => o.channel === "mercadolivre").reduce((sum, o) => sum + o.total, 0);
   const totalSyncCount = products.length;
+
+  // Today's Stats
+  const getTodayPrefix = () => {
+    const d = new Date();
+    const yyyy = d.getFullYear();
+    const mm = String(d.getMonth() + 1).padStart(2, '0');
+    const dd = String(d.getDate()).padStart(2, '0');
+    return `${yyyy}-${mm}-${dd}`;
+  };
+  const todayPrefix = getTodayPrefix();
+  const todayOrders = orders.filter(o => o.date.startsWith(todayPrefix));
+  const todayOrdersCount = todayOrders.length;
+  const todayRevenue = todayOrders.reduce((sum, o) => sum + o.total, 0);
+  const shopeeTodayOrders = todayOrders.filter(o => o.channel === "shopee");
+  const mlTodayOrders = todayOrders.filter(o => o.channel === "mercadolivre");
+  const shopeeTodayRevenue = shopeeTodayOrders.reduce((sum, o) => sum + o.total, 0);
+  const mlTodayRevenue = mlTodayOrders.reduce((sum, o) => sum + o.total, 0);
 
   const filteredOrders = orders.filter((o) => {
     const matchesChannel = orderChannelFilter === "all" || o.channel === orderChannelFilter;
@@ -591,35 +621,27 @@ export default function AdminDashboard() {
         {/* Tab 1: Dashboard Overview */}
         {activeTab === "dashboard" && (
           <div className="animate-fade-in">
-            {/* Stats Row */}
-            <div className="stats-grid">
-              <div className="stats-card">
-                <span style={{ fontSize: "0.8rem", color: "#a1a1aa", textTransform: "uppercase", letterSpacing: "0.05em" }}>Total Synced Revenue</span>
-                <h3 className="font-serif" style={{ fontSize: "2rem", color: "var(--gold)", margin: "0.5rem 0" }}>
-                  R$ {totalRevenue.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+            {/* Today's Live Stats Row */}
+            <div className="stats-grid" style={{ marginBottom: "1.5rem" }}>
+              <div className="stats-card" style={{ borderLeft: "4px solid var(--gold)" }}>
+                <span style={{ fontSize: "0.8rem", color: "var(--foreground-muted)", textTransform: "uppercase", letterSpacing: "0.05em", fontWeight: "600" }}>Pedidos de Hoje</span>
+                <h3 className="font-serif" style={{ fontSize: "2.2rem", color: "var(--foreground)", margin: "0.5rem 0", fontWeight: "700" }}>
+                  {todayOrdersCount} {todayOrdersCount === 1 ? "Pedido" : "Pedidos"}
                 </h3>
-                <div style={{ display: "flex", gap: "12px", fontSize: "0.75rem", color: "#a1a1aa" }}>
-                  <span>Shopee: <strong className="channel-shopee">R$ {shopeeRevenue.toLocaleString("pt-BR")}</strong></span>
-                  <span>M. Livre: <strong className="channel-ml">R$ {mlRevenue.toLocaleString("pt-BR")}</strong></span>
+                <div style={{ display: "flex", gap: "12px", fontSize: "0.75rem", color: "var(--foreground-muted)" }}>
+                  <span>Shopee: <strong className="channel-shopee">{shopeeTodayOrders.length}</strong></span>
+                  <span>M. Livre: <strong className="channel-ml">{mlTodayOrders.length}</strong></span>
                 </div>
               </div>
 
-              <div className="stats-card">
-                <span style={{ fontSize: "0.8rem", color: "#a1a1aa", textTransform: "uppercase", letterSpacing: "0.05em" }}>Synced Listings</span>
-                <h3 className="font-serif" style={{ fontSize: "2rem", margin: "0.5rem 0" }}>{totalSyncCount} / 4 Products</h3>
-                <div style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "0.75rem", color: "#a1a1aa" }}>
-                  <span className="pulse-green" />
-                  <span>All SKUs mapped bidirectionally</span>
-                </div>
-              </div>
-
-              <div className="stats-card">
-                <span style={{ fontSize: "0.8rem", color: "#a1a1aa", textTransform: "uppercase", letterSpacing: "0.05em" }}>Processing Orders</span>
-                <h3 className="font-serif" style={{ fontSize: "2rem", margin: "0.5rem 0" }}>
-                  {orders.filter(o => o.status === "pending" || o.status === "ready_to_ship").length} Orders
+              <div className="stats-card" style={{ borderLeft: "4px solid var(--gold)" }}>
+                <span style={{ fontSize: "0.8rem", color: "var(--foreground-muted)", textTransform: "uppercase", letterSpacing: "0.05em", fontWeight: "600" }}>Faturamento de Hoje</span>
+                <h3 className="font-serif" style={{ fontSize: "2.2rem", color: "var(--gold)", margin: "0.5rem 0", fontWeight: "700" }}>
+                  R$ {todayRevenue.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
                 </h3>
-                <div style={{ fontSize: "0.75rem", color: "#a1a1aa" }}>
-                  <span>Waiting shipping validation or courier label print</span>
+                <div style={{ display: "flex", gap: "12px", fontSize: "0.75rem", color: "var(--foreground-muted)" }}>
+                  <span>Shopee: <strong className="channel-shopee">R$ {shopeeTodayRevenue.toLocaleString("pt-BR")}</strong></span>
+                  <span>M. Livre: <strong className="channel-ml">R$ {mlTodayRevenue.toLocaleString("pt-BR")}</strong></span>
                 </div>
               </div>
             </div>
@@ -933,6 +955,39 @@ export default function AdminDashboard() {
                   </table>
                 </div>
               )}
+            </div>
+
+            {/* Overall System Stats (Consolidated indicators) */}
+            <div className="stats-grid" style={{ marginBottom: "2.5rem" }}>
+              <div className="stats-card">
+                <span style={{ fontSize: "0.8rem", color: "var(--foreground-muted)", textTransform: "uppercase", letterSpacing: "0.05em" }}>Total Synced Revenue</span>
+                <h3 className="font-serif" style={{ fontSize: "2rem", color: "var(--gold)", margin: "0.5rem 0", fontWeight: "600" }}>
+                  R$ {totalRevenue.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+                </h3>
+                <div style={{ display: "flex", gap: "12px", fontSize: "0.75rem", color: "var(--foreground-muted)" }}>
+                  <span>Shopee: <strong className="channel-shopee">R$ {shopeeRevenue.toLocaleString("pt-BR")}</strong></span>
+                  <span>M. Livre: <strong className="channel-ml">R$ {mlRevenue.toLocaleString("pt-BR")}</strong></span>
+                </div>
+              </div>
+
+              <div className="stats-card">
+                <span style={{ fontSize: "0.8rem", color: "var(--foreground-muted)", textTransform: "uppercase", letterSpacing: "0.05em" }}>Synced Listings</span>
+                <h3 className="font-serif" style={{ fontSize: "2rem", margin: "0.5rem 0", fontWeight: "600" }}>{totalSyncCount} / 4 Products</h3>
+                <div style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "0.75rem", color: "var(--foreground-muted)" }}>
+                  <span className="pulse-green" />
+                  <span>All SKUs mapped bidirectionally</span>
+                </div>
+              </div>
+
+              <div className="stats-card">
+                <span style={{ fontSize: "0.8rem", color: "var(--foreground-muted)", textTransform: "uppercase", letterSpacing: "0.05em" }}>Processing Orders</span>
+                <h3 className="font-serif" style={{ fontSize: "2rem", margin: "0.5rem 0", fontWeight: "600" }}>
+                  {orders.filter(o => o.status === "pending" || o.status === "ready_to_ship").length} Orders
+                </h3>
+                <div style={{ fontSize: "0.75rem", color: "var(--foreground-muted)" }}>
+                  <span>Waiting shipping validation or courier label print</span>
+                </div>
+              </div>
             </div>
 
             {/* Bottom Row side-by-side layout (Visualizer and Logs Console) */}
