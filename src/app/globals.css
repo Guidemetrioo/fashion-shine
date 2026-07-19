@@ -1,15 +1,16 @@
 :root {
-  --background-start: #080809;
-  --background-end: #121215;
-  --foreground: #f4f4f6;
-  --foreground-muted: #a1a1aa;
-  --gold: #d4af37;
-  --gold-light: #f3e5ab;
-  --gold-hover: #e6c653;
-  --dark-accent: #1c1c21;
-  --glass-bg: rgba(18, 18, 21, 0.75);
-  --glass-border: rgba(212, 175, 55, 0.15);
-  --glass-border-light: rgba(255, 255, 255, 0.08);
+  /* Warm cream/off-white theme matching the logo background */
+  --background-start: #f6f4ee;
+  --background-end: #eae8df;
+  --foreground: #2d2b27;
+  --foreground-muted: #78736a;
+  --gold: #b3975a;         /* Elegant warm gold matching logo artwork */
+  --gold-light: #e5dcc6;   /* Soft lighter gold tint */
+  --gold-hover: #a18347;   /* Rich gold hover */
+  --dark-accent: #fbfaf8;  /* Light background accent for cards */
+  --glass-bg: rgba(251, 250, 247, 0.85); /* Milky warm glass */
+  --glass-border: rgba(179, 151, 90, 0.25);
+  --glass-border-light: rgba(45, 43, 39, 0.08);
   --transition-smooth: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
   --font-serif: 'Playfair Display', Georgia, serif;
   --font-sans: 'Outfit', sans-serif;

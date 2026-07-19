@@ -17,11 +17,38 @@ export async function POST(request: NextRequest) {
       shopeeItemId,
       mlItemId: initialMlItemId,
       publishToMeli,
-      categoryId
+      categoryId,
+      condition,
+      listing_type_id,
+      gtin,
+      brand,
+      material,
+      color,
+      gender,
+      sizes,
+      weight,
+      length,
+      width,
+      height
     } = body;
 
     if (!name || !sku) {
       return NextResponse.json({ error: "Nome e SKU são obrigatórios" }, { status: 400 });
+    }
+
+    if (publishToMeli) {
+      if (name.trim().length > 60) {
+        return NextResponse.json({ error: "O título do anúncio para o Mercado Livre deve ter no máximo 60 caracteres." }, { status: 400 });
+      }
+      if (!brand || !brand.trim()) {
+        return NextResponse.json({ error: "A marca (BRAND) é obrigatória para publicar no Mercado Livre." }, { status: 400 });
+      }
+      if (!material || !material.trim()) {
+        return NextResponse.json({ error: "O material principal (MATERIAL) é obrigatório para publicar no Mercado Livre." }, { status: 400 });
+      }
+      if (!gender || !gender.trim()) {
+        return NextResponse.json({ error: "O gênero (GENDER) é obrigatório para publicar no Mercado Livre." }, { status: 400 });
+      }
     }
 
     const products = await getDBProducts();
@@ -51,6 +78,34 @@ export async function POST(request: NextRequest) {
       const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
       const publicImageUrl = `${appUrl}/api/products/image/${productId}`;
 
+      // Build ML attributes array dynamically
+      const mlAttributes = [
+        { id: "BRAND", value_name: brand.trim() },
+        { id: "MODEL", value_name: sku.trim() },
+        { id: "GTIN", value_name: gtin ? gtin.trim() : "Não se aplica" },
+        { id: "MATERIAL", value_name: material.trim() },
+        { id: "GENDER", value_name: gender.trim() }
+      ];
+
+      if (color && color.trim()) {
+        mlAttributes.push({ id: "COLOR", value_name: color.trim() });
+      }
+      if (sizes && sizes.trim()) {
+        mlAttributes.push({ id: "SIZE", value_name: sizes.trim() });
+      }
+      if (weight) {
+        mlAttributes.push({ id: "PACKAGE_WEIGHT", value_name: `${weight} g` });
+      }
+      if (length) {
+        mlAttributes.push({ id: "PACKAGE_LENGTH", value_name: `${length} cm` });
+      }
+      if (width) {
+        mlAttributes.push({ id: "PACKAGE_WIDTH", value_name: `${width} cm` });
+      }
+      if (height) {
+        mlAttributes.push({ id: "PACKAGE_HEIGHT", value_name: `${height} cm` });
+      }
+
       const mlPayload = {
         title: name.trim(),
         category_id: categoryId || "MLB1434", // Default to Jewelry/Necklaces
@@ -58,17 +113,13 @@ export async function POST(request: NextRequest) {
         currency_id: "BRL",
         available_quantity: mlStockNum,
         buying_mode: "buy_it_now",
-        listing_type_id: "gold_special", // Default to classic
-        condition: "new",
+        listing_type_id: listing_type_id || "gold_special",
+        condition: condition || "new",
         pictures: imageUrl ? [{ source: publicImageUrl }] : [],
         description: {
           plain_text: description || "Produto de alta qualidade da Fashion Shine."
         },
-        attributes: [
-          { id: "BRAND", value_name: "Fashion Shine" },
-          { id: "MODEL", value_name: sku.trim() },
-          { id: "GTIN", value_name: "Não se aplica" }
-        ]
+        attributes: mlAttributes
       };
 
       console.log(`[ML Publisher]: Publishing item SKU ${sku} to Mercado Livre...`);

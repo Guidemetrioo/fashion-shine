@@ -59,6 +59,7 @@ export default function AdminDashboard() {
   const [newProdListingType, setNewProdListingType] = useState("gold_special");
   const [newProdGtin, setNewProdGtin] = useState("");
   const [newProdBrand, setNewProdBrand] = useState("");
+  const [newProdMaterial, setNewProdMaterial] = useState("");
   const [newProdColor, setNewProdColor] = useState("");
   const [newProdGender, setNewProdGender] = useState("");
   const [newProdSizes, setNewProdSizes] = useState("");
@@ -87,6 +88,25 @@ export default function AdminDashboard() {
       return;
     }
 
+    if (publishToMeli) {
+      if (newProdName.trim().length > 60) {
+        alert("O Título do Anúncio no Mercado Livre não pode ter mais de 60 caracteres.");
+        return;
+      }
+      if (!newProdBrand.trim()) {
+        alert("A Marca (BRAND) é obrigatória para publicar no Mercado Livre.");
+        return;
+      }
+      if (!newProdMaterial.trim()) {
+        alert("O Material Principal (MATERIAL) é obrigatório para publicar no Mercado Livre.");
+        return;
+      }
+      if (!newProdGender) {
+        alert("O Gênero (GENDER) é obrigatório para publicar no Mercado Livre.");
+        return;
+      }
+    }
+
     setIsCreatingProduct(true);
     try {
       const res = await fetch("/api/products/create", {
@@ -109,6 +129,7 @@ export default function AdminDashboard() {
           listing_type_id: newProdListingType,
           gtin: newProdGtin || undefined,
           brand: newProdBrand || undefined,
+          material: newProdMaterial || undefined,
           color: newProdColor || undefined,
           gender: newProdGender || undefined,
           sizes: newProdSizes || undefined,
@@ -151,6 +172,7 @@ export default function AdminDashboard() {
         setNewProdListingType("gold_special");
         setNewProdGtin("");
         setNewProdBrand("");
+        setNewProdMaterial("");
         setNewProdColor("");
         setNewProdGender("");
         setNewProdSizes("");
@@ -444,15 +466,18 @@ export default function AdminDashboard() {
     <div className="admin-layout">
       {/* Top sticky nav bar */}
       <header className="admin-header">
-        <div className="admin-container" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "1rem 2rem" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
-            <span className="font-serif" style={{ fontSize: "1.6rem", letterSpacing: "0.1em", textTransform: "uppercase" }}>
-              Fashion <span style={{ color: "var(--gold)" }}>Shine</span>
-            </span>
+        <div className="admin-container" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "0.8rem 2rem" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "1.2rem" }}>
+            <img 
+              src="/logo.png" 
+              alt="Fashion Shine Semijoias" 
+              style={{ height: "48px", width: "auto", objectFit: "contain" }}
+            />
             <span style={{
-              background: "rgba(212, 175, 55, 0.15)",
+              background: "rgba(179, 151, 90, 0.12)",
               color: "var(--gold)",
-              fontSize: "0.75rem",
+              fontSize: "0.72rem",
+              fontWeight: "600",
               padding: "4px 10px",
               borderRadius: "4px",
               letterSpacing: "0.05em",
@@ -1429,11 +1454,11 @@ export default function AdminDashboard() {
             width: "560px",
             height: "calc(100% - 2rem)",
             margin: "1rem",
-            background: "#0c0d12",
-            color: "#e3e1e9",
-            border: "1px solid rgba(212, 175, 55, 0.6)",
+            background: "#ffffff",
+            color: "var(--foreground)",
+            border: "1px solid var(--gold)",
             borderRadius: "16px",
-            boxShadow: "0 20px 40px rgba(0,0,0,0.8), 0 0 15px rgba(212, 175, 55, 0.15)",
+            boxShadow: "0 20px 40px rgba(45,43,39,0.12), 0 0 15px rgba(179,151,90,0.08)",
             display: "flex",
             flexDirection: "column",
             zIndex: 421,
@@ -1451,7 +1476,7 @@ export default function AdminDashboard() {
               </h3>
               <button 
                 onClick={() => setShowAddProductModal(false)}
-                style={{ background: "none", border: "none", color: "#a1a1aa", fontSize: "1.5rem", cursor: "pointer", padding: "0 5px" }}
+                style={{ background: "none", border: "none", color: "var(--foreground-muted)", fontSize: "1.5rem", cursor: "pointer", padding: "0 5px" }}
               >
                 &times;
               </button>
@@ -1780,10 +1805,11 @@ export default function AdminDashboard() {
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.75rem" }}>
                   <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
                     <label style={{ fontSize: "0.78rem", fontWeight: "600", color: "#e3e1e9" }}>
-                      Marca (BRAND) <span style={{ color: "#ff4d4d" }}>*</span>
+                      Marca (BRAND) {publishToMeli && <span style={{ color: "#ff4d4d" }}>*</span>}
                     </label>
                     <input
                       type="text"
+                      required={publishToMeli}
                       value={newProdBrand}
                       onChange={(e) => setNewProdBrand(e.target.value)}
                       placeholder="Ex: Fashion Shine"
@@ -1806,9 +1832,27 @@ export default function AdminDashboard() {
                   </div>
                 </div>
 
+                {/* Material */}
+                <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+                  <label style={{ fontSize: "0.78rem", fontWeight: "600", color: "#e3e1e9" }}>
+                    Material Principal (MATERIAL) {publishToMeli && <span style={{ color: "#ff4d4d" }}>*</span>}
+                  </label>
+                  <input
+                    type="text"
+                    required={publishToMeli}
+                    value={newProdMaterial}
+                    onChange={(e) => setNewProdMaterial(e.target.value)}
+                    placeholder="Ex: Prata 925, Aço Inoxidável, Liga de metal, Acrílico"
+                    className="admin-input"
+                    style={{ background: "#121216", border: "1px solid rgba(99,102,241,0.2)", padding: "0.6rem 0.75rem", borderRadius: "8px", fontSize: "0.82rem" }}
+                  />
+                </div>
+
                 {/* Gênero */}
                 <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
-                  <label style={{ fontSize: "0.78rem", fontWeight: "600", color: "#e3e1e9" }}>Gênero (GENDER)</label>
+                  <label style={{ fontSize: "0.78rem", fontWeight: "600", color: "#e3e1e9" }}>
+                    Gênero (GENDER) {publishToMeli && <span style={{ color: "#ff4d4d" }}>*</span>}
+                  </label>
                   <div style={{ display: "flex", gap: "6px" }}>
                     {["", "Feminino", "Masculino", "Unissex"].map((g) => (
                       <button
@@ -1977,6 +2021,7 @@ export default function AdminDashboard() {
           </div>
         </div>
       )}
+
       {/* Credentials Warning Modal */}
       {showMlCredsWarning && (
         <div style={{
@@ -2000,7 +2045,7 @@ export default function AdminDashboard() {
               left: 0,
               width: "100%",
               height: "100%",
-              background: "rgba(0, 0, 0, 0.8)",
+              background: "rgba(0, 0, 0, 0.4)",
               backdropFilter: "blur(4px)",
             }}
           />
@@ -2010,11 +2055,11 @@ export default function AdminDashboard() {
             position: "relative",
             width: "480px",
             maxWidth: "100%",
-            background: "#1c1c21",
-            color: "#f3f3f6",
+            background: "#ffffff",
+            color: "var(--foreground)",
             border: "1px solid var(--gold)",
-            borderRadius: "6px",
-            boxShadow: "0 25px 50px rgba(0,0,0,0.6)",
+            borderRadius: "12px",
+            boxShadow: "0 25px 50px rgba(45,43,39,0.15)",
             padding: "2rem",
             display: "flex",
             flexDirection: "column",
@@ -2022,20 +2067,20 @@ export default function AdminDashboard() {
             zIndex: 451,
             animation: "fadeIn 0.3s ease-out"
           }}>
-            <h3 className="font-serif" style={{ fontSize: "1.3rem", color: "var(--gold)" }}>
+            <h3 className="font-serif" style={{ fontSize: "1.3rem", color: "var(--gold)", fontWeight: "600" }}>
               Credenciais de API Requeridas
             </h3>
             <p style={{ fontSize: "0.85rem", color: "var(--foreground-muted)", lineHeight: "1.6" }}>
               Para conectar-se efetivamente à sua conta real do Mercado Livre, você deve primeiro configurar as chaves de API obtidas no painel de desenvolvedores do Mercado Livre.
             </p>
             <div style={{
-              background: "rgba(255, 255, 255, 0.03)",
-              border: "1px solid rgba(255, 255, 255, 0.08)",
+              background: "rgba(45, 43, 39, 0.02)",
+              border: "1px solid rgba(45, 43, 39, 0.08)",
               padding: "1rem",
-              borderRadius: "4px",
+              borderRadius: "6px",
               fontSize: "0.8rem",
               fontFamily: "monospace",
-              color: "var(--gold-light)"
+              color: "var(--gold)"
             }}>
               1. Abra o arquivo .env.local<br/>
               2. Preencha ML_CLIENT_ID e ML_CLIENT_SECRET<br/>
@@ -2066,6 +2111,7 @@ export default function AdminDashboard() {
           </div>
         </div>
       )}
+
     </div>
   );
 }
