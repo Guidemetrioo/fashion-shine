@@ -471,7 +471,7 @@ export default function AdminDashboard() {
             <img 
               src="/logo.png" 
               alt="Fashion Shine Semijoias" 
-              style={{ height: "48px", width: "auto", objectFit: "contain" }}
+              style={{ height: "80px", width: "auto", objectFit: "contain" }}
             />
             <span style={{
               background: "rgba(179, 151, 90, 0.12)",
