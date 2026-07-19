@@ -378,7 +378,7 @@ export default function AdminDashboard() {
   const handleSyncAll = () => {
     if (isSyncing) return;
     setIsSyncing(true);
-    addLog("Triggering manual channel synchronization...", "all", "success");
+    addLog("Iniciando sincronização manual dos canais...", "all", "success");
 
     setTimeout(async () => {
       try {
@@ -405,9 +405,9 @@ export default function AdminDashboard() {
         console.error("Sync error:", err);
       }
       setIsSyncing(false);
-      addLog("Shopee API: Synced catalog listings and checked for payments.", "shopee", "success");
-      addLog("Mercado Livre API: Pushed local inventory updates to channels.", "mercadolivre", "success");
-      addLog("System Sync: Completed. All inventory stock matched.", "all", "success");
+      addLog("API Shopee: Catálogo de anúncios sincronizado e pagamentos verificados.", "shopee", "success");
+      addLog("API Mercado Livre: Sincronização de estoque local enviada aos canais.", "mercadolivre", "success");
+      addLog("Sincronização do Sistema: Concluída com sucesso. Todo o estoque de inventário bate.", "all", "success");
     }, 1800);
   };
 
@@ -434,9 +434,9 @@ export default function AdminDashboard() {
             })
           }).then(res => {
             if (res.ok) {
-              addLog(`Central Inventory: Updated and synced SKU ${p.sku} to ${val} units.`, channel, "success");
+              addLog(`Estoque Central: SKU ${p.sku} atualizado e sincronizado para ${val} unidades.`, channel, "success");
             } else {
-              addLog(`Central Inventory: Failed to sync SKU ${p.sku} stock.`, channel, "error");
+              addLog(`Estoque Central: Falha ao sincronizar o estoque do SKU ${p.sku}.`, channel, "error");
             }
           });
 
@@ -445,7 +445,7 @@ export default function AdminDashboard() {
             shopeeStock: val,
             mlStock: val,
             totalStock: val,
-            lastSync: "Just now",
+            lastSync: "Agora mesmo",
           };
         }
         return p;
@@ -455,8 +455,8 @@ export default function AdminDashboard() {
 
   // Simulated Label printing
   const handlePrintLabel = (orderId: string, channel: string) => {
-    alert(`📄 Shipping Label for Order ${orderId} (${channel.toUpperCase()}) generated successfully. Ready to print.`);
-    addLog(`Printed shipping label for order ${orderId} (${channel.toUpperCase()}).`, channel as any, "success");
+    alert(`📄 Etiqueta de Envio para o Pedido ${orderId} (${channel.toUpperCase()}) gerada com sucesso. Pronto para imprimir.`);
+    addLog(`Etiqueta de envio impressa para o pedido ${orderId} (${channel.toUpperCase()}).`, channel as any, "success");
   };
 
   // Stats calculation
@@ -600,7 +600,7 @@ export default function AdminDashboard() {
               >
                 <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"></path>
               </svg>
-              {isSyncing ? "Syncing..." : "Sync All Channels"}
+              {isSyncing ? "Sincronizando..." : "Sincronizar Canais"}
             </button>
           </div>
         </div>
@@ -615,25 +615,25 @@ export default function AdminDashboard() {
             className={`admin-tab-btn ${activeTab === "dashboard" ? "active" : ""}`}
             onClick={() => setActiveTab("dashboard")}
           >
-            Dashboard Overview
+            Visão Geral
           </button>
           <button 
             className={`admin-tab-btn ${activeTab === "inventory" ? "active" : ""}`}
             onClick={() => setActiveTab("inventory")}
           >
-            Inventory Stock Sync ({totalSyncCount})
+            Sincronização de Estoque ({totalSyncCount})
           </button>
           <button 
             className={`admin-tab-btn ${activeTab === "orders" ? "active" : ""}`}
             onClick={() => setActiveTab("orders")}
           >
-            Orders Tracking ({orders.length})
+            Rastreamento de Pedidos ({orders.length})
           </button>
           <button 
             className={`admin-tab-btn ${activeTab === "settings" ? "active" : ""}`}
             onClick={() => setActiveTab("settings")}
           >
-            Integration Settings
+            Configurações de Integração
           </button>
         </div>
 
@@ -1012,61 +1012,31 @@ export default function AdminDashboard() {
               </div>
             </div>
 
-            {/* Bottom Row side-by-side layout (Visualizer and Logs Console) */}
-            <div style={{ display: "flex", flexWrap: "wrap", gap: "2rem", marginBottom: "2rem" }}>
-              {/* Sales Channels visualizer */}
-              <div className="stats-card" style={{ flex: "2 1 500px", padding: "2rem" }}>
-                <h4 className="font-serif" style={{ fontSize: "1.2rem", marginBottom: "1.5rem" }}>Channel Sales Performance</h4>
+            {/* Bottom Row (Marketplace Sales Performance Indicator) */}
+            <div style={{ marginBottom: "2rem" }}>
+              <div className="stats-card" style={{ padding: "1.5rem" }}>
                 <div style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
                   {/* Shopee Bar */}
                   <div>
                     <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.85rem", marginBottom: "0.5rem" }}>
-                      <span className="channel-shopee" style={{ fontWeight: "500" }}>Orange Channel (Shopee)</span>
-                      <span>{Math.round((shopeeRevenue / totalRevenue) * 100)}% ({orders.filter(o => o.channel === "shopee").length} Sales)</span>
+                      <span className="channel-shopee" style={{ fontWeight: "600" }}>Shopee</span>
+                      <span>{Math.round((shopeeRevenue / (totalRevenue || 1)) * 100)}% ({orders.filter(o => o.channel === "shopee").length} Vendas)</span>
                     </div>
                     <div style={{ background: "rgba(45, 43, 39, 0.06)", height: "12px", borderRadius: "6px", overflow: "hidden" }}>
-                      <div style={{ background: "#ee4d2d", height: "100%", width: `${(shopeeRevenue / totalRevenue) * 100}%` }} />
+                      <div style={{ background: "#ee4d2d", height: "100%", width: `${(shopeeRevenue / (totalRevenue || 1)) * 100}%` }} />
                     </div>
                   </div>
 
                   {/* Mercado Livre Bar */}
                   <div>
                     <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.85rem", marginBottom: "0.5rem" }}>
-                      <span className="channel-ml" style={{ fontWeight: "500" }}>Yellow Channel (Mercado Livre)</span>
-                      <span>{Math.round((mlRevenue / totalRevenue) * 100)}% ({orders.filter(o => o.channel === "mercadolivre").length} Sales)</span>
+                      <span className="channel-ml" style={{ fontWeight: "600" }}>Mercado Livre</span>
+                      <span>{Math.round((mlRevenue / (totalRevenue || 1)) * 100)}% ({orders.filter(o => o.channel === "mercadolivre").length} Vendas)</span>
                     </div>
                     <div style={{ background: "rgba(45, 43, 39, 0.06)", height: "12px", borderRadius: "6px", overflow: "hidden" }}>
-                      <div style={{ background: "var(--gold)", height: "100%", width: `${(mlRevenue / totalRevenue) * 100}%` }} />
+                      <div style={{ background: "var(--gold)", height: "100%", width: `${(mlRevenue / (totalRevenue || 1)) * 100}%` }} />
                     </div>
                   </div>
-                </div>
-              </div>
-
-              {/* Sync Feed console log */}
-              <div className="stats-card" style={{ flex: "1 1 350px", display: "flex", flexDirection: "column" }}>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem" }}>
-                  <h4 className="font-serif" style={{ fontSize: "1.1rem" }}>API Channel Logs</h4>
-                  <button 
-                    type="button"
-                    onClick={() => setSyncLogs([])}
-                    style={{ fontSize: "0.75rem", color: "var(--foreground-muted)" }}
-                  >
-                    Clear Console
-                  </button>
-                </div>
-                <div className="console-log" style={{ flex: 1 }}>
-                  {syncLogs.length === 0 ? (
-                    <span style={{ color: "#a1a1aa" }}>Console ready. Run sync to generate logs.</span>
-                  ) : (
-                    syncLogs.map((log) => (
-                      <div key={log.id} style={{ display: "flex", gap: "8px" }}>
-                        <span style={{ color: "rgba(255,255,255,0.3)" }}>[{log.timestamp}]</span>
-                        <span className={log.channel === "shopee" ? "channel-shopee" : log.channel === "mercadolivre" ? "channel-ml" : ""}>
-                          {log.message}
-                        </span>
-                      </div>
-                    ))
-                  )}
                 </div>
               </div>
             </div>
@@ -1151,13 +1121,13 @@ export default function AdminDashboard() {
               <table className="admin-table">
                 <thead>
                   <tr>
-                    <th>Product Name & SKU</th>
-                    <th>Base Price</th>
-                    <th>Shopee Channel Stock</th>
-                    <th>Mercado Livre Stock</th>
-                    <th>Consolidated Stock</th>
+                    <th>Nome do Produto & SKU</th>
+                    <th>Preço Base</th>
+                    <th>Estoque Shopee</th>
+                    <th>Estoque Mercado Livre</th>
+                    <th>Estoque Consolidado</th>
                     <th>Status</th>
-                    <th>Last Synchronized</th>
+                    <th>Última Sincronização</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -1212,13 +1182,13 @@ export default function AdminDashboard() {
                           </span>
                         </div>
                       </td>
-                      <td style={{ fontWeight: "600", fontSize: "1rem" }}>{prod.totalStock} units</td>
+                      <td style={{ fontWeight: "600", fontSize: "1rem" }}>{prod.totalStock} unidades</td>
                       <td>
                         <span className="badge" style={{ background: "rgba(57, 255, 20, 0.15)", color: "#39ff14" }}>
-                          Synced
+                          Sincronizado
                         </span>
                       </td>
-                      <td style={{ fontSize: "0.85rem", color: "var(--foreground-muted)" }}>{prod.lastSync}</td>
+                      <td style={{ fontSize: "0.85rem", color: "var(--foreground-muted)" }}>{prod.lastSync === "Just now" ? "Agora mesmo" : prod.lastSync}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -1255,7 +1225,7 @@ export default function AdminDashboard() {
                     fontWeight: orderChannelFilter === "all" ? "500" : "normal"
                   }}
                 >
-                  All Channels
+                  Todos os Canais
                 </button>
                 <button
                   onClick={() => setOrderChannelFilter("shopee")}
@@ -1287,18 +1257,18 @@ export default function AdminDashboard() {
 
               {/* Status Select filter */}
               <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                <span style={{ fontSize: "0.8rem", color: "var(--foreground-muted)" }}>Order Status:</span>
+                <span style={{ fontSize: "0.8rem", color: "var(--foreground-muted)" }}>Status do Pedido:</span>
                 <select
                   value={orderStatusFilter}
                   onChange={(e) => setOrderStatusFilter(e.target.value as any)}
                   className="admin-input"
                   style={{ padding: "6px 12px", fontSize: "0.8rem" }}
                 >
-                  <option value="all">Show All</option>
-                  <option value="pending">Pending</option>
-                  <option value="ready_to_ship">Ready to Ship</option>
-                  <option value="shipped">Shipped</option>
-                  <option value="delivered">Delivered</option>
+                  <option value="all">Ver Todos</option>
+                  <option value="pending">Pendente</option>
+                  <option value="ready_to_ship">Pronto para Envio</option>
+                  <option value="shipped">Enviado</option>
+                  <option value="delivered">Entregue</option>
                 </select>
               </div>
             </div>
@@ -1308,20 +1278,20 @@ export default function AdminDashboard() {
               <table className="admin-table">
                 <thead>
                   <tr>
-                    <th>Order & Tracking ID</th>
-                    <th>Channel</th>
-                    <th>Buyer</th>
-                    <th>Purchased Items</th>
-                    <th>Order Total</th>
-                    <th>Order Status</th>
-                    <th>Actions</th>
+                    <th>Pedido & ID de Rastreamento</th>
+                    <th>Canal</th>
+                    <th>Comprador</th>
+                    <th>Itens Comprados</th>
+                    <th>Total do Pedido</th>
+                    <th>Status do Pedido</th>
+                    <th>Ações</th>
                   </tr>
                 </thead>
                 <tbody>
                   {filteredOrders.length === 0 ? (
                     <tr>
                       <td colSpan={7} style={{ textAlign: "center", color: "var(--foreground-muted)", padding: "3rem" }}>
-                        No orders match the selected filters.
+                        Nenhum pedido corresponde aos filtros selecionados.
                       </td>
                     </tr>
                   ) : (
@@ -1331,7 +1301,7 @@ export default function AdminDashboard() {
                           <div style={{ display: "flex", flexDirection: "column" }}>
                             <span style={{ fontWeight: "500", color: "#ffffff" }}>{ord.orderId}</span>
                             <span style={{ fontSize: "0.75rem", color: "var(--foreground-muted)", fontFamily: "monospace" }}>
-                              Tracking: {ord.trackingCode}
+                              Rastreamento: {ord.trackingCode}
                             </span>
                           </div>
                         </td>
@@ -1360,9 +1330,9 @@ export default function AdminDashboard() {
                               ord.status === "ready_to_ship" ? "#ff7800" :
                               ord.status === "shipped" ? "#00b4ff" : "#39ff14",
                           }}>
-                            {ord.status === "pending" ? "Pending" :
-                             ord.status === "ready_to_ship" ? "Ready to Ship" :
-                             ord.status === "shipped" ? "Shipped" : "Delivered"}
+                            {ord.status === "pending" ? "Pendente" :
+                             ord.status === "ready_to_ship" ? "Pronto para Envio" :
+                             ord.status === "shipped" ? "Enviado" : "Entregue"}
                           </span>
                         </td>
                         <td>
@@ -1378,10 +1348,10 @@ export default function AdminDashboard() {
                                 fontWeight: "500"
                               }}
                             >
-                              Print Label
+                              Imprimir Etiqueta
                             </button>
                           ) : (
-                            <span style={{ fontSize: "0.75rem", color: "var(--foreground-muted)" }}>Label Ready</span>
+                            <span style={{ fontSize: "0.75rem", color: "var(--foreground-muted)" }}>Etiqueta Gerada</span>
                           )}
                         </td>
                       </tr>
@@ -1422,14 +1392,14 @@ export default function AdminDashboard() {
                     fontWeight: "500"
                   }}
                 >
-                  {config.shopeeConnected ? "Disconnect" : "Connect"}
+                  {config.shopeeConnected ? "Desconectar" : "Conectar"}
                 </button>
               </div>
 
               {config.shopeeConnected && (
                 <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
                   <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
-                    <label style={{ fontSize: "0.75rem", color: "var(--foreground-muted)" }}>App API Key</label>
+                    <label style={{ fontSize: "0.75rem", color: "var(--foreground-muted)" }}>Chave de API do App</label>
                     <input
                       type="password"
                       value={config.shopeeApiKey}
@@ -1438,7 +1408,7 @@ export default function AdminDashboard() {
                     />
                   </div>
                   <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
-                    <label style={{ fontSize: "0.75rem", color: "var(--foreground-muted)" }}>Shop ID Mapping</label>
+                    <label style={{ fontSize: "0.75rem", color: "var(--foreground-muted)" }}>Mapeamento do ID da Loja</label>
                     <input
                       type="text"
                       defaultValue="shp_shop_5510293"
@@ -1454,7 +1424,7 @@ export default function AdminDashboard() {
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                 <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
                   <span className="badge bg-ml">Mercado Livre</span>
-                  <h4 className="font-serif" style={{ fontSize: "1.2rem" }}>Mercado Livre API Setup</h4>
+                  <h4 className="font-serif" style={{ fontSize: "1.2rem" }}>Configuração da API do Mercado Livre</h4>
                 </div>
                 <button
                   onClick={() => {
@@ -1487,7 +1457,7 @@ export default function AdminDashboard() {
                     fontWeight: "500"
                   }}
                 >
-                  {config.mlConnected ? "Disconnect" : "Connect Account"}
+                  {config.mlConnected ? "Desconectar" : "Conectar Conta"}
                 </button>
               </div>
 
@@ -1500,11 +1470,11 @@ export default function AdminDashboard() {
                     borderRadius: "4px",
                     fontSize: "0.85rem"
                   }}>
-                    <span style={{ color: "var(--foreground-muted)" }}>Connected Account: </span>
+                    <span style={{ color: "var(--foreground-muted)" }}>Conta Conectada: </span>
                     <strong style={{ color: "#ffe600" }}>{mlAccountName}</strong>
                   </div>
                   <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
-                    <label style={{ fontSize: "0.75rem", color: "var(--foreground-muted)" }}>Access Token (OAuth 2.0)</label>
+                    <label style={{ fontSize: "0.75rem", color: "var(--foreground-muted)" }}>Token de Acesso (OAuth 2.0)</label>
                     <input
                       type="password"
                       value={config.mlApiKey}
@@ -1513,7 +1483,7 @@ export default function AdminDashboard() {
                     />
                   </div>
                   <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
-                    <label style={{ fontSize: "0.75rem", color: "var(--foreground-muted)" }}>Seller ID Mapping</label>
+                    <label style={{ fontSize: "0.75rem", color: "var(--foreground-muted)" }}>Mapeamento do ID do Vendedor</label>
                     <input
                       type="text"
                       defaultValue="mlb_sell_99812739"
@@ -1552,7 +1522,7 @@ export default function AdminDashboard() {
               ) : (
                 <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
                   <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
-                    <label style={{ fontSize: "0.75rem", color: "var(--foreground-muted)" }}>App Client ID</label>
+                    <label style={{ fontSize: "0.75rem", color: "var(--foreground-muted)" }}>ID do Cliente do App</label>
                     <input
                       type="text"
                       placeholder="Ex: 55102930981"
@@ -1562,7 +1532,7 @@ export default function AdminDashboard() {
                     />
                   </div>
                   <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
-                    <label style={{ fontSize: "0.75rem", color: "var(--foreground-muted)" }}>App Client Secret</label>
+                    <label style={{ fontSize: "0.75rem", color: "var(--foreground-muted)" }}>Chave Secreta do App</label>
                     <input
                       type="password"
                       placeholder="Sua chave secreta da API"
@@ -1576,12 +1546,12 @@ export default function AdminDashboard() {
                     className="btn-outline"
                     style={{ padding: "0.5rem 0", fontSize: "0.8rem", width: "100%" }}
                   >
-                    Save API Credentials
+                    Salvar Credenciais da API
                   </button>
                   <div style={{ color: "var(--foreground-muted)", fontSize: "0.8rem", fontStyle: "italic", marginTop: "4px" }}>
                     {isMlConfigured 
-                      ? "✓ Credentials configured. Click Connect to authorize."
-                      : "ⓘ Credentials missing. Fill inputs to configure real integration, or click Connect to access the Simulator."}
+                      ? "✓ Credenciais configuradas. Clique em Conectar Conta para autorizar."
+                      : "ⓘ Credenciais não configuradas. Preencha os campos para integração real, ou clique em Conectar Conta para acessar o Simulador."}
                   </div>
                 </div>
               )}
@@ -1589,7 +1559,7 @@ export default function AdminDashboard() {
 
             {/* General sync parameters */}
             <div className="connection-card" style={{ gridColumn: "1 / -1" }}>
-              <h4 className="font-serif" style={{ fontSize: "1.2rem", marginBottom: "0.5rem" }}>Automated Synchronization Parameters</h4>
+              <h4 className="font-serif" style={{ fontSize: "1.2rem", marginBottom: "0.5rem" }}>Parâmetros de Sincronização Automatizada</h4>
               
               <div style={{ display: "flex", flexWrap: "wrap", gap: "3rem", alignItems: "center" }}>
                 
@@ -1610,7 +1580,7 @@ export default function AdminDashboard() {
                     style={{ width: "18px", height: "18px", accentColor: "var(--gold)" }}
                   />
                   <label htmlFor="auto-sync" style={{ cursor: "pointer", fontSize: "0.9rem" }}>
-                    Enable real-time background sync
+                    Ativar sincronização automática em segundo plano
                   </label>
                 </div>
 
@@ -1618,7 +1588,7 @@ export default function AdminDashboard() {
                 {config.autoSync && (
                   <div style={{ display: "flex", alignItems: "center", gap: "15px", flex: 1, minWidth: "250px" }}>
                     <span style={{ fontSize: "0.85rem", color: "var(--foreground-muted)", whiteSpace: "nowrap" }}>
-                      Sync Frequency: <strong>{config.syncInterval} minutes</strong>
+                      Frequência de Sincronização: <strong>{config.syncInterval} minutos</strong>
                     </span>
                     <input
                       type="range"
@@ -1630,6 +1600,34 @@ export default function AdminDashboard() {
                       style={{ flex: 1, accentColor: "var(--gold)" }}
                     />
                   </div>
+                )}
+              </div>
+             </div>
+
+            {/* API Logs console card (relocated from dashboard overview) */}
+            <div className="stats-card" style={{ gridColumn: "1 / -1", display: "flex", flexDirection: "column", gap: "1rem" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <h4 className="font-serif" style={{ fontSize: "1.2rem", margin: 0 }}>Logs de Integração da API</h4>
+                <button 
+                  type="button"
+                  onClick={() => setSyncLogs([])}
+                  style={{ fontSize: "0.75rem", color: "var(--foreground-muted)", background: "none", border: "none", cursor: "pointer" }}
+                >
+                  Limpar Console
+                </button>
+              </div>
+              <div className="console-log" style={{ minHeight: "150px" }}>
+                {syncLogs.length === 0 ? (
+                  <span style={{ color: "#a1a1aa" }}>Console pronto. Execute a sincronização para gerar logs.</span>
+                ) : (
+                  syncLogs.map((log) => (
+                    <div key={log.id} style={{ display: "flex", gap: "8px" }}>
+                      <span style={{ color: "rgba(255,255,255,0.3)" }}>[{log.timestamp}]</span>
+                      <span className={log.channel === "shopee" ? "channel-shopee" : log.channel === "mercadolivre" ? "channel-ml" : ""}>
+                        {log.message}
+                      </span>
+                    </div>
+                  ))
                 )}
               </div>
             </div>
