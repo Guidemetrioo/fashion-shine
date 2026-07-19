@@ -482,6 +482,25 @@ export default function AdminDashboard() {
   const shopeeTodayRevenue = shopeeTodayOrders.reduce((sum, o) => sum + o.total, 0);
   const mlTodayRevenue = mlTodayOrders.reduce((sum, o) => sum + o.total, 0);
 
+  // Monthly Stats
+  const getMonthPrefix = () => {
+    const d = new Date();
+    const yyyy = d.getFullYear();
+    const mm = String(d.getMonth() + 1).padStart(2, '0');
+    return `${yyyy}-${mm}`;
+  };
+  const monthPrefix = getMonthPrefix();
+  const monthOrders = orders.filter(o => o.date.startsWith(monthPrefix));
+  const monthOrdersCount = monthOrders.length;
+  const monthRevenue = monthOrders.reduce((sum, o) => sum + o.total, 0);
+  const shopeeMonthRevenue = monthOrders.filter(o => o.channel === "shopee").reduce((sum, o) => sum + o.total, 0);
+  const mlMonthRevenue = monthOrders.filter(o => o.channel === "mercadolivre").reduce((sum, o) => sum + o.total, 0);
+  const shopeeMonthOrdersCount = monthOrders.filter(o => o.channel === "shopee").length;
+  const mlMonthOrdersCount = monthOrders.filter(o => o.channel === "mercadolivre").length;
+
+  // Active products & stock
+  const activeStockUnits = products.reduce((sum, p) => sum + (p.totalStock || 0), 0);
+
   const filteredOrders = orders.filter((o) => {
     const matchesChannel = orderChannelFilter === "all" || o.channel === orderChannelFilter;
     const matchesStatus = orderStatusFilter === "all" || o.status === orderStatusFilter;
@@ -960,32 +979,35 @@ export default function AdminDashboard() {
             {/* Overall System Stats (Consolidated indicators) */}
             <div className="stats-grid" style={{ marginBottom: "2.5rem" }}>
               <div className="stats-card">
-                <span style={{ fontSize: "0.8rem", color: "var(--foreground-muted)", textTransform: "uppercase", letterSpacing: "0.05em" }}>Total Synced Revenue</span>
+                <span style={{ fontSize: "0.8rem", color: "var(--foreground-muted)", textTransform: "uppercase", letterSpacing: "0.05em" }}>Faturamento Mensal</span>
                 <h3 className="font-serif" style={{ fontSize: "2rem", color: "var(--gold)", margin: "0.5rem 0", fontWeight: "600" }}>
-                  R$ {totalRevenue.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+                  R$ {monthRevenue.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
                 </h3>
                 <div style={{ display: "flex", gap: "12px", fontSize: "0.75rem", color: "var(--foreground-muted)" }}>
-                  <span>Shopee: <strong className="channel-shopee">R$ {shopeeRevenue.toLocaleString("pt-BR")}</strong></span>
-                  <span>M. Livre: <strong className="channel-ml">R$ {mlRevenue.toLocaleString("pt-BR")}</strong></span>
+                  <span>Shopee: <strong className="channel-shopee">R$ {shopeeMonthRevenue.toLocaleString("pt-BR")}</strong></span>
+                  <span>M. Livre: <strong className="channel-ml">R$ {mlMonthRevenue.toLocaleString("pt-BR")}</strong></span>
                 </div>
               </div>
 
               <div className="stats-card">
-                <span style={{ fontSize: "0.8rem", color: "var(--foreground-muted)", textTransform: "uppercase", letterSpacing: "0.05em" }}>Synced Listings</span>
-                <h3 className="font-serif" style={{ fontSize: "2rem", margin: "0.5rem 0", fontWeight: "600" }}>{totalSyncCount} / 4 Products</h3>
+                <span style={{ fontSize: "0.8rem", color: "var(--foreground-muted)", textTransform: "uppercase", letterSpacing: "0.05em" }}>Vendas no Mês</span>
+                <h3 className="font-serif" style={{ fontSize: "2rem", margin: "0.5rem 0", fontWeight: "600" }}>
+                  {monthOrdersCount} {monthOrdersCount === 1 ? "Pedido" : "Pedidos"}
+                </h3>
+                <div style={{ display: "flex", gap: "12px", fontSize: "0.75rem", color: "var(--foreground-muted)" }}>
+                  <span>Shopee: <strong className="channel-shopee">{shopeeMonthOrdersCount}</strong></span>
+                  <span>M. Livre: <strong className="channel-ml">{mlMonthOrdersCount}</strong></span>
+                </div>
+              </div>
+
+              <div className="stats-card">
+                <span style={{ fontSize: "0.8rem", color: "var(--foreground-muted)", textTransform: "uppercase", letterSpacing: "0.05em" }}>Produtos Ativos</span>
+                <h3 className="font-serif" style={{ fontSize: "2rem", margin: "0.5rem 0", fontWeight: "600" }}>
+                  {totalSyncCount} SKU's Ativos
+                </h3>
                 <div style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "0.75rem", color: "var(--foreground-muted)" }}>
                   <span className="pulse-green" />
-                  <span>All SKUs mapped bidirectionally</span>
-                </div>
-              </div>
-
-              <div className="stats-card">
-                <span style={{ fontSize: "0.8rem", color: "var(--foreground-muted)", textTransform: "uppercase", letterSpacing: "0.05em" }}>Processing Orders</span>
-                <h3 className="font-serif" style={{ fontSize: "2rem", margin: "0.5rem 0", fontWeight: "600" }}>
-                  {orders.filter(o => o.status === "pending" || o.status === "ready_to_ship").length} Orders
-                </h3>
-                <div style={{ fontSize: "0.75rem", color: "var(--foreground-muted)" }}>
-                  <span>Waiting shipping validation or courier label print</span>
+                  <span>{activeStockUnits} unidades físicas em estoque</span>
                 </div>
               </div>
             </div>
