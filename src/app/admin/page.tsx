@@ -7,25 +7,21 @@ import { ChannelOrder, ChannelProduct, IntegrationConfig, SyncLog } from "../../
 export default function AdminDashboard() {
   const [activeTab, setActiveTab] = useState<"dashboard" | "inventory" | "orders" | "settings">("dashboard");
   const [isSyncing, setIsSyncing] = useState(false);
-  const [syncLogs, setSyncLogs] = useState<SyncLog[]>([
-    { id: "1", timestamp: new Date(Date.now() - 60000 * 5).toLocaleTimeString(), type: "success", message: "Mercado Livre API: Inventory catalog sync completed successfully.", channel: "mercadolivre" },
-    { id: "2", timestamp: new Date(Date.now() - 60000 * 12).toLocaleTimeString(), type: "success", message: "Shopee API: Orders status check completed. 1 new order imported.", channel: "shopee" },
-    { id: "3", timestamp: new Date(Date.now() - 60000 * 20).toLocaleTimeString(), type: "success", message: "System: Bidirectional sync completed. 4 listings fully synchronized.", channel: "all" },
-  ]);
+  const [syncLogs, setSyncLogs] = useState<SyncLog[]>([]);
 
   // Integration Settings State
   const [config, setConfig] = useState<IntegrationConfig>({
-    shopeeConnected: true,
-    shopeeApiKey: "shp_act_89920119283",
-    mlConnected: true,
-    mlApiKey: "mla_prd_33829103982",
+    shopeeConnected: false,
+    shopeeApiKey: "",
+    mlConnected: false,
+    mlApiKey: "",
     autoSync: true,
     syncInterval: 15,
   });
 
   const [showMlOAuth, setShowMlOAuth] = useState(false);
-  const [mlAccountName, setMlAccountName] = useState("Fashion Shine Oficial");
-  const [mlTempAccountName, setMlTempAccountName] = useState("Fashion Shine Oficial");
+  const [mlAccountName, setMlAccountName] = useState("Desconectado");
+  const [mlTempAccountName, setMlTempAccountName] = useState("Desconectado");
   const [isConnectingMl, setIsConnectingMl] = useState(false);
   const [isImportingMl, setIsImportingMl] = useState(false);
 
@@ -39,8 +35,8 @@ export default function AdminDashboard() {
 
   // Shopee connection states
   const [showShopeeOAuth, setShowShopeeOAuth] = useState(false);
-  const [shopeeAccountName, setShopeeAccountName] = useState("Fashion Shine Shopee Oficial");
-  const [shopeeTempAccountName, setShopeeTempAccountName] = useState("Fashion Shine Shopee Oficial");
+  const [shopeeAccountName, setShopeeAccountName] = useState("Desconectado");
+  const [shopeeTempAccountName, setShopeeTempAccountName] = useState("Desconectado");
   const [isConnectingShopee, setIsConnectingShopee] = useState(false);
   const [isImportingShopee, setIsImportingShopee] = useState(false);
   const [shopeeInputPartnerId, setShopeeInputPartnerId] = useState("");
@@ -437,34 +433,11 @@ export default function AdminDashboard() {
   };
 
 
-  // Mock Synced Products Data
-  const [products, setProducts] = useState<ChannelProduct[]>([
-    { id: "gown-01", name: "Satin Evening Gown", sku: "FS-GOWN-MDNIGHT", basePrice: 1899, shopeeStock: 15, shopeeSynced: true, mlStock: 12, mlSynced: true, totalStock: 27, lastSync: "Just now" },
-    { id: "coat-01", name: "Cashmere Double Coat", sku: "FS-COAT-CARAMEL", basePrice: 2450, shopeeStock: 8, shopeeSynced: true, mlStock: 10, mlSynced: true, totalStock: 18, lastSync: "Just now" },
-    { id: "bag-01", name: "Aurelia Leather Handbag", sku: "FS-BAG-AURELIA", basePrice: 3120, shopeeStock: 5, shopeeSynced: true, mlStock: 4, mlSynced: true, totalStock: 9, lastSync: "Just now" },
-    { id: "heels-01", name: "Stella Metallic Heels", sku: "FS-HEELS-STELLA", basePrice: 1490, shopeeStock: 20, shopeeSynced: true, mlStock: 18, mlSynced: true, totalStock: 38, lastSync: "Just now" },
-  ]);
+  // Synced Products Data (starts empty)
+  const [products, setProducts] = useState<ChannelProduct[]>([]);
 
-  // Mock Synced Orders Data
-  const [orders, setOrders] = useState<ChannelOrder[]>(() => {
-    const getTodayDateString = (offsetHours = 0) => {
-      const d = new Date();
-      d.setHours(d.getHours() - offsetHours);
-      const yyyy = d.getFullYear();
-      const mm = String(d.getMonth() + 1).padStart(2, '0');
-      const dd = String(d.getDate()).padStart(2, '0');
-      const hh = String(d.getHours()).padStart(2, '0');
-      const min = String(d.getMinutes()).padStart(2, '0');
-      return `${yyyy}-${mm}-${dd} ${hh}:${min}`;
-    };
-
-    return [
-      { id: "ord-101", orderId: "SHP-908237198", buyerName: "Ana Silva", channel: "shopee", items: [{ name: "Satin Evening Gown", quantity: 1, price: 1899 }], total: 1899, status: "pending", trackingCode: "BR987654321SH", date: getTodayDateString(1) },
-      { id: "ord-102", orderId: "MLB-450912384", buyerName: "Carlos Santos", channel: "mercadolivre", items: [{ name: "Cashmere Double Coat", quantity: 1, price: 2450 }], total: 2450, status: "ready_to_ship", trackingCode: "ML123456789BR", date: getTodayDateString(3) },
-      { id: "ord-103", orderId: "SHP-776123091", buyerName: "Mariana Souza", channel: "shopee", items: [{ name: "Aurelia Leather Handbag", quantity: 1, price: 3120 }], total: 3120, status: "shipped", trackingCode: "BR888777666SH", date: getTodayDateString(25) },
-      { id: "ord-104", orderId: "MLB-882390129", buyerName: "Julia Rocha", channel: "mercadolivre", items: [{ name: "Stella Metallic Heels", quantity: 1, price: 1490 }], total: 1490, status: "delivered", trackingCode: "ML999888777BR", date: getTodayDateString(49) },
-    ];
-  });
+  // Synced Orders Data (starts empty)
+  const [orders, setOrders] = useState<ChannelOrder[]>([]);
 
   // Orders table filters
   const [orderChannelFilter, setOrderChannelFilter] = useState<"all" | "shopee" | "mercadolivre">("all");
