@@ -20,6 +20,13 @@ export interface DBProduct {
   lastSync: string;
   description?: string;
   imageUrl?: string;
+  shopeeCategoryId?: string;
+  shopeeBrandId?: string;
+  shopeeIsPreOrder?: boolean;
+  shopeeDaysToShip?: number;
+  shopeeLogistics?: string[];
+  tiktokCategoryId?: string;
+  tiktokBrandId?: string;
 }
 
 export function getLocalProducts(): DBProduct[] {
@@ -71,6 +78,13 @@ export async function getDBProducts(): Promise<DBProduct[]> {
       lastSync: row.last_sync ?? "",
       description: row.description ?? undefined,
       imageUrl: row.image_url ?? undefined,
+      shopeeCategoryId: row.shopee_category_id ?? undefined,
+      shopeeBrandId: row.shopee_brand_id ?? undefined,
+      shopeeIsPreOrder: row.shopee_is_pre_order ?? false,
+      shopeeDaysToShip: row.shopee_days_to_ship ? Number(row.shopee_days_to_ship) : undefined,
+      shopeeLogistics: row.shopee_logistics ? row.shopee_logistics.split(",") : [],
+      tiktokCategoryId: row.tiktok_category_id ?? undefined,
+      tiktokBrandId: row.tiktok_brand_id ?? undefined,
     }));
 
     // Backup locally
@@ -96,9 +110,11 @@ export async function saveDBProducts(products: DBProduct[]): Promise<void> {
       for (const p of products) {
         await sql`
           INSERT INTO products (
-            id, name, sku, base_price, shopee_stock, shopee_synced, shopee_item_id, ml_stock, ml_synced, ml_item_id, total_stock, last_sync, description, image_url
+            id, name, sku, base_price, shopee_stock, shopee_synced, shopee_item_id, ml_stock, ml_synced, ml_item_id, total_stock, last_sync, description, image_url,
+            shopee_category_id, shopee_brand_id, shopee_is_pre_order, shopee_days_to_ship, shopee_logistics, tiktok_category_id, tiktok_brand_id
           ) VALUES (
-            ${p.id}, ${p.name}, ${p.sku}, ${p.basePrice}, ${p.shopeeStock}, ${p.shopeeSynced}, ${p.shopeeItemId || null}, ${p.mlStock}, ${p.mlSynced}, ${p.mlItemId || null}, ${p.totalStock}, ${p.lastSync}, ${p.description || null}, ${p.imageUrl || null}
+            ${p.id}, ${p.name}, ${p.sku}, ${p.basePrice}, ${p.shopeeStock}, ${p.shopeeSynced}, ${p.shopeeItemId || null}, ${p.mlStock}, ${p.mlSynced}, ${p.mlItemId || null}, ${p.totalStock}, ${p.lastSync}, ${p.description || null}, ${p.imageUrl || null},
+            ${p.shopeeCategoryId || null}, ${p.shopeeBrandId || null}, ${p.shopeeIsPreOrder || false}, ${p.shopeeDaysToShip || null}, ${p.shopeeLogistics ? p.shopeeLogistics.join(",") : null}, ${p.tiktokCategoryId || null}, ${p.tiktokBrandId || null}
           )
           ON CONFLICT (id)
           DO UPDATE SET
@@ -114,7 +130,14 @@ export async function saveDBProducts(products: DBProduct[]): Promise<void> {
             total_stock = EXCLUDED.total_stock,
             last_sync = EXCLUDED.last_sync,
             description = EXCLUDED.description,
-            image_url = EXCLUDED.image_url
+            image_url = EXCLUDED.image_url,
+            shopee_category_id = EXCLUDED.shopee_category_id,
+            shopee_brand_id = EXCLUDED.shopee_brand_id,
+            shopee_is_pre_order = EXCLUDED.shopee_is_pre_order,
+            shopee_days_to_ship = EXCLUDED.shopee_days_to_ship,
+            shopee_logistics = EXCLUDED.shopee_logistics,
+            tiktok_category_id = EXCLUDED.tiktok_category_id,
+            tiktok_brand_id = EXCLUDED.tiktok_brand_id
         `;
       }
     } catch (err) {

@@ -60,6 +60,17 @@ export default function AdminDashboard() {
   const [newProdMlItemId, setNewProdMlItemId] = useState("");
   const [isCreatingProduct, setIsCreatingProduct] = useState(false);
 
+  // Shopee & TikTok Shop states
+  const [publishToShopee, setPublishToShopee] = useState(false);
+  const [shopeeCategoryId, setShopeeCategoryId] = useState("101140"); // Default Jewelry/Necklaces in Shopee
+  const [shopeeBrandId, setShopeeBrandId] = useState("0"); // 0 = No Brand
+  const [shopeeIsPreOrder, setShopeeIsPreOrder] = useState(false);
+  const [shopeeDaysToShip, setShopeeDaysToShip] = useState("7");
+  const [shopeeLogistics, setShopeeLogistics] = useState<string[]>(["correios"]);
+  const [publishToTiktok, setPublishToTiktok] = useState(false);
+  const [tiktokCategoryId, setTiktokCategoryId] = useState("600890"); // Default Necklaces in TikTok
+  const [tiktokBrandId, setTiktokBrandId] = useState("0"); // 0 = No Brand
+
   // New Meli publishing states
   const [publishToMeli, setPublishToMeli] = useState(false);
   const [meliCategoryId, setMeliCategoryId] = useState("MLB1434"); // Defaults to Necklaces
@@ -152,6 +163,16 @@ export default function AdminDashboard() {
           length: newProdLength ? Number(newProdLength) : undefined,
           width: newProdWidth ? Number(newProdWidth) : undefined,
           height: newProdHeight ? Number(newProdHeight) : undefined,
+          // Shopee and TikTok fields
+          publishToShopee,
+          shopeeCategoryId,
+          shopeeBrandId,
+          shopeeIsPreOrder,
+          shopeeDaysToShip,
+          shopeeLogistics,
+          publishToTiktok,
+          tiktokCategoryId,
+          tiktokBrandId
         })
       });
 
@@ -195,6 +216,16 @@ export default function AdminDashboard() {
         setNewProdLength("");
         setNewProdWidth("");
         setNewProdHeight("");
+        // Reset Shopee and TikTok fields
+        setPublishToShopee(false);
+        setShopeeCategoryId("101140");
+        setShopeeBrandId("0");
+        setShopeeIsPreOrder(false);
+        setShopeeDaysToShip("7");
+        setShopeeLogistics(["correios"]);
+        setPublishToTiktok(false);
+        setTiktokCategoryId("600890");
+        setTiktokBrandId("0");
         setShowAddProductModal(false);
       } else {
         alert(`❌ Erro ao cadastrar produto: ${data.error}`);
@@ -373,11 +404,36 @@ export default function AdminDashboard() {
     setIsImportingShopee(true);
     addLog("Shopee: Iniciando importação do catálogo...", "shopee", "success");
 
-    setTimeout(() => {
+    try {
+      const res = await fetch("/api/sync/shopee/import", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" }
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        addLog(`Shopee: Catálogo importado! Importado: ${data.importedCount}, Atualizado: ${data.updatedCount} anúncios.`, "shopee", "success");
+        alert(`🎉 Catálogo da Shopee importado com sucesso!\nImportados: ${data.importedCount} novos produtos\nAtualizados: ${data.updatedCount} produtos existentes`);
+        
+        // Refresh products list
+        const prodRes = await fetch("/api/sync/products");
+        if (prodRes.ok) {
+          const prodData = await prodRes.json();
+          if (prodData.products) {
+            setProducts(prodData.products);
+          }
+        }
+      } else {
+        const errMsg = data.error || "Falha ao importar catálogo";
+        addLog(`Shopee: Importação falhou - ${errMsg}`, "shopee", "error");
+        alert(`❌ Falha na Importação: ${errMsg}`);
+      }
+    } catch (err: any) {
+      console.error("Catalog import error:", err);
+      addLog(`Shopee: Importação falhou devido a um erro no servidor.`, "shopee", "error");
+      alert(`❌ Falha na Importação devido a um erro no servidor.`);
+    } finally {
       setIsImportingShopee(false);
-      addLog("Shopee: Importação concluída! 4 anúncios sincronizados.", "shopee", "success");
-      alert("🎉 Catálogo da Shopee importado com sucesso!\nSincronizados: 4 produtos");
-    }, 1500);
+    }
   };
 
 
@@ -1422,7 +1478,7 @@ export default function AdminDashboard() {
                         });
                       } else {
                         if (isShopeeConfigured) {
-                          setShowShopeeOAuth(true);
+                          window.location.href = "/api/auth/shopee";
                         } else {
                           setShowShopeeCredsWarning(true);
                         }
@@ -1910,13 +1966,30 @@ export default function AdminDashboard() {
                     <button
                       onClick={() => {
                         setIsConnectingMl(true);
-                        setTimeout(() => {
-                          setMlAccountName(mlTempAccountName || "Fashion Shine Oficial");
-                          setConfig(prev => ({ ...prev, mlConnected: true, mlApiKey: `mla_oauth_tok_fashion_shine_live_${Date.now()}` }));
-                          addLog(`Mercado Livre API: Account '${mlTempAccountName || "Fashion Shine Oficial"}' connected via OAuth 2.0.`, "mercadolivre", "success");
+                        // Persist mock connection in the backend
+                        fetch("/api/auth/status", {
+                          method: "POST",
+                          headers: { "Content-Type": "application/json" },
+                          body: JSON.stringify({
+                            channel: "mercadolivre",
+                            simulate: true,
+                            nickname: mlTempAccountName || "Fashion Shine Oficial"
+                          })
+                        }).then(res => {
+                          if (res.ok) {
+                            setMlAccountName(mlTempAccountName || "Fashion Shine Oficial");
+                            setConfig(prev => ({ ...prev, mlConnected: true, mlApiKey: `mla_oauth_tok_fashion_shine_live_${Date.now()}` }));
+                            addLog(`Mercado Livre API: Account '${mlTempAccountName || "Fashion Shine Oficial"}' connected via OAuth 2.0.`, "mercadolivre", "success");
+                          } else {
+                            alert("Falha ao salvar a conexão simulada.");
+                          }
                           setIsConnectingMl(false);
                           setShowMlOAuth(false);
-                        }, 1600);
+                        }).catch(err => {
+                          console.error(err);
+                          setIsConnectingMl(false);
+                          setShowMlOAuth(false);
+                        });
                       }}
                       style={{
                         flex: 1,
@@ -2514,6 +2587,190 @@ export default function AdminDashboard() {
                 </div>
               </div>
 
+              {/* ── SEÇÃO 6: CLASSIFICAÇÃO NA SHOPEE ── */}
+              <div style={{
+                background: "rgba(238, 77, 45, 0.05)",
+                border: "1px solid rgba(238, 77, 45, 0.15)",
+                borderRadius: "10px",
+                padding: "1rem",
+                display: "flex",
+                flexDirection: "column",
+                gap: "0.9rem"
+              }}>
+                <span style={{ fontSize: "0.72rem", fontWeight: "700", color: "#ee4d2d", textTransform: "uppercase", letterSpacing: "0.1em" }}>🧡 Classificação Shopee</span>
+
+                {/* Categoria Shopee */}
+                <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+                  <label style={{ fontSize: "0.8rem", fontWeight: "600", color: "var(--foreground)" }}>
+                    Categoria Shopee (category_id) <span style={{ color: "#ff4d4d" }}>*</span>
+                  </label>
+                  <span style={{ fontSize: "0.68rem", color: "var(--foreground-muted)" }}>Consulte o ID da categoria de semijoias no console Shopee.</span>
+                  <input
+                    type="text"
+                    value={shopeeCategoryId}
+                    onChange={(e) => setShopeeCategoryId(e.target.value)}
+                    placeholder="Ex: 101140"
+                    className="admin-input"
+                    style={{ background: "#ffffff", border: "1px solid rgba(238, 77, 45, 0.25)", color: "var(--foreground)", padding: "0.65rem 0.85rem", borderRadius: "8px", fontSize: "0.85rem" }}
+                  />
+                </div>
+
+                {/* Marca Shopee */}
+                <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+                  <label style={{ fontSize: "0.8rem", fontWeight: "600", color: "var(--foreground)" }}>
+                    Marca Shopee (brand_id) <span style={{ color: "#ff4d4d" }}>*</span>
+                  </label>
+                  <input
+                    type="text"
+                    value={shopeeBrandId}
+                    onChange={(e) => setShopeeBrandId(e.target.value)}
+                    placeholder="0 = No Brand"
+                    className="admin-input"
+                    style={{ background: "#ffffff", border: "1px solid rgba(238, 77, 45, 0.25)", color: "var(--foreground)", padding: "0.65rem 0.85rem", borderRadius: "8px", fontSize: "0.85rem" }}
+                  />
+                </div>
+
+                {/* Canais de Envio */}
+                <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+                  <label style={{ fontSize: "0.8rem", fontWeight: "600", color: "var(--foreground)" }}>Canais de Envio Ativos</label>
+                  <div style={{ display: "flex", flexWrap: "wrap", gap: "12px", marginTop: "4px" }}>
+                    {[
+                      { id: "correios", label: "Correios" },
+                      { id: "shopee_xpress", label: "Shopee Xpress" },
+                      { id: "total_express", label: "Total Express" }
+                    ].map(channel => (
+                      <label key={channel.id} style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "0.8rem", cursor: "pointer" }}>
+                        <input
+                          type="checkbox"
+                          checked={shopeeLogistics.includes(channel.id)}
+                          onChange={(e) => {
+                            if (e.target.checked) {
+                              setShopeeLogistics(prev => [...prev, channel.id]);
+                            } else {
+                              setShopeeLogistics(prev => prev.filter(c => c !== channel.id));
+                            }
+                          }}
+                          style={{ accentColor: "#ee4d2d" }}
+                        />
+                        {channel.label}
+                      </label>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Pré-Encomenda */}
+                <div style={{ display: "flex", flexDirection: "column", gap: "6px", background: "rgba(238, 77, 45, 0.04)", padding: "0.75rem", borderRadius: "8px" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                     <input
+                       type="checkbox"
+                       id="shopee-pre-order"
+                       checked={shopeeIsPreOrder}
+                       onChange={(e) => setShopeeIsPreOrder(e.target.checked)}
+                       style={{ accentColor: "#ee4d2d", width: "16px", height: "16px", cursor: "pointer" }}
+                     />
+                     <label htmlFor="shopee-pre-order" style={{ fontSize: "0.8rem", color: "var(--foreground)", cursor: "pointer" }}>
+                       Este produto é sob encomenda (Pre-order)
+                     </label>
+                  </div>
+                  {shopeeIsPreOrder && (
+                    <div style={{ display: "flex", flexDirection: "column", gap: "4px", marginTop: "4px" }}>
+                      <label style={{ fontSize: "0.75rem", color: "var(--foreground-muted)" }}>Prazo de envio (7 a 30 dias)</label>
+                      <input
+                        type="number"
+                        min="7"
+                        max="30"
+                        value={shopeeDaysToShip}
+                        onChange={(e) => setShopeeDaysToShip(e.target.value)}
+                        className="admin-input"
+                        style={{ background: "#ffffff", border: "1px solid rgba(238, 77, 45, 0.2)", padding: "0.4rem 0.6rem", borderRadius: "6px", fontSize: "0.8rem", width: "100px" }}
+                      />
+                    </div>
+                  )}
+                </div>
+
+                {/* Publicar na Shopee Checkbox */}
+                <div style={{ display: "flex", alignItems: "center", gap: "8px", padding: "0.5rem 0.75rem", background: "rgba(238, 77, 45, 0.08)", borderRadius: "6px" }}>
+                  <input
+                    type="checkbox"
+                    id="publish-to-shopee-checkbox"
+                    checked={publishToShopee}
+                    onChange={(e) => setPublishToShopee(e.target.checked)}
+                    style={{ accentColor: "#ee4d2d", cursor: "pointer", width: "16px", height: "16px" }}
+                  />
+                  <label htmlFor="publish-to-shopee-checkbox" style={{ fontSize: "0.8rem", color: "var(--foreground)", cursor: "pointer" }}>
+                    Publicar anúncio na Shopee imediatamente após salvar
+                  </label>
+                </div>
+              </div>
+
+              {/* ── SEÇÃO 7: CLASSIFICAÇÃO NO TIKTOK SHOP ── */}
+              <div style={{
+                background: "rgba(0, 0, 0, 0.03)",
+                border: "1px solid rgba(0, 0, 0, 0.1)",
+                borderRadius: "10px",
+                padding: "1rem",
+                display: "flex",
+                flexDirection: "column",
+                gap: "0.9rem"
+              }}>
+                <span style={{ fontSize: "0.72rem", fontWeight: "700", color: "var(--foreground)", display: "flex", alignItems: "center", gap: "4px" }}>
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.17-2.89-.6-4.09-1.5-1.06-.8-1.8-1.97-2.22-3.26-.02 2.44-.01 4.88-.02 7.32-.02 2.03-.65 4.12-1.99 5.66-1.54 1.79-4.02 2.82-6.39 2.82-2.3 0-4.66-.94-6.13-2.69-1.55-1.84-2.12-4.47-1.53-6.84C.81 8.86 2.76 6.7 5.25 6.09c1.9-.47 3.96-.13 5.58.94V11.2c-1.18-.84-2.73-1.13-4.11-.75-1.39.38-2.58 1.54-3.03 2.93-.65 2.02.32 4.41 2.27 5.25 1.55.67 3.49.44 4.8-.57.94-.73 1.45-1.9 1.46-3.1.02-5.32.01-10.64.02-15.96z"/>
+                  </svg>
+                  TikTok Shop
+                </span>
+
+                {/* Categoria TikTok */}
+                <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+                  <label style={{ fontSize: "0.8rem", fontWeight: "600", color: "var(--foreground)" }}>
+                    Categoria TikTok Shop (category_id) <span style={{ color: "#ff4d4d" }}>*</span>
+                  </label>
+                  <span style={{ fontSize: "0.68rem", color: "var(--foreground-muted)" }}>ID oficial da categoria do produto no TikTok Shop.</span>
+                  <input
+                    type="text"
+                    value={tiktokCategoryId}
+                    onChange={(e) => setTiktokCategoryId(e.target.value)}
+                    placeholder="Ex: 600890"
+                    className="admin-input"
+                    style={{ background: "#ffffff", border: "1px solid rgba(0, 0, 0, 0.15)", color: "var(--foreground)", padding: "0.65rem 0.85rem", borderRadius: "8px", fontSize: "0.85rem" }}
+                  />
+                </div>
+
+                {/* Marca TikTok */}
+                <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+                  <label style={{ fontSize: "0.8rem", fontWeight: "600", color: "var(--foreground)" }}>
+                    Marca TikTok Shop (brand_id) <span style={{ color: "#ff4d4d" }}>*</span>
+                  </label>
+                  <input
+                    type="text"
+                    value={tiktokBrandId}
+                    onChange={(e) => setTiktokBrandId(e.target.value)}
+                    placeholder="0 = No Brand"
+                    className="admin-input"
+                    style={{ background: "#ffffff", border: "1px solid rgba(0, 0, 0, 0.15)", color: "var(--foreground)", padding: "0.65rem 0.85rem", borderRadius: "8px", fontSize: "0.85rem" }}
+                  />
+                </div>
+
+                {/* Informação sobre conversão de peso */}
+                <div style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "0.72rem", color: "var(--foreground-muted)", background: "rgba(0,0,0,0.02)", padding: "8px", borderRadius: "6px", border: "1px dashed rgba(0,0,0,0.06)" }}>
+                  <span>ℹ️ O peso de <strong>{newProdWeight || "0"}g</strong> será convertido automaticamente para <strong>{((Number(newProdWeight || 0)) / 1000).toFixed(3)}kg</strong> para o TikTok Shop.</span>
+                </div>
+
+                {/* Publicar no TikTok Shop Checkbox */}
+                <div style={{ display: "flex", alignItems: "center", gap: "8px", padding: "0.5rem 0.75rem", background: "rgba(0, 0, 0, 0.05)", borderRadius: "6px" }}>
+                  <input
+                    type="checkbox"
+                    id="publish-to-tiktok-checkbox"
+                    checked={publishToTiktok}
+                    onChange={(e) => setPublishToTiktok(e.target.checked)}
+                    style={{ accentColor: "#000000", cursor: "pointer", width: "16px", height: "16px" }}
+                  />
+                  <label htmlFor="publish-to-tiktok-checkbox" style={{ fontSize: "0.8rem", color: "var(--foreground)", cursor: "pointer" }}>
+                    Publicar anúncio no TikTok Shop imediatamente após salvar
+                  </label>
+                </div>
+              </div>
+
               {/* Botões */}
               <div style={{ display: "flex", gap: "10px", marginTop: "0.6rem" }}>
                 <button
@@ -2801,13 +3058,30 @@ export default function AdminDashboard() {
                     <button
                       onClick={() => {
                         setIsConnectingShopee(true);
-                        setTimeout(() => {
-                          setShopeeAccountName(shopeeTempAccountName || "Fashion Shine Shopee Oficial");
-                          setConfig(prev => ({ ...prev, shopeeConnected: true, shopeeApiKey: `shp_oauth_tok_fashion_shine_live_${Date.now()}` }));
-                          addLog(`API Shopee: Loja '${shopeeTempAccountName || "Fashion Shine Shopee Oficial"}' conectada via OAuth 2.0.`, "shopee", "success");
+                        // Persist mock connection in the backend
+                        fetch("/api/auth/status", {
+                          method: "POST",
+                          headers: { "Content-Type": "application/json" },
+                          body: JSON.stringify({
+                            channel: "shopee",
+                            simulate: true,
+                            nickname: shopeeTempAccountName || "Fashion Shine Shopee Oficial"
+                          })
+                        }).then(res => {
+                          if (res.ok) {
+                            setShopeeAccountName(shopeeTempAccountName || "Fashion Shine Shopee Oficial");
+                            setConfig(prev => ({ ...prev, shopeeConnected: true, shopeeApiKey: `shp_oauth_tok_fashion_shine_live_${Date.now()}` }));
+                            addLog(`API Shopee: Loja '${shopeeTempAccountName || "Fashion Shine Shopee Oficial"}' conectada via OAuth 2.0.`, "shopee", "success");
+                          } else {
+                            alert("Falha ao salvar a conexão simulada.");
+                          }
                           setIsConnectingShopee(false);
                           setShowShopeeOAuth(false);
-                        }, 1600);
+                        }).catch(err => {
+                          console.error(err);
+                          setIsConnectingShopee(false);
+                          setShowShopeeOAuth(false);
+                        });
                       }}
                       style={{
                         flex: 1,

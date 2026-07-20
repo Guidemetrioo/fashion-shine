@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getDBProducts, saveDBProducts, DBProduct } from "../../../../utils/productStorage";
-import { syncStockToChannels } from "../../../../utils/syncEngine";
+import { syncStockToChannels, publishProductToShopee } from "../../../../utils/syncEngine";
 import { getTokens, fetchMeli } from "../../../../utils/tokenStorage";
 
 export async function POST(request: NextRequest) {
@@ -14,7 +14,7 @@ export async function POST(request: NextRequest) {
       basePrice,
       shopeeStock,
       mlStock,
-      shopeeItemId,
+      shopeeItemId: initialShopeeItemId,
       mlItemId: initialMlItemId,
       publishToMeli,
       categoryId,
@@ -29,7 +29,16 @@ export async function POST(request: NextRequest) {
       weight,
       length,
       width,
-      height
+      height,
+      publishToShopee,
+      shopeeCategoryId,
+      shopeeBrandId,
+      shopeeIsPreOrder,
+      shopeeDaysToShip,
+      shopeeLogistics,
+      publishToTiktok,
+      tiktokCategoryId,
+      tiktokBrandId
     } = body;
 
     if (!name || !sku) {
@@ -142,21 +151,64 @@ export async function POST(request: NextRequest) {
       console.log(`[ML Publisher Success]: Published successfully! Item ID: ${mlItemId}`);
     }
 
+    let shopeeItemId = initialShopeeItemId || undefined;
+    let shopeeSynced = !!initialShopeeItemId;
+
+    if (publishToShopee) {
+      const tokens = await getTokens();
+      if (!tokens.shopee.connected) {
+        return NextResponse.json({ error: "Integração da Shopee não está ativa." }, { status: 400 });
+      }
+
+      console.log(`[Shopee Publisher]: Publishing item SKU ${sku} to Shopee...`);
+      const result = await publishProductToShopee({
+        name,
+        description: description || "Produto de alta qualidade da Fashion Shine.",
+        sku,
+        price: priceNum,
+        stock: shopeeStockNum,
+        categoryId: Number(shopeeCategoryId || 101140),
+        brandId: Number(shopeeBrandId || 0),
+        weight: Number(weight || 0) / 1000, // convert grams to kg
+        length: length ? Number(length) : undefined,
+        width: width ? Number(width) : undefined,
+        height: height ? Number(height) : undefined,
+        imageUrl,
+        isPreOrder: !!shopeeIsPreOrder,
+        daysToShip: shopeeDaysToShip ? Number(shopeeDaysToShip) : 7,
+        logistics: shopeeLogistics || ["correios"]
+      });
+
+      if (!result.success) {
+        return NextResponse.json({ error: `Falha ao publicar na Shopee: ${result.error}` }, { status: 400 });
+      }
+
+      shopeeItemId = result.itemId;
+      shopeeSynced = true;
+    }
+
     const newProduct: DBProduct = {
       id: productId,
       name: name.trim(),
       sku: sku.trim(),
       basePrice: priceNum,
       shopeeStock: shopeeStockNum,
-      shopeeSynced: !!shopeeItemId,
-      shopeeItemId: shopeeItemId || undefined,
+      shopeeSynced: shopeeSynced,
+      shopeeItemId: shopeeItemId,
       mlStock: mlStockNum,
       mlSynced: mlSynced,
       mlItemId: mlItemId,
       totalStock: shopeeStockNum + mlStockNum,
       lastSync: new Date().toLocaleTimeString("pt-BR"),
       description: description || undefined,
-      imageUrl: imageUrl || undefined
+      imageUrl: imageUrl || undefined,
+      shopeeCategoryId: shopeeCategoryId || undefined,
+      shopeeBrandId: shopeeBrandId || undefined,
+      shopeeIsPreOrder: !!shopeeIsPreOrder,
+      shopeeDaysToShip: shopeeDaysToShip ? Number(shopeeDaysToShip) : undefined,
+      shopeeLogistics: shopeeLogistics || [],
+      tiktokCategoryId: tiktokCategoryId || undefined,
+      tiktokBrandId: tiktokBrandId || undefined
     };
 
     products.push(newProduct);

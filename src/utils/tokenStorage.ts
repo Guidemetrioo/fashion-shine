@@ -1,5 +1,6 @@
 import fs from "fs";
 import path from "path";
+import crypto from "crypto";
 import { sql, isNeonConfigured } from "./neonClient";
 
 const TOKENS_FILE = path.join(process.cwd(), "tokens.json");
@@ -63,6 +64,7 @@ export function getLocalTokens(): StoredTokens {
 }
 
 let activeMlRefreshPromise: Promise<StoredTokens> | null = null;
+let activeShopeeRefreshPromise: Promise<StoredTokens> | null = null;
 
 export async function getTokens(): Promise<StoredTokens> {
   let tokens: StoredTokens;
@@ -160,6 +162,36 @@ export async function getTokens(): Promise<StoredTokens> {
     })();
 
     return activeMlRefreshPromise;
+  }
+
+  // Auto-refresh Shopee token if connected and expired/expiring soon
+  if (
+    tokens.shopee.connected &&
+    tokens.shopee.partnerId &&
+    tokens.shopee.partnerKey &&
+    tokens.shopee.refreshToken &&
+    tokens.shopee.shopId &&
+    Date.now() >= tokens.shopee.expiresAt - 10 * 60 * 1000
+  ) {
+    if (activeShopeeRefreshPromise) {
+      return activeShopeeRefreshPromise;
+    }
+
+    activeShopeeRefreshPromise = (async () => {
+      console.log("Shopee token expiring soon. Refreshing...");
+      try {
+        const updatedTokens = await forceRefreshShopeeToken();
+        console.log("Shopee token refreshed and saved successfully.");
+        return updatedTokens;
+      } catch (err) {
+        console.error("Failed to refresh Shopee token:", err);
+        return tokens;
+      } finally {
+        activeShopeeRefreshPromise = null;
+      }
+    })();
+
+    return activeShopeeRefreshPromise;
   }
 
   return tokens;
@@ -283,6 +315,60 @@ export async function forceRefreshMlToken(): Promise<StoredTokens> {
       refreshToken: data.refresh_token,
       expiresAt: Date.now() + data.expires_in * 1000,
       userId: String(data.user_id),
+    },
+  });
+
+  return updatedTokens;
+}
+
+export async function forceRefreshShopeeToken(): Promise<StoredTokens> {
+  const tokens = getLocalTokens();
+  if (
+    !tokens.shopee.partnerId ||
+    !tokens.shopee.partnerKey ||
+    !tokens.shopee.refreshToken ||
+    !tokens.shopee.shopId
+  ) {
+    throw new Error("Missing Shopee credentials for token refresh");
+  }
+
+  const partnerId = Number(tokens.shopee.partnerId);
+  const partnerKey = tokens.shopee.partnerKey;
+  const shopId = Number(tokens.shopee.shopId);
+  const timestamp = Math.floor(Date.now() / 1000);
+  const path = "/api/v2/auth/access_token/get";
+  const baseString = `${partnerId}${path}${timestamp}`;
+  const sign = crypto
+    .createHmac("sha256", partnerKey)
+    .update(baseString)
+    .digest("hex");
+
+  const host = "https://partner.shopeemobile.com";
+  const url = `${host}${path}?partner_id=${partnerId}&timestamp=${timestamp}&sign=${sign}`;
+
+  const response = await fetch(url, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Accept: "application/json",
+    },
+    body: JSON.stringify({
+      refresh_token: tokens.shopee.refreshToken,
+      partner_id: partnerId,
+      shop_id: shopId,
+    }),
+  });
+
+  const data = await response.json();
+  if (!response.ok || data.error) {
+    throw new Error(`Shopee refresh token endpoint failed: ${JSON.stringify(data)}`);
+  }
+
+  const updatedTokens = await saveTokens({
+    shopee: {
+      accessToken: data.access_token,
+      refreshToken: data.refresh_token,
+      expiresAt: Date.now() + data.expires_in * 1000,
     },
   });
 

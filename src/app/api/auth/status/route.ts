@@ -30,7 +30,35 @@ export async function GET() {
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { channel, disconnect, clientId, clientSecret, partnerId, partnerKey } = body;
+    const { channel, disconnect, simulate, nickname, clientId, clientSecret, partnerId, partnerKey } = body;
+
+    if (simulate) {
+      if (channel === "mercadolivre") {
+        await saveTokens({
+          mercadolivre: {
+            connected: true,
+            accessToken: "mock_ml_access_token",
+            refreshToken: "mock_ml_refresh_token",
+            expiresAt: Date.now() + 3600 * 1000 * 24 * 365,
+            userId: "12345678",
+            nickname: nickname || "Fashion Shine Oficial"
+          }
+        });
+      } else if (channel === "shopee") {
+        await saveTokens({
+          shopee: {
+            connected: true,
+            accessToken: "mock_shopee_access_token",
+            refreshToken: "mock_shopee_refresh_token",
+            expiresAt: Date.now() + 3600 * 1000 * 24 * 365,
+            shopId: "99812739",
+            partnerId: "1002938",
+            partnerKey: "mock_key"
+          }
+        });
+      }
+      return NextResponse.json({ success: true });
+    }
 
     if (disconnect) {
       if (channel === "mercadolivre") {

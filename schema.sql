@@ -29,7 +29,14 @@ CREATE TABLE IF NOT EXISTS products (
     total_stock INTEGER DEFAULT 0,
     last_sync VARCHAR(100),
     description TEXT,
-    image_url TEXT
+    image_url TEXT,
+    shopee_category_id VARCHAR(100),
+    shopee_brand_id VARCHAR(100),
+    shopee_is_pre_order BOOLEAN DEFAULT FALSE,
+    shopee_days_to_ship INTEGER,
+    shopee_logistics TEXT,
+    tiktok_category_id VARCHAR(100),
+    tiktok_brand_id VARCHAR(100)
 );
 
 -- Tabela para logs e controle de duplicidade de pedidos

@@ -147,3 +147,97 @@ export async function processChannelSale(sku: string, quantity: number, sourceCh
 
   return p;
 }
+
+export interface ShopeePublishParams {
+  name: string;
+  description: string;
+  sku: string;
+  price: number;
+  stock: number;
+  categoryId: number;
+  brandId: number;
+  weight: number; // in kg
+  length?: number;
+  width?: number;
+  height?: number;
+  imageUrl?: string;
+  isPreOrder?: boolean;
+  daysToShip?: number;
+  logistics: string[];
+}
+
+export async function publishProductToShopee(params: ShopeePublishParams): Promise<{ success: boolean; itemId?: string; error?: string }> {
+  const tokens = await getTokens();
+  if (!tokens.shopee.connected) {
+    return { success: false, error: "Shopee account not connected" };
+  }
+
+  try {
+    const apiPath = "/api/v2/product/add_item";
+    const shopId = Number(tokens.shopee.shopId);
+    
+    // Map logistics channels to Shopee official IDs
+    const logisticIdsMap: Record<string, number> = {
+      correios: 20001,
+      shopee_xpress: 20002,
+      total_express: 20003
+    };
+
+    const logistic_info = (params.logistics || ["correios"]).map(l => ({
+      logistic_id: logisticIdsMap[l] || 20001,
+      enabled: true
+    }));
+
+    const url = getShopeeUrl(apiPath, {}, tokens.shopee.accessToken, shopId);
+
+    const payload: Record<string, any> = {
+      original_price: params.price,
+      item_name: params.name,
+      description: params.description || "Produto de alta qualidade da Fashion Shine.",
+      normal_stock: params.stock,
+      category_id: params.categoryId,
+      brand: {
+        brand_id: params.brandId || 0
+      },
+      weight: params.weight, // already converted to kg
+      logistic_info,
+    };
+
+    if (params.length) payload.package_length = params.length;
+    if (params.width) payload.package_width = params.width;
+    if (params.height) payload.package_height = params.height;
+    
+    if (params.imageUrl) {
+      payload.image = {
+        image_url_list: [params.imageUrl]
+      };
+    }
+
+    if (params.isPreOrder) {
+      payload.is_pre_order = true;
+      payload.days_to_ship = params.daysToShip || 7;
+    }
+
+    console.log(`[Shopee Publisher]: Publishing item SKU ${params.sku} to Shopee...`);
+    const response = await fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(payload),
+    });
+
+    const data = await response.json();
+    if (!response.ok || data.error) {
+      console.error("[Shopee Publisher Error]:", data);
+      return { success: false, error: data.message || JSON.stringify(data.error) };
+    }
+
+    const itemId = String(data.response?.item_id || "");
+    console.log(`[Shopee Publisher Success]: Published successfully! Item ID: ${itemId}`);
+    return { success: true, itemId };
+  } catch (err: any) {
+    console.error("[Shopee Publisher Error]:", err);
+    return { success: false, error: err.message };
+  }
+}
