@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getTokens, fetchMeli } from "../../../../../utils/tokenStorage";
 import { getDBProducts, saveDBProducts, DBProduct } from "../../../../../utils/productStorage";
+import { sql, isNeonConfigured } from "../../../../../utils/neonClient";
 
 export async function POST(request: NextRequest) {
   const tokens = await getTokens();
@@ -126,14 +127,43 @@ export async function POST(request: NextRequest) {
       }
     }
 
+    // Find products to delete (mock items not returned by Mercado Livre search)
+    const realMlItemIds = new Set(allMlProducts.map(p => p.body?.id).filter(Boolean));
+    const productsToKeep: DBProduct[] = [];
+    const idsToDelete: string[] = [];
+
+    for (const p of dbProducts) {
+      const isMlProduct = p.id.startsWith("ml-prod-") || p.mlItemId;
+      const isRealMlProduct = p.mlItemId && realMlItemIds.has(p.mlItemId);
+      const hasShopee = p.shopeeSynced || (p.shopeeStock && p.shopeeStock > 0);
+
+      if (isMlProduct && !isRealMlProduct && !hasShopee) {
+        idsToDelete.push(p.id);
+      } else {
+        productsToKeep.push(p);
+      }
+    }
+
     // Save back to DB
-    await saveDBProducts(dbProducts);
+    await saveDBProducts(productsToKeep);
+
+    // Delete removed products from Neon database if configured
+    if (isNeonConfigured() && idsToDelete.length > 0) {
+      try {
+        for (const idToDelete of idsToDelete) {
+          await sql`DELETE FROM products WHERE id = ${idToDelete}`;
+        }
+        console.log(`Deleted ${idsToDelete.length} obsolete/mock products from Neon database.`);
+      } catch (dbErr) {
+        console.error("Failed to delete obsolete products from Neon:", dbErr);
+      }
+    }
 
     return NextResponse.json({
       success: true,
       importedCount,
       updatedCount,
-      totalCount: dbProducts.length
+      totalCount: productsToKeep.length
     });
   } catch (error: any) {
     console.error("ML Catalog Import failed:", error);
