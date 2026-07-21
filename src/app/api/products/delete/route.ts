@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getDBProducts, saveDBProducts } from "../../../../utils/productStorage";
 import { sql, isNeonConfigured } from "../../../../utils/neonClient";
+import { deleteProductFromChannels } from "../../../../utils/syncEngine";
 
 export async function POST(request: NextRequest) {
   try {
@@ -18,6 +19,13 @@ export async function POST(request: NextRequest) {
     }
 
     const product = dbProducts[productIndex];
+
+    // Delete from sales channels (Mercado Livre, Shopee) if connected
+    try {
+      await deleteProductFromChannels(product);
+    } catch (chErr) {
+      console.error(`Failed to delete product ${product.sku} from sales channels:`, chErr);
+    }
 
     // Remove from array
     dbProducts.splice(productIndex, 1);

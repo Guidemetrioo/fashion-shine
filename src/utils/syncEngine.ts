@@ -241,3 +241,71 @@ export async function publishProductToShopee(params: ShopeePublishParams): Promi
     return { success: false, error: err.message };
   }
 }
+
+export async function deleteProductFromMercadoLivre(itemId: string): Promise<boolean> {
+  const tokens = await getTokens();
+  if (!tokens.mercadolivre.connected) return false;
+
+  try {
+    // 1. Close the listing
+    await fetchMeli(`/items/${itemId}`, {
+      method: "PUT",
+      body: JSON.stringify({ status: "closed" }),
+    });
+
+    // 2. Set as deleted
+    await fetchMeli(`/items/${itemId}`, {
+      method: "PUT",
+      body: JSON.stringify({ deleted: "true" }),
+    });
+
+    console.log(`ML Deletion success: Closed and deleted item ${itemId}.`);
+    return true;
+  } catch (err) {
+    console.error(`ML Deletion error for item ${itemId}:`, err);
+    return false;
+  }
+}
+
+export async function deleteProductFromShopee(itemId: string): Promise<boolean> {
+  const tokens = await getTokens();
+  if (!tokens.shopee.connected) return false;
+
+  try {
+    const apiPath = "/api/v2/product/delete_item";
+    const shopId = Number(tokens.shopee.shopId);
+    const url = getShopeeUrl(apiPath, {}, tokens.shopee.accessToken, shopId);
+
+    const response = await fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ item_id: Number(itemId) }),
+    });
+
+    const data = await response.json();
+    if (!response.ok || data.error) {
+      console.error(`Shopee Deletion failed for item ${itemId}:`, data);
+      return false;
+    }
+
+    console.log(`Shopee Deletion success: Deleted item ${itemId}.`);
+    return true;
+  } catch (err) {
+    console.error(`Shopee Deletion error for item ${itemId}:`, err);
+    return false;
+  }
+}
+
+export async function deleteProductFromChannels(product: DBProduct): Promise<void> {
+  const promises: Promise<boolean>[] = [];
+
+  if (product.mlItemId) {
+    promises.push(deleteProductFromMercadoLivre(product.mlItemId));
+  }
+
+  if (product.shopeeItemId) {
+    promises.push(deleteProductFromShopee(product.shopeeItemId));
+  }
+
+  await Promise.all(promises);
+}
