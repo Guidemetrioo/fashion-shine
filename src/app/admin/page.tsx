@@ -533,6 +533,37 @@ export default function AdminDashboard() {
     );
   };
 
+  const handleDeleteProduct = async (productId: string) => {
+    const product = products.find(p => p.id === productId);
+    if (!product) return;
+
+    const confirmed = window.confirm(`Tem certeza que deseja excluir o produto "${product.name}"? Esta ação removerá o produto do estoque interno.`);
+    if (!confirmed) return;
+
+    try {
+      const res = await fetch("/api/products/delete", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ productId })
+      });
+
+      if (res.ok) {
+        setProducts(prev => prev.filter(p => p.id !== productId));
+        addLog(`Estoque Central: Produto SKU ${product.sku} excluído com sucesso.`, "all", "success");
+        alert(`🗑️ Produto "${product.name}" excluído com sucesso!`);
+      } else {
+        const errData = await res.json();
+        const errorMsg = errData.error || "Erro desconhecido";
+        addLog(`Estoque Central: Falha ao excluir o produto SKU ${product.sku} (${errorMsg}).`, "all", "error");
+        alert(`❌ Falha ao excluir o produto: ${errorMsg}`);
+      }
+    } catch (err) {
+      console.error("Delete product error:", err);
+      addLog(`Estoque Central: Erro ao se conectar com o servidor para excluir o produto.`, "all", "error");
+      alert(`❌ Erro de rede ao tentar excluir o produto.`);
+    }
+  };
+
   // Simulated Label printing
   const handlePrintLabel = (orderId: string, channel: string) => {
     alert(`📄 Etiqueta de Envio para o Pedido ${orderId} (${channel.toUpperCase()}) gerada com sucesso. Pronto para imprimir.`);
@@ -1153,6 +1184,7 @@ export default function AdminDashboard() {
                     <th>Status</th>
                     <th>Preço Base</th>
                     <th>Última Sincronização</th>
+                    <th style={{ width: "80px", textAlign: "center" }}>Ações</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -1233,6 +1265,43 @@ export default function AdminDashboard() {
                       </td>
                       <td style={{ fontWeight: "700", color: "#1a1a1a" }}>R$ {prod.basePrice.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</td>
                       <td style={{ fontSize: "0.85rem", color: "#555555", fontWeight: "500" }}>{prod.lastSync === "Just now" ? "Agora mesmo" : prod.lastSync}</td>
+                      <td style={{ textAlign: "center" }}>
+                        <button
+                          onClick={() => handleDeleteProduct(prod.id)}
+                          className="btn-delete"
+                          style={{
+                            background: "transparent",
+                            border: "none",
+                            cursor: "pointer",
+                            color: "#ef4444",
+                            padding: "6px",
+                            borderRadius: "4px",
+                            display: "inline-flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            transition: "background 0.2s"
+                          }}
+                          onMouseEnter={(e) => e.currentTarget.style.background = "rgba(239, 68, 68, 0.1)"}
+                          onMouseLeave={(e) => e.currentTarget.style.background = "transparent"}
+                          title="Excluir produto"
+                        >
+                          <svg 
+                            width="16" 
+                            height="16" 
+                            viewBox="0 0 24 24" 
+                            fill="none" 
+                            stroke="currentColor" 
+                            strokeWidth="2" 
+                            strokeLinecap="round" 
+                            strokeLinejoin="round"
+                          >
+                            <polyline points="3 6 5 6 21 6"></polyline>
+                            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                            <line x1="10" y1="11" x2="10" y2="17"></line>
+                            <line x1="14" y1="11" x2="14" y2="17"></line>
+                          </svg>
+                        </button>
+                      </td>
                     </tr>
                   ))}
                 </tbody>
