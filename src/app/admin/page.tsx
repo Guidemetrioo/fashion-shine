@@ -1184,16 +1184,16 @@ export default function AdminDashboard() {
                       </td>
                       <td>
                         <div style={{ display: "flex", flexDirection: "column" }}>
-                          <span style={{ fontWeight: "600", color: "#ffffff", fontSize: "0.9rem" }}>{prod.name}</span>
-                          <span style={{ fontSize: "0.75rem", color: "var(--foreground-muted)", fontFamily: "monospace", marginTop: "2px" }}>SKU: {prod.sku}</span>
+                          <span style={{ fontWeight: "700", color: "#1a1a1a", fontSize: "0.92rem" }}>{prod.name}</span>
+                          <span style={{ fontSize: "0.75rem", color: "#555555", fontFamily: "monospace", marginTop: "2px", fontWeight: "600" }}>SKU: {prod.sku}</span>
                         </div>
                       </td>
                       <td>
                         <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-                          <div style={{ fontWeight: "700", fontSize: "0.95rem", color: "var(--gold)" }}>
+                          <div style={{ fontWeight: "800", fontSize: "0.95rem", color: "#8c7138" }}>
                             {prod.totalStock} {prod.totalStock === 1 ? "unidade" : "unidades"}
                           </div>
-                          <div style={{ display: "flex", gap: "12px", fontSize: "0.75rem", color: "var(--foreground-muted)" }}>
+                          <div style={{ display: "flex", gap: "12px", fontSize: "0.75rem", color: "#444444" }}>
                             <span style={{ display: "flex", alignItems: "center", gap: "4px" }}>
                               ML: 
                               <input
@@ -1201,7 +1201,7 @@ export default function AdminDashboard() {
                                 min="0"
                                 value={prod.mlStock}
                                 onChange={(e) => handleUpdateStock(prod.id, "mercadolivre", parseInt(e.target.value))}
-                                style={{ width: "55px", padding: "2px 6px", fontSize: "0.75rem" }}
+                                style={{ width: "55px", padding: "2px 6px", fontSize: "0.75rem", color: "#1a1a1a", fontWeight: "600" }}
                                 className="admin-input"
                               />
                             </span>
@@ -1212,7 +1212,7 @@ export default function AdminDashboard() {
                                 min="0"
                                 value={prod.shopeeStock}
                                 onChange={(e) => handleUpdateStock(prod.id, "shopee", parseInt(e.target.value))}
-                                style={{ width: "55px", padding: "2px 6px", fontSize: "0.75rem" }}
+                                style={{ width: "55px", padding: "2px 6px", fontSize: "0.75rem", color: "#1a1a1a", fontWeight: "600" }}
                                 className="admin-input"
                               />
                             </span>
@@ -1221,18 +1221,18 @@ export default function AdminDashboard() {
                       </td>
                       <td>
                         <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
-                          <span className="badge" style={{ background: "rgba(57, 255, 20, 0.15)", color: "#39ff14", fontSize: "0.75rem", width: "fit-content" }}>
+                          <span className="badge" style={{ background: "rgba(16, 185, 129, 0.15)", color: "#047857", fontSize: "0.75rem", width: "fit-content", fontWeight: "700" }}>
                             Sincronizado ML
                           </span>
                           {prod.shopeeSynced && (
-                            <span className="badge" style={{ background: "rgba(238, 77, 45, 0.15)", color: "#ee4d2d", fontSize: "0.75rem", width: "fit-content" }}>
+                            <span className="badge" style={{ background: "rgba(238, 77, 45, 0.15)", color: "#c23616", fontSize: "0.75rem", width: "fit-content", fontWeight: "700" }}>
                               Sincronizado Shopee
                             </span>
                           )}
                         </div>
                       </td>
-                      <td style={{ fontWeight: "600", color: "#ffffff" }}>R$ {prod.basePrice.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</td>
-                      <td style={{ fontSize: "0.85rem", color: "var(--foreground-muted)" }}>{prod.lastSync === "Just now" ? "Agora mesmo" : prod.lastSync}</td>
+                      <td style={{ fontWeight: "700", color: "#1a1a1a" }}>R$ {prod.basePrice.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</td>
+                      <td style={{ fontSize: "0.85rem", color: "#555555", fontWeight: "500" }}>{prod.lastSync === "Just now" ? "Agora mesmo" : prod.lastSync}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -1251,10 +1251,10 @@ export default function AdminDashboard() {
               flexWrap: "wrap",
               gap: "1rem",
               marginBottom: "1.5rem",
-              background: "rgba(255, 255, 255, 0.02)",
+              background: "#ffffff",
               padding: "1rem",
-              borderRadius: "4px",
-              border: "1px solid rgba(255, 255, 255, 0.04)"
+              borderRadius: "8px",
+              border: "1px solid rgba(45, 43, 39, 0.08)"
             }}>
               <div style={{ display: "flex", gap: "10px" }}>
                 {/* Channel filters */}
@@ -1264,9 +1264,9 @@ export default function AdminDashboard() {
                     fontSize: "0.8rem",
                     padding: "6px 12px",
                     borderRadius: "4px",
-                    background: orderChannelFilter === "all" ? "var(--gold)" : "rgba(255,255,255,0.05)",
-                    color: orderChannelFilter === "all" ? "#000000" : "#a1a1aa",
-                    fontWeight: orderChannelFilter === "all" ? "500" : "normal"
+                    background: orderChannelFilter === "all" ? "var(--gold)" : "rgba(45,43,39,0.05)",
+                    color: orderChannelFilter === "all" ? "#ffffff" : "#444444",
+                    fontWeight: orderChannelFilter === "all" ? "600" : "normal"
                   }}
                 >
                   Todos os Canais
@@ -1277,9 +1277,9 @@ export default function AdminDashboard() {
                     fontSize: "0.8rem",
                     padding: "6px 12px",
                     borderRadius: "4px",
-                    background: orderChannelFilter === "shopee" ? "#ee4d2d" : "rgba(255,255,255,0.05)",
+                    background: orderChannelFilter === "shopee" ? "#ee4d2d" : "rgba(45,43,39,0.05)",
                     color: "#ffffff",
-                    fontWeight: orderChannelFilter === "shopee" ? "500" : "normal"
+                    fontWeight: orderChannelFilter === "shopee" ? "600" : "normal"
                   }}
                 >
                   Shopee
@@ -1290,9 +1290,9 @@ export default function AdminDashboard() {
                     fontSize: "0.8rem",
                     padding: "6px 12px",
                     borderRadius: "4px",
-                    background: orderChannelFilter === "mercadolivre" ? "#ffe600" : "rgba(255,255,255,0.05)",
-                    color: orderChannelFilter === "mercadolivre" ? "#000000" : "#a1a1aa",
-                    fontWeight: orderChannelFilter === "mercadolivre" ? "500" : "normal"
+                    background: orderChannelFilter === "mercadolivre" ? "#b3975a" : "rgba(45,43,39,0.05)",
+                    color: "#ffffff",
+                    fontWeight: orderChannelFilter === "mercadolivre" ? "600" : "normal"
                   }}
                 >
                   Mercado Livre
@@ -1301,12 +1301,12 @@ export default function AdminDashboard() {
 
               {/* Status Select filter */}
               <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                <span style={{ fontSize: "0.8rem", color: "var(--foreground-muted)" }}>Status do Pedido:</span>
+                <span style={{ fontSize: "0.8rem", color: "#444444", fontWeight: "600" }}>Status do Pedido:</span>
                 <select
                   value={orderStatusFilter}
                   onChange={(e) => setOrderStatusFilter(e.target.value as any)}
                   className="admin-input"
-                  style={{ padding: "6px 12px", fontSize: "0.8rem" }}
+                  style={{ padding: "6px 12px", fontSize: "0.8rem", color: "#1a1a1a", background: "#ffffff" }}
                 >
                   <option value="all">Ver Todos</option>
                   <option value="pending">Pendente</option>
@@ -1334,7 +1334,7 @@ export default function AdminDashboard() {
                 <tbody>
                   {filteredOrders.length === 0 ? (
                     <tr>
-                      <td colSpan={7} style={{ textAlign: "center", color: "var(--foreground-muted)", padding: "3rem" }}>
+                      <td colSpan={7} style={{ textAlign: "center", color: "#666666", padding: "3rem" }}>
                         Nenhum pedido corresponde aos filtros selecionados.
                       </td>
                     </tr>
@@ -1343,8 +1343,8 @@ export default function AdminDashboard() {
                       <tr key={ord.id}>
                         <td>
                           <div style={{ display: "flex", flexDirection: "column" }}>
-                            <span style={{ fontWeight: "500", color: "#ffffff" }}>{ord.orderId}</span>
-                            <span style={{ fontSize: "0.75rem", color: "var(--foreground-muted)", fontFamily: "monospace" }}>
+                            <span style={{ fontWeight: "700", color: "#1a1a1a" }}>{ord.orderId}</span>
+                            <span style={{ fontSize: "0.75rem", color: "#555555", fontFamily: "monospace" }}>
                               Rastreamento: {ord.trackingCode}
                             </span>
                           </div>
@@ -1354,15 +1354,15 @@ export default function AdminDashboard() {
                             {ord.channel === "shopee" ? "Shopee" : "Mercado Livre"}
                           </span>
                         </td>
-                        <td>{ord.buyerName}</td>
+                        <td style={{ color: "#1a1a1a", fontWeight: "500" }}>{ord.buyerName}</td>
                         <td>
                           {ord.items.map((item, i) => (
-                            <span key={i} style={{ fontSize: "0.85rem", color: "#ffffff" }}>
+                            <span key={i} style={{ fontSize: "0.85rem", color: "#1a1a1a", fontWeight: "500" }}>
                               {item.quantity}x {item.name}
                             </span>
                           ))}
                         </td>
-                        <td style={{ color: "var(--gold)" }}>R$ {ord.total.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</td>
+                        <td style={{ color: "#8c7138", fontWeight: "700" }}>R$ {ord.total.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</td>
                         <td>
                           <span className="badge" style={{
                             background: 
