@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { getTokens, saveTokens } from "../../../../utils/tokenStorage";
 
+export const dynamic = "force-dynamic";
+
 export async function GET() {
   const tokens = await getTokens();
 

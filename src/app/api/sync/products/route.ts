@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { getDBProducts, saveDBProducts } from "../../../../utils/productStorage";
 import { syncStockToChannels } from "../../../../utils/syncEngine";
 
+export const dynamic = "force-dynamic";
+
 export async function GET() {
   const products = await getDBProducts();
   return NextResponse.json({ products });
