@@ -1147,73 +1147,91 @@ export default function AdminDashboard() {
               <table className="admin-table">
                 <thead>
                   <tr>
+                    <th style={{ width: "65px", textAlign: "center" }}>Foto</th>
                     <th>Nome do Produto & SKU</th>
-                    <th>Preço Base</th>
-                    <th>Estoque Shopee</th>
-                    <th>Estoque Mercado Livre</th>
-                    <th>Estoque Consolidado</th>
+                    <th>Estoque</th>
                     <th>Status</th>
+                    <th>Preço Base</th>
                     <th>Última Sincronização</th>
                   </tr>
                 </thead>
                 <tbody>
                   {filteredProducts.map((prod) => (
                     <tr key={prod.id}>
+                      <td style={{ textAlign: "center" }}>
+                        {prod.imageUrl ? (
+                          <img 
+                            src={prod.imageUrl} 
+                            alt={prod.name} 
+                            style={{ width: "48px", height: "48px", objectFit: "cover", borderRadius: "6px", border: "1px solid rgba(255,255,255,0.12)" }} 
+                          />
+                        ) : (
+                          <div style={{
+                            width: "48px",
+                            height: "48px",
+                            borderRadius: "6px",
+                            background: "rgba(255, 255, 255, 0.05)",
+                            border: "1px dashed rgba(255, 255, 255, 0.15)",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            color: "var(--gold)",
+                            fontSize: "1.2rem"
+                          }}>
+                            ✨
+                          </div>
+                        )}
+                      </td>
                       <td>
                         <div style={{ display: "flex", flexDirection: "column" }}>
-                          <span style={{ fontWeight: "500", color: "#ffffff" }}>{prod.name}</span>
-                          <span style={{ fontSize: "0.75rem", color: "var(--foreground-muted)", fontFamily: "monospace" }}>{prod.sku}</span>
+                          <span style={{ fontWeight: "600", color: "#ffffff", fontSize: "0.9rem" }}>{prod.name}</span>
+                          <span style={{ fontSize: "0.75rem", color: "var(--foreground-muted)", fontFamily: "monospace", marginTop: "2px" }}>SKU: {prod.sku}</span>
                         </div>
                       </td>
-                      <td>R$ {prod.basePrice.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</td>
                       <td>
-                        <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                          <input
-                            type="number"
-                            min="0"
-                            value={prod.shopeeStock}
-                            onChange={(e) => handleUpdateStock(prod.id, "shopee", parseInt(e.target.value))}
-                            style={{ width: "65px", padding: "4px 8px" }}
-                            className="admin-input"
-                          />
-                          <span style={{ fontSize: "0.85rem", display: "inline-flex" }}>
-                            {prod.shopeeSynced ? (
-                              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#39ff14" strokeWidth="3">
-                                <polyline points="20 6 9 17 4 12"></polyline>
-                              </svg>
-                            ) : (
-                              <span style={{ color: "#ff4d4d" }}>!</span>
-                            )}
+                        <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+                          <div style={{ fontWeight: "700", fontSize: "0.95rem", color: "var(--gold)" }}>
+                            {prod.totalStock} {prod.totalStock === 1 ? "unidade" : "unidades"}
+                          </div>
+                          <div style={{ display: "flex", gap: "12px", fontSize: "0.75rem", color: "var(--foreground-muted)" }}>
+                            <span style={{ display: "flex", alignItems: "center", gap: "4px" }}>
+                              ML: 
+                              <input
+                                type="number"
+                                min="0"
+                                value={prod.mlStock}
+                                onChange={(e) => handleUpdateStock(prod.id, "mercadolivre", parseInt(e.target.value))}
+                                style={{ width: "55px", padding: "2px 6px", fontSize: "0.75rem" }}
+                                className="admin-input"
+                              />
+                            </span>
+                            <span style={{ display: "flex", alignItems: "center", gap: "4px" }}>
+                              Shopee: 
+                              <input
+                                type="number"
+                                min="0"
+                                value={prod.shopeeStock}
+                                onChange={(e) => handleUpdateStock(prod.id, "shopee", parseInt(e.target.value))}
+                                style={{ width: "55px", padding: "2px 6px", fontSize: "0.75rem" }}
+                                className="admin-input"
+                              />
+                            </span>
+                          </div>
+                        </div>
+                      </td>
+                      <td>
+                        <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+                          <span className="badge" style={{ background: "rgba(57, 255, 20, 0.15)", color: "#39ff14", fontSize: "0.75rem", width: "fit-content" }}>
+                            Sincronizado ML
                           </span>
+                          {prod.shopeeSynced && (
+                            <span className="badge" style={{ background: "rgba(238, 77, 45, 0.15)", color: "#ee4d2d", fontSize: "0.75rem", width: "fit-content" }}>
+                              Sincronizado Shopee
+                            </span>
+                          )}
                         </div>
                       </td>
-                      <td>
-                        <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                          <input
-                            type="number"
-                            min="0"
-                            value={prod.mlStock}
-                            onChange={(e) => handleUpdateStock(prod.id, "mercadolivre", parseInt(e.target.value))}
-                            style={{ width: "65px", padding: "4px 8px" }}
-                            className="admin-input"
-                          />
-                          <span style={{ fontSize: "0.85rem", display: "inline-flex" }}>
-                            {prod.mlSynced ? (
-                              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#39ff14" strokeWidth="3">
-                                <polyline points="20 6 9 17 4 12"></polyline>
-                              </svg>
-                            ) : (
-                              <span style={{ color: "#ff4d4d" }}>!</span>
-                            )}
-                          </span>
-                        </div>
-                      </td>
-                      <td style={{ fontWeight: "600", fontSize: "1rem" }}>{prod.totalStock} unidades</td>
-                      <td>
-                        <span className="badge" style={{ background: "rgba(57, 255, 20, 0.15)", color: "#39ff14" }}>
-                          Sincronizado
-                        </span>
-                      </td>
+                      <td style={{ fontWeight: "600", color: "#ffffff" }}>R$ {prod.basePrice.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</td>
                       <td style={{ fontSize: "0.85rem", color: "var(--foreground-muted)" }}>{prod.lastSync === "Just now" ? "Agora mesmo" : prod.lastSync}</td>
                     </tr>
                   ))}
