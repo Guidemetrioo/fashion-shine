@@ -1623,20 +1623,23 @@ export default function AdminDashboard() {
                     <strong style={{ color: "#ffe600" }}>{mlAccountName}</strong>
                   </div>
                   <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
-                    <label style={{ fontSize: "0.75rem", color: "var(--foreground-muted)" }}>Token de Acesso (OAuth 2.0)</label>
+                    <label style={{ fontSize: "0.75rem", color: "var(--foreground-muted)" }}>ID do Aplicativo (Client ID)</label>
                     <input
-                      type="password"
-                      value={config.mlApiKey}
-                      onChange={(e) => setConfig(prev => ({ ...prev, mlApiKey: e.target.value }))}
+                      type="text"
+                      readOnly
+                      value={mlInputClientId || "6534119322003352"}
                       className="admin-input"
+                      style={{ opacity: 0.9, cursor: "default" }}
                     />
                   </div>
                   <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
-                    <label style={{ fontSize: "0.75rem", color: "var(--foreground-muted)" }}>Mapeamento do ID do Vendedor</label>
+                    <label style={{ fontSize: "0.75rem", color: "var(--foreground-muted)" }}>Chave Secreta (Client Secret)</label>
                     <input
-                      type="text"
-                      defaultValue="mlb_sell_99812739"
+                      type="password"
+                      readOnly
+                      value={mlInputClientSecret || "qMwiSB3NuHA3PnRRCUC4KhgtXK50NjaA"}
                       className="admin-input"
+                      style={{ opacity: 0.9, cursor: "default" }}
                     />
                   </div>
                   <button
@@ -1671,17 +1674,17 @@ export default function AdminDashboard() {
               ) : (
                 <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
                   <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
-                    <label style={{ fontSize: "0.75rem", color: "var(--foreground-muted)" }}>ID do Cliente do App</label>
+                    <label style={{ fontSize: "0.75rem", color: "var(--foreground-muted)" }}>ID do Aplicativo (Client ID)</label>
                     <input
                       type="text"
-                      placeholder="Ex: 55102930981"
+                      placeholder="Ex: 6534119322003352"
                       value={mlInputClientId}
                       onChange={(e) => setMlInputClientId(e.target.value)}
                       className="admin-input"
                     />
                   </div>
                   <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
-                    <label style={{ fontSize: "0.75rem", color: "var(--foreground-muted)" }}>Chave Secreta do App</label>
+                    <label style={{ fontSize: "0.75rem", color: "var(--foreground-muted)" }}>Chave Secreta (Client Secret)</label>
                     <input
                       type="password"
                       placeholder="Sua chave secreta da API"
@@ -1699,8 +1702,8 @@ export default function AdminDashboard() {
                   </button>
                   <div style={{ color: "var(--foreground-muted)", fontSize: "0.8rem", fontStyle: "italic", marginTop: "4px" }}>
                     {isMlConfigured 
-                      ? "✓ Credenciais configuradas. Clique em Conectar Conta para autorizar."
-                      : "ⓘ Credenciais não configuradas. Preencha os campos para integração real, ou clique em Conectar Conta para acessar o Simulador."}
+                      ? "✓ Credenciais configuradas e ativas."
+                      : "ⓘ Credenciais não configuradas. Preencha os campos para integração."}
                   </div>
                 </div>
               )}
