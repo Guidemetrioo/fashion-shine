@@ -143,6 +143,13 @@ export default function AdminDashboard() {
     }
   };
 
+  const handleSkuChange = (sku: string) => {
+    setNewProdSku(sku);
+    // Automatically copy the numeric part of the SKU to the EAN/GTIN field
+    const numericOnly = sku.replace(/\D/g, "");
+    setNewProdGtin(numericOnly);
+  };
+
   // Drag and drop states
   const [isDragging, setIsDragging] = useState(false);
   const [imagePreview, setImagePreview] = useState("");
@@ -2426,7 +2433,7 @@ export default function AdminDashboard() {
                     type="text"
                     required
                     value={newProdSku}
-                    onChange={(e) => setNewProdSku(e.target.value)}
+                    onChange={(e) => handleSkuChange(e.target.value)}
                     placeholder="Ex: FS-1023"
                     className="admin-input"
                     style={{ background: "#ffffff", border: "1px solid rgba(45, 43, 39, 0.15)", color: "var(--foreground)", padding: "0.65rem 0.85rem", borderRadius: "8px", fontSize: "0.85rem" }}
