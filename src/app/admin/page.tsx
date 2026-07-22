@@ -4,6 +4,29 @@ import React, { useState, useEffect } from "react";
 import "./admin.css";
 import { ChannelOrder, ChannelProduct, IntegrationConfig, SyncLog } from "../../types";
 
+const AVAILABLE_FONTS = [
+  { name: "Playfair Display", category: "Serif Clássico" },
+  { name: "Cormorant Garamond", category: "Editorial Luxo" },
+  { name: "Cinzel", category: "Romano Imperial" },
+  { name: "Montserrat", category: "Sans Geométrico" },
+  { name: "Inter", category: "Clean UI" },
+  { name: "Outfit", category: "Premium Sans" },
+  { name: "Syne", category: "Artístico Moderno" },
+  { name: "Bodoni Moda", category: "Alta Moda Serif" },
+  { name: "Prata", category: "Didone Elegante" },
+  { name: "Lora", category: "Serif Contemporâneo" },
+  { name: "Libre Baskerville", category: "Serif Tradicional" },
+  { name: "DM Sans", category: "Minimalista Sans" },
+  { name: "Manrope", category: "Moderno Técnico" },
+  { name: "Plus Jakarta Sans", category: "Sans Corporativo" },
+  { name: "Cinzel Decorative", category: "Ornato Luxo" },
+  { name: "Italiana", category: "Caligráfico Serif" },
+  { name: "Tenor Sans", category: "Editorial Sans" },
+  { name: "La Belle Aurore", category: "Escrita à Mão" },
+  { name: "Allura", category: "Script Fluido" },
+  { name: "Marcellus", category: "Trajano Editorial" },
+];
+
 export default function AdminDashboard() {
   const [activeTab, setActiveTab] = useState<"dashboard" | "inventory" | "orders" | "settings">("dashboard");
   const [isSyncing, setIsSyncing] = useState(false);
@@ -66,6 +89,12 @@ export default function AdminDashboard() {
   const [tiktokCategoryId, setTiktokCategoryId] = useState("600890"); // Default Necklaces in TikTok
   const [tiktokBrandId, setTiktokBrandId] = useState("0"); // 0 = No Brand
 
+  // Font preview states
+  const [isFontDrawerOpen, setIsFontDrawerOpen] = useState(false);
+  const [activeTitleFont, setActiveTitleFont] = useState("");
+  const [activeBodyFont, setActiveBodyFont] = useState("");
+  const [previewText, setPreviewText] = useState("Fashion Shine — Joias de Luxo");
+
   // New Meli publishing states
   const [publishToMeli, setPublishToMeli] = useState(false);
   const [meliCategoryId, setMeliCategoryId] = useState("MLB1434"); // Defaults to Necklaces
@@ -94,6 +123,17 @@ export default function AdminDashboard() {
 
   // Persistent checked/reviewed products tracking
   const [checkedProductIds, setCheckedProductIds] = useState<string[]>([]);
+
+  // Load Google Fonts for testing
+  useEffect(() => {
+    const link = document.createElement("link");
+    link.rel = "stylesheet";
+    link.href = "https://fonts.googleapis.com/css2?family=Allura&family=Bodoni+Moda:ital,opsz,wght@0,6..96,400..900;1,6..96,400..900&family=Cinzel+Decorative:wght@400;700&family=Cinzel:wght@400..900&family=Cormorant+Garamond:ital,wght@0,300..700;1,300..700&family=DM+Sans:ital,opsz,wght@0,9..400,100..1000;1,9..400,100..1000&family=Inter:wght@100..900&family=Italiana&family=La+Belle+Aurore&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Lora:ital,wght@0,400..700;1,400..700&family=Manrope:wght@200..800&family=Marcellus&family=Montserrat:ital,wght@0,100..900;1,100..900&family=Outfit:wght@100..900&family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&family=Prata&family=Syne:wght@400..800&family=Tenor+Sans&display=swap";
+    document.head.appendChild(link);
+    return () => {
+      document.head.removeChild(link);
+    };
+  }, []);
 
   useEffect(() => {
     try {
@@ -750,6 +790,10 @@ export default function AdminDashboard() {
 
   return (
     <div className="admin-layout">
+      <style dangerouslySetInnerHTML={{ __html: `
+        ${activeTitleFont ? `h1, h2, h3, h4, h5, h6, .font-serif, .admin-header, .tab-button { font-family: '${activeTitleFont}', serif !important; }` : ""}
+        ${activeBodyFont ? `body, p, span, button, input, select, label, td, th, div, a { font-family: '${activeBodyFont}', sans-serif !important; }` : ""}
+      ` }} />
       {/* Top sticky nav bar */}
       <header className="admin-header">
         <div className="admin-container" style={{ display: "flex", justifyContent: "flex-start", alignItems: "center", padding: "0.8rem 2rem" }}>
@@ -3409,6 +3453,161 @@ export default function AdminDashboard() {
           </div>
         </div>
       )}
+
+      {/* Botão Flutuante Retrátil */}
+      <button
+        onClick={() => setIsFontDrawerOpen(!isFontDrawerOpen)}
+        style={{
+          position: "fixed",
+          right: isFontDrawerOpen ? "320px" : "0",
+          top: "120px",
+          zIndex: 99999,
+          background: "var(--gold)",
+          color: "#ffffff",
+          border: "none",
+          borderRadius: "8px 0 0 8px",
+          padding: "0.8rem 0.6rem",
+          cursor: "pointer",
+          boxShadow: "-2px 4px 10px rgba(0, 0, 0, 0.15)",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          gap: "4px",
+          transition: "right 0.3s ease, background 0.2s"
+        }}
+      >
+        <span style={{ fontSize: "1.1rem" }}>🔤</span>
+        <span style={{ fontSize: "0.62rem", fontWeight: "bold", textTransform: "uppercase", writingMode: "vertical-lr", letterSpacing: "1px" }}>Fontes</span>
+      </button>
+
+      {/* Drawer Lateral */}
+      <div
+        style={{
+          position: "fixed",
+          right: isFontDrawerOpen ? "0" : "-320px",
+          top: "0",
+          width: "320px",
+          height: "100vh",
+          background: "#ffffff",
+          boxShadow: "-4px 0 25px rgba(0, 0, 0, 0.15)",
+          zIndex: 99998,
+          transition: "right 0.3s ease",
+          display: "flex",
+          flexDirection: "column",
+          borderLeft: "1px solid rgba(212, 175, 55, 0.2)"
+        }}
+      >
+        {/* Header */}
+        <div style={{ padding: "1.2rem", borderBottom: "1px solid #f0f0f0", background: "rgba(212, 175, 55, 0.05)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <div>
+            <h4 style={{ margin: 0, fontSize: "0.95rem", color: "var(--gold)", fontWeight: "600" }}>Testador de Fontes</h4>
+            <span style={{ fontSize: "0.68rem", color: "var(--foreground-muted)" }}>Clique para aplicar no layout</span>
+          </div>
+          <button
+            onClick={() => setIsFontDrawerOpen(false)}
+            style={{ background: "none", border: "none", color: "var(--foreground-muted)", fontSize: "1.2rem", cursor: "pointer" }}
+          >
+            &times;
+          </button>
+        </div>
+
+        {/* Input de Texto para Teste */}
+        <div style={{ padding: "1rem", borderBottom: "1px solid #f0f0f0" }}>
+          <label style={{ fontSize: "0.75rem", fontWeight: "600", color: "var(--foreground)", display: "block", marginBottom: "4px" }}>Texto de Teste:</label>
+          <input
+            type="text"
+            value={previewText}
+            onChange={(e) => setPreviewText(e.target.value)}
+            style={{ width: "100%", padding: "0.5rem", borderRadius: "6px", border: "1px solid #e0e0e0", fontSize: "0.8rem" }}
+          />
+        </div>
+
+        {/* Lista de Fontes */}
+        <div style={{ flex: 1, overflowY: "auto", padding: "1rem", display: "flex", flexDirection: "column", gap: "0.8rem" }}>
+          {AVAILABLE_FONTS.map((font) => (
+            <div
+              key={font.name}
+              style={{
+                padding: "0.75rem",
+                borderRadius: "8px",
+                border: "1px solid #f0f0f0",
+                background: "#fafafa",
+                display: "flex",
+                flexDirection: "column",
+                gap: "8px"
+              }}
+            >
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <span style={{ fontSize: "0.75rem", fontWeight: "bold", color: "#333" }}>{font.name}</span>
+                <span style={{ fontSize: "0.6rem", background: "rgba(212, 175, 55, 0.15)", color: "var(--gold)", padding: "2px 6px", borderRadius: "4px" }}>{font.category}</span>
+              </div>
+              
+              {/* Preview */}
+              <div style={{ fontFamily: font.name, fontSize: "1.1rem", padding: "4px 0", color: "#111", minHeight: "24px" }}>
+                {previewText}
+              </div>
+
+              {/* Botões de Ação */}
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "6px" }}>
+                <button
+                  onClick={() => setActiveTitleFont(font.name)}
+                  style={{
+                    background: activeTitleFont === font.name ? "var(--gold)" : "#ffffff",
+                    color: activeTitleFont === font.name ? "#ffffff" : "var(--gold)",
+                    border: "1px solid var(--gold)",
+                    borderRadius: "4px",
+                    padding: "4px",
+                    fontSize: "0.62rem",
+                    cursor: "pointer",
+                    fontWeight: "600",
+                    transition: "all 0.2s"
+                  }}
+                >
+                  Títulos {activeTitleFont === font.name && "✓"}
+                </button>
+                <button
+                  onClick={() => setActiveBodyFont(font.name)}
+                  style={{
+                    background: activeBodyFont === font.name ? "var(--gold)" : "#ffffff",
+                    color: activeBodyFont === font.name ? "#ffffff" : "var(--gold)",
+                    border: "1px solid var(--gold)",
+                    borderRadius: "4px",
+                    padding: "4px",
+                    fontSize: "0.62rem",
+                    cursor: "pointer",
+                    fontWeight: "600",
+                    transition: "all 0.2s"
+                  }}
+                >
+                  Texto Geral {activeBodyFont === font.name && "✓"}
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Footer Reset */}
+        <div style={{ padding: "0.8rem", borderTop: "1px solid #f0f0f0", display: "flex", gap: "8px" }}>
+          <button
+            onClick={() => {
+              setActiveTitleFont("");
+              setActiveBodyFont("");
+            }}
+            style={{
+              flex: 1,
+              padding: "0.5rem",
+              background: "#333",
+              color: "#fff",
+              border: "none",
+              borderRadius: "6px",
+              fontSize: "0.75rem",
+              cursor: "pointer"
+            }}
+          >
+            Restaurar Padrão
+          </button>
+        </div>
+      </div>
 
     </div>
   );
