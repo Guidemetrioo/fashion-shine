@@ -2401,6 +2401,21 @@ export default function AdminDashboard() {
                   <span style={{ fontSize: "0.68rem", color: newProdName.length > 50 ? "#f59e0b" : "var(--foreground-muted)", textAlign: "right" }}>{newProdName.length}/60</span>
                 </div>
 
+                {/* Código de Barras (EAN / GTIN) */}
+                <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+                  <label style={{ fontSize: "0.8rem", fontWeight: "600", color: "var(--foreground)" }}>Código EAN / GTIN (Código de Barras)</label>
+                  <span style={{ fontSize: "0.68rem", color: "var(--foreground-muted)" }}>13 dígitos. Obrigatório em muitas categorias.</span>
+                  <input
+                    type="text"
+                    maxLength={14}
+                    value={newProdGtin}
+                    onChange={(e) => setNewProdGtin(e.target.value.replace(/\D/g, ""))}
+                    placeholder="Ex: 7891234567890"
+                    className="admin-input"
+                    style={{ background: "#ffffff", border: "1px solid rgba(45, 43, 39, 0.15)", color: "var(--foreground)", padding: "0.65rem 0.85rem", borderRadius: "8px", fontSize: "0.85rem", fontFamily: "monospace" }}
+                  />
+                </div>
+
                 {/* SKU */}
                 <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
                   <label style={{ fontSize: "0.8rem", fontWeight: "600", color: "var(--foreground)" }}>
@@ -2589,35 +2604,20 @@ export default function AdminDashboard() {
                   <span style={{ fontSize: "0.65rem", color: "var(--foreground-muted)", fontStyle: "italic" }}>Enviados como `attributes[]` na API</span>
                 </div>
 
-                {/* Marca + EAN — 2 colunas */}
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.75rem" }}>
-                  <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
-                    <label style={{ fontSize: "0.78rem", fontWeight: "600", color: "var(--foreground)" }}>
-                      Marca (BRAND) {publishToMeli && <span style={{ color: "#ff4d4d" }}>*</span>}
-                    </label>
-                    <input
-                      type="text"
-                      required={publishToMeli}
-                      value={newProdBrand}
-                      onChange={(e) => setNewProdBrand(e.target.value)}
-                      placeholder="Ex: Fashion Shine"
-                      className="admin-input"
-                      style={{ background: "#ffffff", border: "1px solid rgba(99,102,241,0.25)", color: "var(--foreground)", padding: "0.6rem 0.75rem", borderRadius: "8px", fontSize: "0.82rem" }}
-                    />
-                  </div>
-                  <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
-                    <label style={{ fontSize: "0.78rem", fontWeight: "600", color: "var(--foreground)" }}>Código EAN / GTIN</label>
-                    <span style={{ fontSize: "0.65rem", color: "var(--foreground-muted)" }}>13 dígitos. Obrigatório em muitas categorias.</span>
-                    <input
-                      type="text"
-                      maxLength={14}
-                      value={newProdGtin}
-                      onChange={(e) => setNewProdGtin(e.target.value.replace(/\D/g, ""))}
-                      placeholder="Ex: 7891234567890"
-                      className="admin-input"
-                      style={{ background: "#ffffff", border: "1px solid rgba(99,102,241,0.25)", color: "var(--foreground)", padding: "0.6rem 0.75rem", borderRadius: "8px", fontSize: "0.82rem", fontFamily: "monospace" }}
-                    />
-                  </div>
+                {/* Marca */}
+                <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+                  <label style={{ fontSize: "0.78rem", fontWeight: "600", color: "var(--foreground)" }}>
+                    Marca (BRAND) {publishToMeli && <span style={{ color: "#ff4d4d" }}>*</span>}
+                  </label>
+                  <input
+                    type="text"
+                    required={publishToMeli}
+                    value={newProdBrand}
+                    onChange={(e) => setNewProdBrand(e.target.value)}
+                    placeholder="Ex: Fashion Shine"
+                    className="admin-input"
+                    style={{ background: "#ffffff", border: "1px solid rgba(99,102,241,0.25)", color: "var(--foreground)", padding: "0.6rem 0.75rem", borderRadius: "8px", fontSize: "0.82rem" }}
+                  />
                 </div>
 
                 {/* Material */}
