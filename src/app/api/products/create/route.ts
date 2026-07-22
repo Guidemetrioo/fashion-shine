@@ -38,7 +38,8 @@ export async function POST(request: NextRequest) {
       shopeeLogistics,
       publishToTiktok,
       tiktokCategoryId,
-      tiktokBrandId
+      tiktokBrandId,
+      withGemstone
     } = body;
 
     if (!name || !sku) {
@@ -87,14 +88,20 @@ export async function POST(request: NextRequest) {
       const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
       const publicImageUrl = `${appUrl}/api/products/image/${productId}`;
 
-      // Build ML attributes array dynamically
       const mlAttributes = [
         { id: "BRAND", value_name: brand.trim() },
         { id: "MODEL", value_name: sku.trim() },
-        { id: "GTIN", value_name: gtin ? gtin.trim() : "Não se aplica" },
         { id: "MATERIAL", value_name: material.trim() },
         { id: "GENDER", value_name: gender.trim() }
       ];
+
+      if (gtin && gtin.trim() !== "" && gtin.trim().toLowerCase() !== "não se aplica" && gtin.trim().toLowerCase() !== "naoseaplica") {
+        mlAttributes.push({ id: "GTIN", value_name: gtin.trim() });
+      }
+
+      if (categoryId === "MLB1432" || withGemstone) {
+        mlAttributes.push({ id: "WITH_GEMSTONE", value_name: withGemstone ? withGemstone.trim() : "Sim" });
+      }
 
       if (color && color.trim()) {
         mlAttributes.push({ id: "COLOR", value_name: color.trim() });
@@ -103,32 +110,34 @@ export async function POST(request: NextRequest) {
         mlAttributes.push({ id: "SIZE", value_name: sizes.trim() });
       }
       if (weight) {
-        mlAttributes.push({ id: "PACKAGE_WEIGHT", value_name: `${weight} g` });
+        mlAttributes.push({ id: "seller_package_weight", value_name: `${weight} g` });
       }
       if (length) {
-        mlAttributes.push({ id: "PACKAGE_LENGTH", value_name: `${length} cm` });
+        mlAttributes.push({ id: "seller_package_length", value_name: `${length} cm` });
       }
       if (width) {
-        mlAttributes.push({ id: "PACKAGE_WIDTH", value_name: `${width} cm` });
+        mlAttributes.push({ id: "seller_package_width", value_name: `${width} cm` });
       }
       if (height) {
-        mlAttributes.push({ id: "PACKAGE_HEIGHT", value_name: `${height} cm` });
+        mlAttributes.push({ id: "seller_package_height", value_name: `${height} cm` });
       }
 
       const mlPayload = {
-        title: name.trim(),
-        category_id: categoryId || "MLB1434", // Default to Jewelry/Necklaces
+        category_id: categoryId || "MLB1434",
         price: priceNum,
         currency_id: "BRL",
         available_quantity: mlStockNum,
         buying_mode: "buy_it_now",
         listing_type_id: listing_type_id || "gold_special",
         condition: condition || "new",
-        pictures: imageUrl ? [{ source: publicImageUrl }] : [],
+        pictures: imageUrl 
+          ? (imageUrl.startsWith("http") ? [{ source: imageUrl }] : [{ source: publicImageUrl }])
+          : [],
         description: {
           plain_text: description || "Produto de alta qualidade da Fashion Shine."
         },
-        attributes: mlAttributes
+        attributes: mlAttributes,
+        family_name: name.trim()
       };
 
       console.log(`[ML Publisher]: Publishing item SKU ${sku} to Mercado Livre...`);

@@ -15,7 +15,7 @@ export const isNeonConfigured = () => {
   );
 };
 
-export const sql = (strings: TemplateStringsArray, ...values: any[]) => {
+export const sql = (strings: TemplateStringsArray | string, ...values: any[]) => {
   if (!cachedClient) {
     const databaseUrl = 
       process.env.DATABASE_URL || 
@@ -29,5 +29,10 @@ export const sql = (strings: TemplateStringsArray, ...values: any[]) => {
     
     cachedClient = neon(databaseUrl);
   }
-  return cachedClient(strings, ...values);
+
+  if (typeof strings === "string") {
+    return cachedClient(strings, values[0] || []);
+  } else {
+    return cachedClient(strings, ...values);
+  }
 };
