@@ -190,6 +190,28 @@ export default function AdminDashboard() {
     setNewProdGtin(numericOnly);
   };
 
+  const getFriendlyErrorMessage = (rawError: string): string => {
+    if (!rawError) return "Erro ao cadastrar produto: Erro desconhecido.";
+    
+    const lower = rawError.toLowerCase();
+    
+    if (lower.includes("access_token.invalid") || lower.includes("invalid_token") || lower.includes("unauthorized") || lower.includes("status 401")) {
+      return `Erro ao cadastrar produto: Falha ao publicar no Mercado Livre: access_token.invalid
+
+--------------------------------------------------
+🔍 DIAGNÓSTICO DO ERRO:
+A credencial de acesso temporária (access_token) do Mercado Livre expirou ou não está ativa no banco de dados.
+
+💡 COMO RESOLVER:
+1. Acesse a aba "CONFIGURAÇÕES DE INTEGRAÇÃO" no painel.
+2. Clique no botão "Conectar" ao lado do Mercado Livre.
+3. Isso vai te redirecionar para fazer o login no Mercado Livre e renovar as credenciais.
+4. Se o problema persistir, certifique-se de que a variável DATABASE_URL está configurada corretamente na Vercel e que você fez o "Redeploy".`;
+    }
+    
+    return `Erro ao cadastrar produto: ${rawError}`;
+  };
+
   const handleFormKeyDown = (e: React.KeyboardEvent<HTMLFormElement>) => {
     const target = e.target as HTMLElement;
     if (e.key === "Enter" && target.tagName !== "TEXTAREA" && target.tagName !== "BUTTON") {
@@ -330,7 +352,7 @@ export default function AdminDashboard() {
         setTiktokBrandId("0");
         setShowAddProductModal(false);
       } else {
-        alert(`Erro ao cadastrar produto: ${data.error}`);
+        alert(getFriendlyErrorMessage(data.error));
       }
     } catch (err: any) {
       console.error(err);

@@ -280,7 +280,7 @@ export async function saveTokens(tokens: {
 }
 
 export async function forceRefreshMlToken(): Promise<StoredTokens> {
-  const tokens = getLocalTokens();
+  const tokens = await getTokens();
   if (
     !tokens.mercadolivre.clientId ||
     !tokens.mercadolivre.clientSecret ||
@@ -322,7 +322,7 @@ export async function forceRefreshMlToken(): Promise<StoredTokens> {
 }
 
 export async function forceRefreshShopeeToken(): Promise<StoredTokens> {
-  const tokens = getLocalTokens();
+  const tokens = await getTokens();
   if (
     !tokens.shopee.partnerId ||
     !tokens.shopee.partnerKey ||
