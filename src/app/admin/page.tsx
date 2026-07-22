@@ -150,6 +150,13 @@ export default function AdminDashboard() {
     setNewProdGtin(numericOnly);
   };
 
+  const handleFormKeyDown = (e: React.KeyboardEvent<HTMLFormElement>) => {
+    const target = e.target as HTMLElement;
+    if (e.key === "Enter" && target.tagName !== "TEXTAREA" && target.tagName !== "BUTTON") {
+      e.preventDefault();
+    }
+  };
+
   // Drag and drop states
   const [isDragging, setIsDragging] = useState(false);
   const [imagePreview, setImagePreview] = useState("");
@@ -2293,7 +2300,7 @@ export default function AdminDashboard() {
             </div>
 
             {/* Scrollable Form Body */}
-            <form onSubmit={handleCreateProduct} style={{ overflowY: "auto", padding: "1.5rem", display: "flex", flexDirection: "column", gap: "1.1rem" }}>
+            <form onSubmit={handleCreateProduct} onKeyDown={handleFormKeyDown} style={{ overflowY: "auto", padding: "1.5rem", display: "flex", flexDirection: "column", gap: "1.1rem" }}>
               {/* Photo Upload Container */}
               <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
                 <label style={{ fontSize: "0.85rem", fontWeight: "600", color: "var(--foreground)" }}>Foto do Produto</label>
