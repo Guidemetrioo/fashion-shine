@@ -627,7 +627,17 @@ export default function AdminDashboard() {
   const totalRevenue = orders.reduce((sum, o) => sum + o.total, 0);
   const shopeeRevenue = orders.filter((o) => o.channel === "shopee").reduce((sum, o) => sum + o.total, 0);
   const mlRevenue = orders.filter((o) => o.channel === "mercadolivre").reduce((sum, o) => sum + o.total, 0);
-  const totalSyncCount = products.length;
+
+  // Active products (excluding those deleted by the user)
+  const activeProducts = products.filter((p) => {
+    return !(
+      deletedSkus.includes(p.id) ||
+      deletedSkus.includes(p.sku) ||
+      (p.mlItemId && deletedSkus.includes(p.mlItemId))
+    );
+  });
+
+  const totalSyncCount = activeProducts.length;
 
   // Today's Stats
   const getTodayPrefix = () => {
@@ -663,7 +673,7 @@ export default function AdminDashboard() {
   const mlMonthOrdersCount = monthOrders.filter(o => o.channel === "mercadolivre").length;
 
   // Active products & stock
-  const activeStockUnits = products.reduce((sum, p) => sum + (p.totalStock || 0), 0);
+  const activeStockUnits = activeProducts.reduce((sum, p) => sum + (p.totalStock || 0), 0);
 
   const filteredOrders = orders.filter((o) => {
     const matchesChannel = orderChannelFilter === "all" || o.channel === orderChannelFilter;
@@ -694,16 +704,7 @@ export default function AdminDashboard() {
     return matchesTab && matchesQuery;
   });
 
-  const filteredProducts = products.filter((p) => {
-    // Exclude products explicitly deleted by the user
-    if (
-      deletedSkus.includes(p.id) ||
-      deletedSkus.includes(p.sku) ||
-      (p.mlItemId && deletedSkus.includes(p.mlItemId))
-    ) {
-      return false;
-    }
-
+  const filteredProducts = activeProducts.filter((p) => {
     const query = productSearchQuery.toLowerCase().trim();
     if (!query) return true;
     return (
