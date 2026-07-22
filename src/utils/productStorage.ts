@@ -145,17 +145,59 @@ export async function saveDBProducts(products: DBProduct[]): Promise<void> {
   }
 
   // 2. Upsert to Neon if configured
-  if (isNeonConfigured()) {
+  if (isNeonConfigured() && products.length > 0) {
     try {
-      for (const p of products) {
-        await sql`
+      const chunks: DBProduct[][] = [];
+      const chunkSize = 50;
+      for (let i = 0; i < products.length; i += chunkSize) {
+        chunks.push(products.slice(i, i + chunkSize));
+      }
+
+      for (const chunk of chunks) {
+        const placeholders: string[] = [];
+        const params: any[] = [];
+        let paramIndex = 1;
+
+        for (const p of chunk) {
+          const rowPlaceholders = [
+            `$${paramIndex++}`, `$${paramIndex++}`, `$${paramIndex++}`, `$${paramIndex++}`, `$${paramIndex++}`,
+            `$${paramIndex++}`, `$${paramIndex++}`, `$${paramIndex++}`, `$${paramIndex++}`, `$${paramIndex++}`,
+            `$${paramIndex++}`, `$${paramIndex++}`, `$${paramIndex++}`, `$${paramIndex++}`, `$${paramIndex++}`,
+            `$${paramIndex++}`, `$${paramIndex++}`, `$${paramIndex++}`, `$${paramIndex++}`, `$${paramIndex++}`,
+            `$${paramIndex++}`
+          ];
+          placeholders.push(`(${rowPlaceholders.join(",")})`);
+
+          params.push(
+            p.id,
+            p.name ?? "",
+            p.sku,
+            p.basePrice ?? 0,
+            p.shopeeStock ?? 0,
+            p.shopeeSynced ?? false,
+            p.shopeeItemId ?? null,
+            p.mlStock ?? 0,
+            p.mlSynced ?? false,
+            p.mlItemId ?? null,
+            p.totalStock ?? 0,
+            p.lastSync ?? "",
+            p.description ?? null,
+            p.imageUrl ?? null,
+            p.shopeeCategoryId ?? null,
+            p.shopeeBrandId ?? null,
+            p.shopeeIsPreOrder ?? false,
+            p.shopeeDaysToShip ?? null,
+            p.shopeeLogistics ? p.shopeeLogistics.join(",") : null,
+            p.tiktokCategoryId ?? null,
+            p.tiktokBrandId ?? null
+          );
+        }
+
+        const query = `
           INSERT INTO products (
             id, name, sku, base_price, shopee_stock, shopee_synced, shopee_item_id, ml_stock, ml_synced, ml_item_id, total_stock, last_sync, description, image_url,
             shopee_category_id, shopee_brand_id, shopee_is_pre_order, shopee_days_to_ship, shopee_logistics, tiktok_category_id, tiktok_brand_id
-          ) VALUES (
-            ${p.id}, ${p.name}, ${p.sku}, ${p.basePrice}, ${p.shopeeStock}, ${p.shopeeSynced}, ${p.shopeeItemId || null}, ${p.mlStock}, ${p.mlSynced}, ${p.mlItemId || null}, ${p.totalStock}, ${p.lastSync}, ${p.description || null}, ${p.imageUrl || null},
-            ${p.shopeeCategoryId || null}, ${p.shopeeBrandId || null}, ${p.shopeeIsPreOrder || false}, ${p.shopeeDaysToShip || null}, ${p.shopeeLogistics ? p.shopeeLogistics.join(",") : null}, ${p.tiktokCategoryId || null}, ${p.tiktokBrandId || null}
-          )
+          ) VALUES ${placeholders.join(",")}
           ON CONFLICT (id)
           DO UPDATE SET
             name = EXCLUDED.name,
@@ -179,6 +221,8 @@ export async function saveDBProducts(products: DBProduct[]): Promise<void> {
             tiktok_category_id = EXCLUDED.tiktok_category_id,
             tiktok_brand_id = EXCLUDED.tiktok_brand_id
         `;
+
+        await sql(query, params);
       }
     } catch (err) {
       console.error("Neon products upsert failed:", err);

@@ -232,14 +232,14 @@ export async function saveTokens(tokens: {
             channel, connected, access_token, refresh_token, expires_at, user_id, nickname, client_id, client_secret
           ) VALUES (
             'mercadolivre',
-            ${updated.mercadolivre.connected},
-            ${updated.mercadolivre.accessToken},
-            ${updated.mercadolivre.refreshToken},
-            ${updated.mercadolivre.expiresAt},
-            ${updated.mercadolivre.userId},
-            ${updated.mercadolivre.nickname},
-            ${updated.mercadolivre.clientId},
-            ${updated.mercadolivre.clientSecret}
+            ${updated.mercadolivre.connected ?? false},
+            ${updated.mercadolivre.accessToken ?? ""},
+            ${updated.mercadolivre.refreshToken ?? ""},
+            ${updated.mercadolivre.expiresAt ?? 0},
+            ${updated.mercadolivre.userId ?? ""},
+            ${updated.mercadolivre.nickname ?? ""},
+            ${updated.mercadolivre.clientId ?? ""},
+            ${updated.mercadolivre.clientSecret ?? ""}
           )
           ON CONFLICT (channel)
           DO UPDATE SET
@@ -260,13 +260,13 @@ export async function saveTokens(tokens: {
             channel, connected, access_token, refresh_token, expires_at, shop_id, partner_id, partner_key
           ) VALUES (
             'shopee',
-            ${updated.shopee.connected},
-            ${updated.shopee.accessToken},
-            ${updated.shopee.refreshToken},
-            ${updated.shopee.expiresAt},
-            ${updated.shopee.shopId},
-            ${updated.shopee.partnerId},
-            ${updated.shopee.partnerKey}
+            ${updated.shopee.connected ?? false},
+            ${updated.shopee.accessToken ?? ""},
+            ${updated.shopee.refreshToken ?? ""},
+            ${updated.shopee.expiresAt ?? 0},
+            ${updated.shopee.shopId ?? ""},
+            ${updated.shopee.partnerId ?? ""},
+            ${updated.shopee.partnerKey ?? ""}
           )
           ON CONFLICT (channel)
           DO UPDATE SET
