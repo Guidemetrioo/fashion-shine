@@ -1,6 +1,10 @@
 import { neon } from "@neondatabase/serverless";
 
-const databaseUrl = process.env.DATABASE_URL || "";
+const databaseUrl = 
+  process.env.DATABASE_URL || 
+  process.env.DETABASE_URL || 
+  process.env.detabase_url || 
+  "";
 
 export const isNeonConfigured = () => {
   return (

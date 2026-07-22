@@ -201,7 +201,7 @@ export async function saveTokens(tokens: {
   shopee?: Partial<StoredTokens["shopee"]>;
   mercadolivre?: Partial<StoredTokens["mercadolivre"]>;
 }): Promise<StoredTokens> {
-  const current = getLocalTokens();
+  const current = await getTokens();
   const updated = {
     ...current,
     shopee: { ...current.shopee, ...tokens.shopee },
