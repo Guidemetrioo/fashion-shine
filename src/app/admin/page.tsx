@@ -93,16 +93,33 @@ export default function AdminDashboard() {
   // Persistent deleted items tracking across serverless sessions
   const [deletedSkus, setDeletedSkus] = useState<string[]>([]);
 
+  // Persistent checked/reviewed products tracking
+  const [checkedProductIds, setCheckedProductIds] = useState<string[]>([]);
+
   useEffect(() => {
     try {
       const saved = localStorage.getItem("fashion_shine_deleted_skus");
       if (saved) {
         setDeletedSkus(JSON.parse(saved));
       }
+      const savedChecked = localStorage.getItem("fashion_shine_checked_products");
+      if (savedChecked) {
+        setCheckedProductIds(JSON.parse(savedChecked));
+      }
     } catch (e) {
-      console.error("Failed to load deleted SKUs from localStorage:", e);
+      console.error("Failed to load data from localStorage:", e);
     }
   }, []);
+
+  const handleToggleCheckProduct = (productId: string) => {
+    setCheckedProductIds(prev => {
+      const next = prev.includes(productId)
+        ? prev.filter(id => id !== productId)
+        : [...prev, productId];
+      localStorage.setItem("fashion_shine_checked_products", JSON.stringify(next));
+      return next;
+    });
+  };
 
   // Drag and drop states
   const [isDragging, setIsDragging] = useState(false);
@@ -1311,41 +1328,86 @@ export default function AdminDashboard() {
                       <td style={{ fontWeight: "700", color: "#1a1a1a" }}>R$ {prod.basePrice.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</td>
                       <td style={{ fontSize: "0.85rem", color: "#555555", fontWeight: "500" }}>{prod.lastSync === "Just now" ? "Agora mesmo" : prod.lastSync}</td>
                       <td style={{ textAlign: "center" }}>
-                        <button
-                          onClick={() => handleDeleteProduct(prod.id)}
-                          className="btn-delete"
-                          style={{
-                            background: "transparent",
-                            border: "none",
-                            cursor: "pointer",
-                            color: "#ef4444",
-                            padding: "6px",
-                            borderRadius: "4px",
-                            display: "inline-flex",
-                            alignItems: "center",
-                            justifyContent: "center",
-                            transition: "background 0.2s"
-                          }}
-                          onMouseEnter={(e) => e.currentTarget.style.background = "rgba(239, 68, 68, 0.1)"}
-                          onMouseLeave={(e) => e.currentTarget.style.background = "transparent"}
-                          title="Excluir produto"
-                        >
-                          <svg 
-                            width="16" 
-                            height="16" 
-                            viewBox="0 0 24 24" 
-                            fill="none" 
-                            stroke="currentColor" 
-                            strokeWidth="2" 
-                            strokeLinecap="round" 
-                            strokeLinejoin="round"
+                        <div style={{ display: "inline-flex", alignItems: "center", gap: "4px" }}>
+                          {/* Check button */}
+                          <button
+                            onClick={() => handleToggleCheckProduct(prod.id)}
+                            style={{
+                              background: checkedProductIds.includes(prod.id) ? "rgba(16, 185, 129, 0.15)" : "transparent",
+                              border: "none",
+                              cursor: "pointer",
+                              color: checkedProductIds.includes(prod.id) ? "#047857" : "#9ca3af",
+                              padding: "6px",
+                              borderRadius: "4px",
+                              display: "inline-flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                              transition: "background 0.2s, color 0.2s"
+                            }}
+                            onMouseEnter={(e) => {
+                              if (!checkedProductIds.includes(prod.id)) {
+                                e.currentTarget.style.background = "rgba(16, 185, 129, 0.1)";
+                                e.currentTarget.style.color = "#047857";
+                              }
+                            }}
+                            onMouseLeave={(e) => {
+                              if (!checkedProductIds.includes(prod.id)) {
+                                e.currentTarget.style.background = "transparent";
+                                e.currentTarget.style.color = "#9ca3af";
+                              }
+                            }}
+                            title={checkedProductIds.includes(prod.id) ? "Remover conferência" : "Marcar como conferido"}
                           >
-                            <polyline points="3 6 5 6 21 6"></polyline>
-                            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-                            <line x1="10" y1="11" x2="10" y2="17"></line>
-                            <line x1="14" y1="11" x2="14" y2="17"></line>
-                          </svg>
-                        </button>
+                            <svg
+                              width="16"
+                              height="16"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="currentColor"
+                              strokeWidth="2.5"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                            >
+                              <polyline points="20 6 9 17 4 12"></polyline>
+                            </svg>
+                          </button>
+                          {/* Delete button */}
+                          <button
+                            onClick={() => handleDeleteProduct(prod.id)}
+                            className="btn-delete"
+                            style={{
+                              background: "transparent",
+                              border: "none",
+                              cursor: "pointer",
+                              color: "#ef4444",
+                              padding: "6px",
+                              borderRadius: "4px",
+                              display: "inline-flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                              transition: "background 0.2s"
+                            }}
+                            onMouseEnter={(e) => e.currentTarget.style.background = "rgba(239, 68, 68, 0.1)"}
+                            onMouseLeave={(e) => e.currentTarget.style.background = "transparent"}
+                            title="Excluir produto"
+                          >
+                            <svg
+                              width="16"
+                              height="16"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="currentColor"
+                              strokeWidth="2"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                            >
+                              <polyline points="3 6 5 6 21 6"></polyline>
+                              <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                              <line x1="10" y1="11" x2="10" y2="17"></line>
+                              <line x1="14" y1="11" x2="14" y2="17"></line>
+                            </svg>
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   ))}
