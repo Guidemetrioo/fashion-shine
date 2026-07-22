@@ -215,7 +215,7 @@ export default function AdminDashboard() {
         }
         
         addLog(`Central Inventory: Registered new product SKU ${newProdSku} successfully.`, "all", "success");
-        alert("✨ Produto cadastrado com sucesso!");
+        alert("Produto cadastrado com sucesso!");
         
         // Reset form
         setNewProdName("");
@@ -255,11 +255,11 @@ export default function AdminDashboard() {
         setTiktokBrandId("0");
         setShowAddProductModal(false);
       } else {
-        alert(`❌ Erro ao cadastrar produto: ${data.error}`);
+        alert(`Erro ao cadastrar produto: ${data.error}`);
       }
     } catch (err: any) {
       console.error(err);
-      alert("❌ Erro de rede ao cadastrar produto.");
+      alert("Erro de rede ao cadastrar produto.");
     } finally {
       setIsCreatingProduct(false);
     }
@@ -364,7 +364,7 @@ export default function AdminDashboard() {
       if (res.ok) {
         setIsMlConfigured(true);
         addLog("Mercado Livre API: Credentials saved securely.", "mercadolivre", "success");
-        alert("✨ Mercado Livre API credentials saved successfully!");
+        alert("Mercado Livre API credentials saved successfully!");
       }
     } catch (err) {
       console.error(err);
@@ -384,7 +384,7 @@ export default function AdminDashboard() {
       const data = await res.json();
       if (res.ok && data.success) {
         addLog(`Mercado Livre: Catalog imported! Imported: ${data.importedCount}, Updated: ${data.updatedCount} listings.`, "mercadolivre", "success");
-        alert(`🎉 Mercado Livre catalog imported successfully!\nImported: ${data.importedCount} new products\nUpdated: ${data.updatedCount} existing products`);
+        alert(`Mercado Livre catalog imported successfully!\nImported: ${data.importedCount} new products\nUpdated: ${data.updatedCount} existing products`);
         
         // Refresh products list
         const prodRes = await fetch("/api/sync/products");
@@ -397,12 +397,12 @@ export default function AdminDashboard() {
       } else {
         const errMsg = data.error || "Failed to import catalog";
         addLog(`Mercado Livre: Import failed - ${errMsg}`, "mercadolivre", "error");
-        alert(`❌ Import Failed: ${errMsg}`);
+        alert(`Import Failed: ${errMsg}`);
       }
     } catch (err: any) {
       console.error("Catalog import error:", err);
       addLog(`Mercado Livre: Import failed due to server error.`, "mercadolivre", "error");
-      alert(`❌ Import Failed due to server error.`);
+      alert(`Import Failed due to server error.`);
     } finally {
       setIsImportingMl(false);
     }
@@ -426,7 +426,7 @@ export default function AdminDashboard() {
       if (res.ok) {
         setIsShopeeConfigured(true);
         addLog("API Shopee: Credenciais salvas com segurança.", "shopee", "success");
-        alert("✨ Credenciais da API da Shopee salvas com sucesso!");
+        alert("Credenciais da API da Shopee salvas com sucesso!");
       }
     } catch (err) {
       console.error(err);
@@ -446,7 +446,7 @@ export default function AdminDashboard() {
       const data = await res.json();
       if (res.ok && data.success) {
         addLog(`Shopee: Catálogo importado! Importado: ${data.importedCount}, Atualizado: ${data.updatedCount} anúncios.`, "shopee", "success");
-        alert(`🎉 Catálogo da Shopee importado com sucesso!\nImportados: ${data.importedCount} novos produtos\nAtualizados: ${data.updatedCount} produtos existentes`);
+        alert(`Catálogo da Shopee importado com sucesso!\nImportados: ${data.importedCount} novos produtos\nAtualizados: ${data.updatedCount} produtos existentes`);
         
         // Refresh products list
         const prodRes = await fetch("/api/sync/products");
@@ -459,12 +459,12 @@ export default function AdminDashboard() {
       } else {
         const errMsg = data.error || "Falha ao importar catálogo";
         addLog(`Shopee: Importação falhou - ${errMsg}`, "shopee", "error");
-        alert(`❌ Falha na Importação: ${errMsg}`);
+        alert(`Falha na Importação: ${errMsg}`);
       }
     } catch (err: any) {
       console.error("Catalog import error:", err);
       addLog(`Shopee: Importação falhou devido a um erro no servidor.`, "shopee", "error");
-      alert(`❌ Falha na Importação devido a um erro no servidor.`);
+      alert(`Falha na Importação devido a um erro no servidor.`);
     } finally {
       setIsImportingShopee(false);
     }
@@ -603,23 +603,23 @@ export default function AdminDashboard() {
 
       if (res.ok) {
         addLog(`Estoque Central: Produto SKU ${product.sku} excluído com sucesso.`, "all", "success");
-        alert(`🗑️ Produto "${product.name}" excluído com sucesso!`);
+        alert(`Produto "${product.name}" excluído com sucesso!`);
       } else {
         const errData = await res.json();
         const errorMsg = errData.error || "Erro desconhecido";
         addLog(`Estoque Central: Falha ao excluir o produto SKU ${product.sku} (${errorMsg}).`, "all", "error");
-        alert(`❌ Falha ao excluir o produto: ${errorMsg}`);
+        alert(`Falha ao excluir o produto: ${errorMsg}`);
       }
     } catch (err) {
       console.error("Delete product error:", err);
       addLog(`Estoque Central: Erro ao se conectar com o servidor para excluir o produto.`, "all", "error");
-      alert(`❌ Erro de rede ao tentar excluir o produto.`);
+      alert(`Erro de rede ao tentar excluir o produto.`);
     }
   };
 
   // Simulated Label printing
   const handlePrintLabel = (orderId: string, channel: string) => {
-    alert(`📄 Etiqueta de Envio para o Pedido ${orderId} (${channel.toUpperCase()}) gerada com sucesso. Pronto para imprimir.`);
+    alert(`Etiqueta de Envio para o Pedido ${orderId} (${channel.toUpperCase()}) gerada com sucesso. Pronto para imprimir.`);
     addLog(`Etiqueta de envio impressa para o pedido ${orderId} (${channel.toUpperCase()}).`, channel as any, "success");
   };
 
@@ -1271,9 +1271,12 @@ export default function AdminDashboard() {
                             alignItems: "center",
                             justifyContent: "center",
                             color: "var(--gold)",
-                            fontSize: "1.2rem"
                           }}>
-                            ✨
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                              <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275Z"/>
+                              <path d="m5 3 1 2.5L8.5 6 6 7 5 9.5 4 7 1.5 6 4 5.5Z"/>
+                              <path d="m19 17 1 2.5 2.5.5-2.5 1-1 2.5-1-2.5-2.5-1 2.5-1Z"/>
+                            </svg>
                           </div>
                         )}
                       </td>
@@ -2418,7 +2421,7 @@ export default function AdminDashboard() {
                           transition: "all 0.2s"
                         }}
                       >
-                        {c === "new" ? "✨ Novo" : "♻️ Usado"}
+                        {c === "new" ? "Novo" : "Usado"}
                       </button>
                     ))}
                   </div>
@@ -2513,7 +2516,7 @@ export default function AdminDashboard() {
                 flexDirection: "column",
                 gap: "0.9rem"
               }}>
-                <span style={{ fontSize: "0.72rem", fontWeight: "700", color: "var(--foreground-muted)", textTransform: "uppercase", letterSpacing: "0.1em" }}>💰 Preço e Estoque</span>
+                <span style={{ display: "inline-flex", alignItems: "center", gap: "6px", fontSize: "0.72rem", fontWeight: "700", color: "var(--foreground-muted)", textTransform: "uppercase", letterSpacing: "0.1em" }}><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg> Preço e Estoque</span>
 
                 {/* Preço Base */}
                 <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
@@ -2576,7 +2579,7 @@ export default function AdminDashboard() {
                 gap: "0.9rem"
               }}>
                 <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                  <span style={{ fontSize: "0.72rem", fontWeight: "700", color: "#6366f1", textTransform: "uppercase", letterSpacing: "0.1em" }}>🏷️ Atributos do Produto</span>
+                  <span style={{ display: "inline-flex", alignItems: "center", gap: "6px", fontSize: "0.72rem", fontWeight: "700", color: "#6366f1", textTransform: "uppercase", letterSpacing: "0.1em" }}><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path><line x1="7" y1="7" x2="7.01" y2="7"></line></svg> Atributos do Produto</span>
                   <span style={{ fontSize: "0.65rem", color: "var(--foreground-muted)", fontStyle: "italic" }}>Enviados como `attributes[]` na API</span>
                 </div>
 
@@ -2651,7 +2654,7 @@ export default function AdminDashboard() {
                           transition: "all 0.2s"
                         }}
                       >
-                        {g === "" ? "—" : g === "Feminino" ? "♀️ Fem." : g === "Masculino" ? "♂️ Masc." : "🔁 Uni."}
+                        {g === "" ? "—" : g === "Feminino" ? "Feminino" : g === "Masculino" ? "Masculino" : "Unissex"}
                       </button>
                     ))}
                   </div>
@@ -2696,7 +2699,7 @@ export default function AdminDashboard() {
                 gap: "0.9rem"
               }}>
                 <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                  <span style={{ fontSize: "0.72rem", fontWeight: "700", color: "#059669", textTransform: "uppercase", letterSpacing: "0.1em" }}>📦 Logística & Frete</span>
+                  <span style={{ display: "inline-flex", alignItems: "center", gap: "6px", fontSize: "0.72rem", fontWeight: "700", color: "#059669", textTransform: "uppercase", letterSpacing: "0.1em" }}><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="21 16 12 21 3 16"></polyline><polyline points="21 8 12 13 3 8"></polyline><polyline points="12 21 12 13"></polyline><line x1="12" y1="3" x2="12" y2="13"></line><polygon points="12 3 21 8 12 13 3 8"></polygon></svg> Logística & Frete</span>
                   <span style={{ fontSize: "0.65rem", color: "var(--foreground-muted)", fontStyle: "italic" }}>Afeta cálculo de frete pelo ML</span>
                 </div>
 
@@ -2924,7 +2927,10 @@ export default function AdminDashboard() {
 
                 {/* Informação sobre conversão de peso */}
                 <div style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "0.72rem", color: "var(--foreground-muted)", background: "rgba(0,0,0,0.02)", padding: "8px", borderRadius: "6px", border: "1px dashed rgba(0,0,0,0.06)" }}>
-                  <span>ℹ️ O peso de <strong>{newProdWeight || "0"}g</strong> será convertido automaticamente para <strong>{((Number(newProdWeight || 0)) / 1000).toFixed(3)}kg</strong> para o TikTok Shop.</span>
+                  <span style={{ display: "inline-flex", alignItems: "center", gap: "6px" }}>
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                    O peso de <strong>{newProdWeight || "0"}g</strong> será convertido automaticamente para <strong>{((Number(newProdWeight || 0)) / 1000).toFixed(3)}kg</strong> para o TikTok Shop.
+                  </span>
                 </div>
 
                 {/* Publicar no TikTok Shop Checkbox */}
