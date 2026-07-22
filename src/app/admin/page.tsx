@@ -234,15 +234,23 @@ export default function AdminDashboard() {
     }
   };
 
-  // Load real products from API if connected
+  // Load real products from API if connected, respecting unified DB deletions
   const loadRealProducts = async () => {
     try {
       const res = await fetch("/api/sync/mercadolivre/products");
       if (res.ok) {
         const data = await res.json();
         if (data.connected && data.products && data.products.length > 0) {
+          const dbRes = await fetch("/api/sync/products");
+          if (dbRes.ok) {
+            const dbData = await dbRes.json();
+            if (dbData.products && dbData.products.length > 0) {
+              setProducts(dbData.products);
+              addLog(`Mercado Livre: Base sincronizada com ${dbData.products.length} anúncios ativos.`, "mercadolivre", "success");
+              return;
+            }
+          }
           setProducts(data.products);
-          addLog(`Mercado Livre: Loaded ${data.products.length} live listings from your seller account.`, "mercadolivre", "success");
         }
       }
     } catch (err) {
@@ -253,6 +261,20 @@ export default function AdminDashboard() {
   // Load status and products database from API on mount
   useEffect(() => {
     async function checkStatusAndProducts() {
+      // 1. Fetch unified stock levels first (source of truth)
+      try {
+        const res = await fetch("/api/sync/products");
+        if (res.ok) {
+          const data = await res.json();
+          if (data.products && Array.isArray(data.products)) {
+            setProducts(data.products);
+          }
+        }
+      } catch (err) {
+        console.error("Error loading products from database:", err);
+      }
+
+      // 2. Fetch integration status
       try {
         const res = await fetch("/api/auth/status");
         if (res.ok) {
@@ -274,25 +296,10 @@ export default function AdminDashboard() {
           
           if (data.mercadolivre.connected) {
             setMlAccountName(data.mercadolivre.nickname);
-            // Load real products if connected
-            loadRealProducts();
           }
         }
       } catch (err) {
         console.error("Error fetching integration status:", err);
-      }
-
-      // Fetch unified stock levels
-      try {
-        const res = await fetch("/api/sync/products");
-        if (res.ok) {
-          const data = await res.json();
-          if (data.products && data.products.length > 0) {
-            setProducts(data.products);
-          }
-        }
-      } catch (err) {
-        console.error("Error loading products from database:", err);
       }
     }
     checkStatusAndProducts();
@@ -534,31 +541,49 @@ export default function AdminDashboard() {
   };
 
   const handleDeleteProduct = async (productId: string) => {
-    const product = products.find(p => p.id === productId);
+    const product = products.find(p => p.id === productId || p.sku === productId || p.mlItemId === productId);
     if (!product) return;
 
     const confirmed = window.confirm(`Tem certeza que deseja excluir o produto "${product.name}"? Esta ação removerá o produto do estoque interno.`);
     if (!confirmed) return;
 
+    // Instantly remove from local state for UI responsiveness
+    const targetId = product.id;
+    const targetSku = product.sku;
+    const targetMlId = product.mlItemId;
+
+    setProducts(prev => prev.filter(p => p.id !== targetId && p.sku !== targetSku && (targetMlId ? p.mlItemId !== targetMlId : true)));
+
     try {
       const res = await fetch("/api/products/delete", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ productId })
+        body: JSON.stringify({ productId: targetId })
       });
 
       if (res.ok) {
-        setProducts(prev => prev.filter(p => p.id !== productId));
         addLog(`Estoque Central: Produto SKU ${product.sku} excluído com sucesso.`, "all", "success");
         alert(`🗑️ Produto "${product.name}" excluído com sucesso!`);
       } else {
         const errData = await res.json();
         const errorMsg = errData.error || "Erro desconhecido";
+        // Re-fetch products from server if delete failed
+        const prodRes = await fetch("/api/sync/products");
+        if (prodRes.ok) {
+          const prodData = await prodRes.json();
+          if (prodData.products) setProducts(prodData.products);
+        }
         addLog(`Estoque Central: Falha ao excluir o produto SKU ${product.sku} (${errorMsg}).`, "all", "error");
         alert(`❌ Falha ao excluir o produto: ${errorMsg}`);
       }
     } catch (err) {
       console.error("Delete product error:", err);
+      // Re-fetch products from server if network error
+      const prodRes = await fetch("/api/sync/products");
+      if (prodRes.ok) {
+        const prodData = await prodRes.json();
+        if (prodData.products) setProducts(prodData.products);
+      }
       addLog(`Estoque Central: Erro ao se conectar com o servidor para excluir o produto.`, "all", "error");
       alert(`❌ Erro de rede ao tentar excluir o produto.`);
     }

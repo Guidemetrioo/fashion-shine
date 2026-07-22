@@ -96,6 +96,46 @@ export async function getDBProducts(): Promise<DBProduct[]> {
   }
 }
 
+export async function deleteDBProduct(identifier: string): Promise<boolean> {
+  let products = getLocalProducts();
+  const index = products.findIndex(
+    p => p.id === identifier || p.sku === identifier || p.mlItemId === identifier || p.shopeeItemId === identifier
+  );
+
+  const productToDelete = index !== -1 ? products[index] : null;
+
+  // 1. Remove from local file
+  if (index !== -1) {
+    products.splice(index, 1);
+    try {
+      fs.writeFileSync(PRODUCTS_FILE, JSON.stringify(products, null, 2), "utf8");
+    } catch (error) {
+      console.error("Error updating local products file on deletion:", error);
+    }
+  }
+
+  // 2. Delete from Neon database if configured
+  if (isNeonConfigured()) {
+    try {
+      const targetId = productToDelete?.id || identifier;
+      const targetSku = productToDelete?.sku || identifier;
+      const targetMlId = productToDelete?.mlItemId || identifier;
+
+      await sql`
+        DELETE FROM products 
+        WHERE id = ${targetId} 
+           OR sku = ${targetSku} 
+           OR ml_item_id = ${targetMlId}
+      `;
+      console.log(`Successfully deleted product ${identifier} from Neon Database.`);
+    } catch (err) {
+      console.error("Neon product deletion query failed:", err);
+    }
+  }
+
+  return index !== -1;
+}
+
 export async function saveDBProducts(products: DBProduct[]): Promise<void> {
   // 1. Write locally
   try {

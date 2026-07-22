@@ -48,8 +48,10 @@ export interface ChannelProduct {
   basePrice: number;
   shopeeStock: number;
   shopeeSynced: boolean;
+  shopeeItemId?: string;
   mlStock: number;
   mlSynced: boolean;
+  mlItemId?: string;
   totalStock: number;
   lastSync: string;
   description?: string;

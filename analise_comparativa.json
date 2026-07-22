@@ -1,0 +1,848 @@
+{
+  "totalPdf": 210,
+  "totalCadastrados": 0,
+  "totalFaltantes": 210,
+  "jaCadastrados": [],
+  "faltantes": [
+    {
+      "code": "019326",
+      "desc": "ARG ESMALTADA COLOR ORANGE NEON UN"
+    },
+    {
+      "code": "019651",
+      "desc": "ARG BROKEN HEART RN TURMALINA UN"
+    },
+    {
+      "code": "019769",
+      "desc": "EARCUFF FIO RAINBOW OU MULTICOLOR UN"
+    },
+    {
+      "code": "019901",
+      "desc": "BOTAO FLYING RESINA RN ESMERALDA UN"
+    },
+    {
+      "code": "019904",
+      "desc": "BOTAO FLYING RESINA RN ZIC BCA+ ZIC NEGR UN"
+    },
+    {
+      "code": "021087",
+      "desc": "PTO TRIANGULO COLOR RN AMETISTA UN"
+    },
+    {
+      "code": "021558",
+      "desc": "GOTA RENDADA VAZADIN OU ZIRCÔNIA BRANCA UN"
+    },
+    {
+      "code": "022244",
+      "desc": "ARG CORA LISO M RÓDIO NEGRO UN"
+    },
+    {
+      "code": "022743",
+      "desc": "ARG JOIAFINA GRATURM RN NANO TURQUESA UN"
+    },
+    {
+      "code": "022789",
+      "desc": "ARG CORA LISO G RÓDIO NEGRO UN"
+    },
+    {
+      "code": "023038",
+      "desc": "ARGOLA DE BOLINHAS RÓDIO NEGRO UN"
+    },
+    {
+      "code": "023493",
+      "desc": "JOAO BOBO COLORS RN MORGANITA RUTILA UN"
+    },
+    {
+      "code": "023704",
+      "desc": "ARGOLA TRANCINHA GG RÓDIO NEGRO UN"
+    },
+    {
+      "code": "023845",
+      "desc": "QUADRA POLL FUSION RN TANZANITA UN"
+    },
+    {
+      "code": "024065",
+      "desc": "LINHA LACO MIMO JOIA RN ZIRCÔNIA CHAMPA UN"
+    },
+    {
+      "code": "024206",
+      "desc": "GOTA POLL FUSION M RN TANZANITA UN"
+    },
+    {
+      "code": "024925",
+      "desc": "BOTAO OLHO DINO OU RUBI + SAFIRA"
+    },
+    {
+      "code": "025660",
+      "desc": "DISCO VOADOR JOIA OU CALCEDÔNIA UN"
+    },
+    {
+      "code": "025668",
+      "desc": "ARG BASIC GROSS RN ZIRCÔNIA BRANCA UN"
+    },
+    {
+      "code": "025759",
+      "desc": "EARCUFF RETANG GOTA RB MORGANITA FUSION UN"
+    },
+    {
+      "code": "026363",
+      "desc": "GOTA FINA JADE OLIVA RB FURTA COR UN"
+    },
+    {
+      "code": "026437",
+      "desc": "GOTA FLOR DE LIZ COL OU ZIRCÔNIA BRANCA UN"
+    },
+    {
+      "code": "026722",
+      "desc": "FLOATER JOIA COLORS RN AMETISTA UN"
+    },
+    {
+      "code": "026848",
+      "desc": "GOTA VAZ FLORAL TOP OU ZIRCÔNIA BRANCA UN"
+    },
+    {
+      "code": "026912",
+      "desc": "GOTA REDINHA PEDRA G RB ZIR BRANCA RUTILA UN"
+    },
+    {
+      "code": "027507",
+      "desc": "ARGOLINHA TRIO TIFF RN ZIRCÔNIA BRANCA UN"
+    },
+    {
+      "code": "027732",
+      "desc": "ARG QUADRADA BARROCA OU PEROLA UN"
+    },
+    {
+      "code": "027763",
+      "desc": "ARG BUQUE BUBBLES OU ZIRCÔNIA BRANCA UN"
+    },
+    {
+      "code": "027773",
+      "desc": "EARJACKET QUADRO ASA OU ZIRCÔNIA BRANCA UN"
+    },
+    {
+      "code": "027776",
+      "desc": "EARJACKET QUADRO ASA ROSÊ MIX UN"
+    },
+    {
+      "code": "027779",
+      "desc": "LONGO MASTER FIOS OU ZIRCÔNIA BRANCA UN"
+    },
+    {
+      "code": "027859",
+      "desc": "ARG LISA ESPADA P RÓDIO NEGRO UN"
+    },
+    {
+      "code": "027968",
+      "desc": "FLUTE JOIA CRAV ZIRCÔNIA NEGRA UN"
+    },
+    {
+      "code": "028117",
+      "desc": "PEN BARROCA PRATA OU ESMERALDA UN"
+    },
+    {
+      "code": "028168",
+      "desc": "BRINCO CORACAO RESINA COLOR ROSE + CORAL UN"
+    },
+    {
+      "code": "028227",
+      "desc": "ARG PLACA ETHNOS OU ZIRCÔNIA BRANCA UN"
+    },
+    {
+      "code": "028247",
+      "desc": "ARG LISTRAS ESMALTAD OU MULTICOLOR UN"
+    },
+    {
+      "code": "028308",
+      "desc": "FLORZIN ESMALTADA OU MULTICOLOR 45"
+    },
+    {
+      "code": "028379",
+      "desc": "TRILHINHO RAINBOW OU MULTICOLOR 45"
+    },
+    {
+      "code": "028432",
+      "desc": "CORRENTE MEDALHA MIX OU PEROLA 50"
+    },
+    {
+      "code": "028897",
+      "desc": "GOTA GOTINHAESPETADA OU ESMERALDA 45"
+    },
+    {
+      "code": "029390",
+      "desc": "COLAR NINOENINA GRAF RN ZIRCÔNIA BRANCA 45"
+    },
+    {
+      "code": "030117",
+      "desc": "GOTINHA RUY COLOR17 RN OPALA 45"
+    },
+    {
+      "code": "030577",
+      "desc": "MARGARIDA NEGPEROLA RN PEROLA 50"
+    },
+    {
+      "code": "030704",
+      "desc": "ELOS CORRENTE LONGA RÓDIO NEGRO 50"
+    },
+    {
+      "code": "030890",
+      "desc": "ANCORA FLOR JOIA OU RUBI + SAFIRA 45"
+    },
+    {
+      "code": "031112",
+      "desc": "LINHA LACO MIMO JOIA RN ZIRCÔNIA CHAMPA 45"
+    },
+    {
+      "code": "031281",
+      "desc": "QUADRADINHO DRAG RN CALCEDÔNIA 45"
+    },
+    {
+      "code": "031657",
+      "desc": "MARINA RUY NEW DIAM RN ZIRCONIA AZUL 55"
+    },
+    {
+      "code": "031758",
+      "desc": "COLAR CORACAO ESPETADINHO RN ESMERALDA 45"
+    },
+    {
+      "code": "031760",
+      "desc": "COLAR CORACAO ESPETADINHO RN FÚCSIA 45"
+    },
+    {
+      "code": "031762",
+      "desc": "COLAR CORACAO ESPETADINHO RN QTZ ROSA 45"
+    },
+    {
+      "code": "031852",
+      "desc": "CHOCKER CORA CARTIE RÓDIO NEGRO UN"
+    },
+    {
+      "code": "031898",
+      "desc": "CORRENTE CARTIE 90CM RÓDIO NEGRO 90"
+    },
+    {
+      "code": "031958",
+      "desc": "GOTA POLL FUSION M RB FANCY YELLOW RUTI 60"
+    },
+    {
+      "code": "031974",
+      "desc": "GOTA POLL FUSION M RN ROSA RUTILADO 60"
+    },
+    {
+      "code": "032059",
+      "desc": "GOTA MEGA LONG NEW RN VERDE BOMBARDEADO 45"
+    },
+    {
+      "code": "032421",
+      "desc": "CRUCIFIXO FINO P RN ZIRCÔNIA BRANCA 45"
+    },
+    {
+      "code": "032422",
+      "desc": "CRUCIFIXO FINO P RN ZIRCÔNIA BRANCA 50"
+    },
+    {
+      "code": "032465",
+      "desc": "TIFFANY PING GOTAO RN AMETISTA RUTILADA 60"
+    },
+    {
+      "code": "032586",
+      "desc": "GOTA POLL FUSION G RN ROSA RUTILADO 60"
+    },
+    {
+      "code": "033368",
+      "desc": "GOTA MORGAN FUSION RN MORGANITA FUSION 80"
+    },
+    {
+      "code": "033458",
+      "desc": "CORA G FUSIO PANT19 RN TURMALINA ROSA FUSION 45"
+    },
+    {
+      "code": "033508",
+      "desc": "DIVINO NAVETE COLORS RN ESMERALDA 50"
+    },
+    {
+      "code": "033519",
+      "desc": "DIVINO NAVETE COLORS RN ZIRCÔNIA BRANCA 50"
+    },
+    {
+      "code": "034015",
+      "desc": "COMPOSE BRUT FILETES RN ZIRCONIA NEGRA 80"
+    },
+    {
+      "code": "034078",
+      "desc": "ARO VAZADO PATUÁ PIN RN ZIRCONIA NEGRA 70"
+    },
+    {
+      "code": "034120",
+      "desc": "COLAR CORACAO RESINA COLOR ROSE + CORAL 45"
+    },
+    {
+      "code": "034142",
+      "desc": "GARG FOUR BOLIS OU MULTICOLOR 45"
+    },
+    {
+      "code": "034280",
+      "desc": "FOUR PEROLA PIRITA PEROLA + PIRITA UN"
+    },
+    {
+      "code": "034313",
+      "desc": "PUL MACRAME MIX UN"
+    },
+    {
+      "code": "035134",
+      "desc": "SHAMBALA BIJOUX MIX UN"
+    },
+    {
+      "code": "036997",
+      "desc": "CRISTAIS BLUE PIRITA PIRITA UN"
+    },
+    {
+      "code": "037417",
+      "desc": "ARG DENTE GG BLACK OU TURMALINA UN"
+    },
+    {
+      "code": "037512",
+      "desc": "COLAR PAZ E AMOR OURO 60"
+    },
+    {
+      "code": "037799",
+      "desc": "ARG DENTE GG BLACK RB FÚSCIA UN"
+    },
+    {
+      "code": "037809",
+      "desc": "EARCUFF HEART LISOS RÓDIO BRANCO UN"
+    },
+    {
+      "code": "037949",
+      "desc": "ARG STAR TEIA RB ZIRCÔNIA BRANCA UN"
+    },
+    {
+      "code": "038008",
+      "desc": "PUL ELOS PCHAIN PINK CHAIN UN"
+    },
+    {
+      "code": "038496",
+      "desc": "ALFINETE FECHA CRAV RB SAFIRA UN"
+    },
+    {
+      "code": "039001",
+      "desc": "SHAMBALA ARCO-ÍRIS MIÇANJAPA"
+    },
+    {
+      "code": "039068362001",
+      "desc": "ARGOLA PEQUE CORA CRAV LATERAL SUL OU MULTICO UN"
+    },
+    {
+      "code": "039103",
+      "desc": "LIBELULA NEW COLOR RN SAFIRA UN"
+    },
+    {
+      "code": "40622",
+      "desc": "ARGOLA CORRENTE COLOR PIERCING GARDEN ST"
+    },
+    {
+      "code": "40670033001",
+      "desc": "BRINCO GOTA RESINADA MALIBU OU ROSACLA UN"
+    },
+    {
+      "code": "5027336250",
+      "desc": "COLAR MIRROR MADRE BAGUETADO ST OU MULTICO/TAM. 50"
+    },
+    {
+      "code": "5039936700",
+      "desc": "EARCUFF ASSIMETRICO TORC PEARL MORA OU PEROLA/UNICO"
+    },
+    {
+      "code": "5040203700",
+      "desc": "BRINCO CORRENTE MALEAVEL LISO MORA OURO/UNICO"
+    },
+    {
+      "code": "5040603700",
+      "desc": "BRINCO CASULO VAZADO LISO MORA OURO/UNICO"
+    },
+    {
+      "code": "5048104600",
+      "desc": "PULSEIRA PEDRINHAS ONE LISA SKY QTZ FUME/UNICO"
+    },
+    {
+      "code": "5048139600",
+      "desc": "PULSEIRA PEDRINHAS ONE LISA SKY PETROLEO/UNICO"
+    },
+    {
+      "code": "5054030800",
+      "desc": "BRINCO DUPLO PTO DE LUZ CORRENTES POLL RB ZIRC BR/UNICO"
+    },
+    {
+      "code": "5065630800",
+      "desc": "BRINCO CORRENTE PONTA GOTA POLL RB ZIRC BR/UNICO"
+    },
+    {
+      "code": "5065630900",
+      "desc": "BRINCO CORRENTE PONTA GOTA POLL OU ZIRC BR/UNICO"
+    },
+    {
+      "code": "5078240545",
+      "desc": "COLAR PORTO BELO ARIA DI MARE VAL OU + TURMA ROSA FUSI/TAM. 45"
+    },
+    {
+      "code": "5078335040",
+      "desc": "COLAR SALINAS ARIA DI MARE VAL OU AMETIS/TAM. 40"
+    },
+    {
+      "code": "5081436200",
+      "desc": "EARCUFF PIERCING CORRENTE BOLAS VAL OU MULTICO/UNICO"
+    },
+    {
+      "code": "5108720000",
+      "desc": "BRINCO DUPLO QUAD RETANG CORR STH RB/UNICO"
+    },
+    {
+      "code": "5119809300",
+      "desc": "BRINCO BOTAO RESINA PEARL LL RESINAAZUL/UNICO"
+    },
+    {
+      "code": "5122130800",
+      "desc": "EARCUFF PIERC FRANJA DECRESC TTI RB ZIRC BR/UNICO"
+    },
+    {
+      "code": "5127517800",
+      "desc": "BRINCO GANGORRA VAZADA CRAV RN BRANCO/UNICO"
+    },
+    {
+      "code": "5140730900",
+      "desc": "BRINCO NEW PIZZA G DR9 OU ZIRC BR/UNICO"
+    },
+    {
+      "code": "5146330800",
+      "desc": "BRINCO CORA VAZADO INTER 5 NAVETES POLL RB ZIRC BR/UNICO"
+    },
+    {
+      "code": "5182602100",
+      "desc": "PUL MISSANGAS SIX BOLIS DOUR DAL VER.PISTAC/UNICO"
+    },
+    {
+      "code": "5182611700",
+      "desc": "PUL MISSANGAS SIX BOLIS DOUR DAL PINK/UNICO"
+    },
+    {
+      "code": "5182621100",
+      "desc": "PUL MISSANGAS SIX BOLIS DOUR DAL AZUL BIC/UNICO"
+    },
+    {
+      "code": "5182622800",
+      "desc": "PUL MISSANGAS SIX BOLIS DOUR DAL AMARELNEON/UNICO"
+    },
+    {
+      "code": "5182625300",
+      "desc": "PUL MISSANGAS SIX BOLIS DOUR DAL GREEN NEON/UNICO"
+    },
+    {
+      "code": "5182634500",
+      "desc": "PUL MISSANGAS SIX BOLIS DOUR DAL CORAL/UNICO"
+    },
+    {
+      "code": "5182637300",
+      "desc": "PUL MISSANGAS SIX BOLIS DOUR DAL PRETO/UNICO"
+    },
+    {
+      "code": "5182637700",
+      "desc": "PUL MISSANGAS SIX BOLIS DOUR DAL VERDEAGUA/UNICO"
+    },
+    {
+      "code": "5182638000",
+      "desc": "PUL MISSANGAS SIX BOLIS DOUR DAL ROSACLARO/UNICO"
+    },
+    {
+      "code": "5182638200",
+      "desc": "PUL MISSANGAS SIX BOLIS DOUR DAL LARANJA/UNICO"
+    },
+    {
+      "code": "5182641500",
+      "desc": "PUL MISSANGAS SIX BOLIS DOUR DAL TOPAZIO ROSA/UNICO"
+    },
+    {
+      "code": "5182643300",
+      "desc": "PUL MISSANGAS SIX BOLIS DOUR DAL MARROM /UNICO"
+    },
+    {
+      "code": "5184038200",
+      "desc": "PULSEIRA DISQUINHOS ONE PEROLA DAL LARANJA/UNICO"
+    },
+    {
+      "code": "5185303700",
+      "desc": "PULSEIRA BOLINHAS P LISA METAL EF OURO/UNICO"
+    },
+    {
+      "code": "5198942740",
+      "desc": "COLAR MANDALA SPORT ATLETISMO 40CM RN ZIRC BRANCA/TAM. 40"
+    },
+    {
+      "code": "5199242755",
+      "desc": "COLAR MANDALA SPORT ATLETISMO 55CM RN ZIRC BRANCA/TAM. 55"
+    },
+    {
+      "code": "5199342760",
+      "desc": "COLAR MANDALA SPORT ATLETISMO 60 CM RN ZIRC BRANCA/TAM. 60"
+    },
+    {
+      "code": "5205409500",
+      "desc": "BRINCO LUSTRE PEND CENTRO TREVO RN AMETIST/UNICO"
+    },
+    {
+      "code": "5209730940",
+      "desc": "COLAR PROFISSOES ADMINISTRACAO OU ZIRC BR/TAM. 40"
+    },
+    {
+      "code": "5212417700",
+      "desc": "BRINCO ETHNIC QUAD RN ZIRC NEGRO/UNICO"
+    },
+    {
+      "code": "5215429345",
+      "desc": "COLAR TUBINHOS INTER CAJU ESMALTADO DAL OU TURQUES/TAM. 45"
+    },
+    {
+      "code": "5215430245",
+      "desc": "COLAR TUBINHOS INTER CAJU ESMALTADO DAL TIFFANY/TAM. 45"
+    },
+    {
+      "code": "5215702100",
+      "desc": "ARGOLA CAJU PEN ESMALTADO DAL VER.PISTAC/UNICO"
+    },
+    {
+      "code": "5229730900",
+      "desc": "ENVOLTORIO ARMADURA BELA E A FERA TH OU ZIRC BR/UNICO"
+    },
+    {
+      "code": "5241203700",
+      "desc": "BRINCO DUPLO PLACAS CORACAO LISO POLL OURO/UNICO"
+    },
+    {
+      "code": "5241220000",
+      "desc": "BRINCO DUPLO PLACAS CORACAO LISO POLL RB/UNICO"
+    },
+    {
+      "code": "5245329900",
+      "desc": "BRINCO BOTAO ESMALTADO CORA LL PURPLE /UNICO"
+    },
+    {
+      "code": "5266130900",
+      "desc": "EARCUFF PIERC FINO LONG PONTOS LUZ GZ OU ZIRC BR/UNICO"
+    },
+    {
+      "code": "5271725540",
+      "desc": "COLAR PEROLAS PEQUE BORDA HEMATITA MORA HEMATITA/TAM. 40"
+    },
+    {
+      "code": "5280203750",
+      "desc": "COLAR CARTIE FECHO T CORA RISQUINHOS DAL OURO/TAM. 50"
+    },
+    {
+      "code": "5289835700",
+      "desc": "BRINCO CORA MADRE 3 ZIRC OR OU MADREPE/UNICO"
+    },
+    {
+      "code": "5289935770",
+      "desc": "ESCAPULARIO CORA MADRE 3 ZIRC OR OU MADREPE/TAM. 70"
+    },
+    {
+      "code": "5292903700",
+      "desc": "BRINCO GROSSO FRANJA DEGRADE POLL OURO/UNICO"
+    },
+    {
+      "code": "5300900100",
+      "desc": "ARGOLA 8 PEROLAS BARROCA GRAY DM RB PEROLA/UNICO"
+    },
+    {
+      "code": "5316920000",
+      "desc": "BRINCO GOTAO LISA G DAL RB/UNICO"
+    },
+    {
+      "code": "5317903700",
+      "desc": "ARGOLA FAIXA GROSSA TORCIDA LISA DAL OURO/UNICO"
+    },
+    {
+      "code": "5319130900",
+      "desc": "BRINCO FILETE CORA INTEIRO CRAV FE OU ZIRC BR/UNICO"
+    },
+    {
+      "code": "5319330800",
+      "desc": "BRINCO VIKING ESCOV LOTUS FE RB ZIRC BR/UNICO"
+    },
+    {
+      "code": "5329423900",
+      "desc": "BRINCO ESMALTADO MIXER BLUE MORA COLORS/UNICO"
+    },
+    {
+      "code": "5346903300",
+      "desc": "BRINCO PTO LUZ QUAD BORDA RESINADA LL OU ROSACLA/UNICO"
+    },
+    {
+      "code": "5346938600",
+      "desc": "BRINCO PTO LUZ QUAD BORDA RESINADA LL AMARELO/UNICO"
+    },
+    {
+      "code": "5362630945",
+      "desc": "COLAR ELOS PORT PIN TRIANGULO STAR VL OU ZIRC BR/TAM. 45"
+    },
+    {
+      "code": "5387103700",
+      "desc": "BRINCO MINI ALFINETE LISO BR OURO/UNICO"
+    },
+    {
+      "code": "5387120000",
+      "desc": "BRINCO MINI ALFINETE LISO BR RB/UNICO"
+    },
+    {
+      "code": "5388420000",
+      "desc": "BRINCO 4 GOMINHOS GROSS LISO BR RB/UNICO"
+    },
+    {
+      "code": "5406803742",
+      "desc": "COLAR MALHA MEDALHA LEAO LISO BR OURO/TAM.42"
+    },
+    {
+      "code": "5408703700",
+      "desc": "BRINCO ARO VAZADO GOMINHOS LISO BR OURO/UNICO"
+    },
+    {
+      "code": "5408720000",
+      "desc": "BRINCO ARO VAZADO GOMINHOS LISO BR RB/UNICO"
+    },
+    {
+      "code": "5409403700",
+      "desc": "BRINCO BASE EYES LISO CORA GOMINHOS BR OURO/UNICO"
+    },
+    {
+      "code": "5409420000",
+      "desc": "BRINCO BASE EYES LISO CORA GOMINHOS BR RB/UNICO"
+    },
+    {
+      "code": "5427220000",
+      "desc": "BRINCO ARO GRAN ORGANIC LISO AD RB/UNICO"
+    },
+    {
+      "code": "5430927600",
+      "desc": "BRINCO FESTA GOTA INVERTIDA EE OU ESMERAL/UNICO"
+    },
+    {
+      "code": "5458830900",
+      "desc": "BRINCO MED MULTI PTOS PONTA OVAL BR OU ZIRC BR/UNICO"
+    },
+    {
+      "code": "5460203755",
+      "desc": "COLAR LONGO RABO DE RATO GROSS BR OURO/TAM. 55"
+    },
+    {
+      "code": "5460403750",
+      "desc": "COLAR MALHA LAMINADA LISA 50CM BR OURO/TAM. 50"
+    },
+    {
+      "code": "5460603738",
+      "desc": "CHOCKER MALHA GROSSA LISA BR OURO/TAM. 38"
+    },
+    {
+      "code": "5467113500",
+      "desc": "CHOCKER ARO PTO E GOTA NAS PONTAS RN OPALA/UNICO"
+    },
+    {
+      "code": "5467113800",
+      "desc": "CHOCKER ARO PTO E GOTA NAS PONTAS RN QZOROSA/UNICO"
+    },
+    {
+      "code": "5467114800",
+      "desc": "CHOCKER ARO PTO E GOTA NAS PONTAS RN SAFIRA/UNICO"
+    },
+    {
+      "code": "5467242700",
+      "desc": "CHOCKER ARO GOTAS NAS PONTAS RN ZIRC BRANCA/UNICO"
+    },
+    {
+      "code": "5481020000",
+      "desc": "EARCUFF ASA PLISSADA LISA POLL RB/UNICO"
+    },
+    {
+      "code": "5481644200",
+      "desc": "BRINCO BOTAO SILVIA PEDRA NATURAL POLL RB JADE RUBI/UNICO"
+    },
+    {
+      "code": "5481644300",
+      "desc": "BRINCO BOTAO SILVIA PEDRA NATURAL POLL OU JADE RUBI/UNICO"
+    },
+    {
+      "code": "5489620000",
+      "desc": "BRINCO BOTAO OVAL LISO GRAND DAL RB/UNICO"
+    },
+    {
+      "code": "5490003700",
+      "desc": "BRINCO ARO VAZ FINO TORCIDO ORGANICO DAL OURO/UNICO"
+    },
+    {
+      "code": "5490203700",
+      "desc": "BRINCO GANCHO LARGO PEQUE LISO DAL OURO/UNICO"
+    },
+    {
+      "code": "5492903700",
+      "desc": "ARGOLA CHAPA MARTELADA DAL OURO/UNICO"
+    },
+    {
+      "code": "5503430900",
+      "desc": "EARCUFF 3 GARRAS GOTAS CRAV POLL OU ZIRC BR/UNICO"
+    },
+    {
+      "code": "5525303700",
+      "desc": "CHOCKER GLADIOR ORGANIC DAL OURO/UNICO"
+    },
+    {
+      "code": "5537330800",
+      "desc": "BRACELETE LACO INTEIRO CRAV NAND RB ZIRC BR/UNICO"
+    },
+    {
+      "code": "5537330900",
+      "desc": "BRACELETE LACO INTEIRO CRAV NAND OU ZIRC BR/UNICO"
+    },
+    {
+      "code": "5548725500",
+      "desc": "PULSEIRA CRISTAIS CORACAO LISO GR HEMATITA/UNICO"
+    },
+    {
+      "code": "5579820900",
+      "desc": "PULSEIRA MINI CRISTAIS GR CINZAESCUR/UNICO"
+    },
+    {
+      "code": "5581520000",
+      "desc": "ARGOLA GROSSA DRAPEADA LISA LL RB/UNICO"
+    },
+    {
+      "code": "5583103700",
+      "desc": "BRINCO FORMA VIOLAO VAZADO BR OURO/UNICO"
+    },
+    {
+      "code": "5587303750",
+      "desc": "COLAR MALHA LAMINADA LISA FINA BR OURO/TAM. 50"
+    },
+    {
+      "code": "5587503745",
+      "desc": "COLAR MALHA OCA LISA BR OURO/TAM. 45"
+    },
+    {
+      "code": "5588400145",
+      "desc": "COLAR MEIO PEROLA MEIO CARTIE PING DEGRADE BR RB PEROLA/TAM. 45"
+    },
+    {
+      "code": "5590300100",
+      "desc": "BRINCO BOTAO PEROLA BORDA MALHA SP RB PEROLA/UNICO"
+    },
+    {
+      "code": "5610103700",
+      "desc": "BRINCO CORACAO LISO AMASSA BR OURO/UNICO"
+    },
+    {
+      "code": "5610420000",
+      "desc": "ARGOLA EXTRA FINA DETALHADA M BR RB/UNICO"
+    },
+    {
+      "code": "5610503700",
+      "desc": "ARGOLA EXTRA FINA DETALHADA P BR OURO/UNICO"
+    },
+    {
+      "code": "5610520000",
+      "desc": "ARGOLA EXTRA FINA DETALHADA P BR RB/UNICO"
+    },
+    {
+      "code": "5621020000",
+      "desc": "EAR JACKET MART CACHOS FOLHAS LISA MORA RB/UNICO"
+    },
+    {
+      "code": "5642430900",
+      "desc": "BRINCO GLOBO DE CRISTAIS MORA OU ZIRC BR/UNICO"
+    },
+    {
+      "code": "5647103700",
+      "desc": "BRINCO SODA CAPS MAXI STH OURO/UNICO"
+    },
+    {
+      "code": "5647120000",
+      "desc": "BRINCO SODA CAPS MAXI STH RB/UNICO"
+    },
+    {
+      "code": "5658636700",
+      "desc": "BRINCO MAX OVAL PEROLA VOLTA ELOS DAL OU PEROLA/UNICO"
+    },
+    {
+      "code": "B038229037001",
+      "desc": "ARG VARAL MOON BR OURO UN"
+    },
+    {
+      "code": "B038270309001",
+      "desc": "LUA PEND STAR BR OU ZIRC BR UN"
+    },
+    {
+      "code": "B038662369001",
+      "desc": "CORAÇÃO RESINADO SIX MINI CORAS OU QTZOROS UN"
+    },
+    {
+      "code": "B038725268001",
+      "desc": "ARG RAMOS ESMALTADOS BR ORANGENEON UN"
+    },
+    {
+      "code": "B038739002001",
+      "desc": "ARG RESINADA LISTRAS CARAMUJIN RB QTZROSA UN"
+    },
+    {
+      "code": "B038739369001",
+      "desc": "ARG RESINADA LISTRAS CARAMUJIN OU QTZOROS UN"
+    },
+    {
+      "code": "B039059200001",
+      "desc": "ARGOLA MÉDIA LEME BOLAS LISAS SUL RB UN"
+    },
+    {
+      "code": "B039369",
+      "desc": "BRINCO CRUCIFIXO BALI PRATA - BR"
+    },
+    {
+      "code": "B040058",
+      "desc": "OVAL GOTA VOLTA RESINA"
+    },
+    {
+      "code": "B040185030001",
+      "desc": "EAR HOOK SEIS PONTOS POLL OU CITRINO UN"
+    },
+    {
+      "code": "B040185276001",
+      "desc": "EAR HOOK SEIS PONTOS POLL OU ESMERAL UN"
+    },
+    {
+      "code": "B040185309001",
+      "desc": "EAR HOOK SEIS PONTOS POLL OU ZIRC BR UN"
+    },
+    {
+      "code": "B040661309001",
+      "desc": "EARCUFF FRANJA 180 GRAUS FOR OU ZIRC BR UN"
+    },
+    {
+      "code": "C038182",
+      "desc": "FLOWER PEARL CRAV"
+    },
+    {
+      "code": "C038505",
+      "desc": "GARG FOSFORO"
+    },
+    {
+      "code": "C039405192002",
+      "desc": "COLAR LOVE RESINADO ROSE MIX 40CM"
+    },
+    {
+      "code": "C039563",
+      "desc": "GARG MEDALHA PERF METEORO"
+    },
+    {
+      "code": "P038866192001",
+      "desc": "PUL LOVE RESINADO ROSE MIX UN"
+    },
+    {
+      "code": "P040399",
+      "desc": "PULSEIRA PEDRINHAS ONE LISA"
+    }
+  ]
+}
