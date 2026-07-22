@@ -99,7 +99,8 @@ export async function POST(request: NextRequest) {
         existingProduct.mlStock = mlStock;
         existingProduct.mlSynced = true;
         // Keep Shopee stock, update total
-        existingProduct.totalStock = existingProduct.shopeeStock + mlStock;
+        existingProduct.shopeeStock = mlStock;
+        existingProduct.totalStock = mlStock;
         existingProduct.lastSync = new Date().toLocaleTimeString("pt-BR");
         
         // Update name and price if they match the central product

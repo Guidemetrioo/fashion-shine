@@ -50,8 +50,7 @@ export default function AdminDashboard() {
   const [newProdDesc, setNewProdDesc] = useState("");
   const [newProdImageUrl, setNewProdImageUrl] = useState("");
   const [newProdPrice, setNewProdPrice] = useState("");
-  const [newProdShopeeStock, setNewProdShopeeStock] = useState("");
-  const [newProdMlStock, setNewProdMlStock] = useState("");
+  const [newProdStock, setNewProdStock] = useState("");
   const [newProdShopeeItemId, setNewProdShopeeItemId] = useState("");
   const [newProdMlItemId, setNewProdMlItemId] = useState("");
   const [isCreatingProduct, setIsCreatingProduct] = useState(false);
@@ -194,8 +193,8 @@ export default function AdminDashboard() {
           description: newProdDesc,
           imageUrl: newProdImageUrl,
           basePrice: Number(newProdPrice || 0),
-          shopeeStock: Number(newProdShopeeStock || 0),
-          mlStock: Number(newProdMlStock || 0),
+          shopeeStock: Number(newProdStock || 0),
+          mlStock: Number(newProdStock || 0),
           shopeeItemId: newProdShopeeItemId || undefined,
           mlItemId: newProdMlItemId || undefined,
           publishToMeli,
@@ -247,8 +246,7 @@ export default function AdminDashboard() {
         setNewProdImageUrl("");
         setImagePreview("");
         setNewProdPrice("");
-        setNewProdShopeeStock("");
-        setNewProdMlStock("");
+        setNewProdStock("");
         setNewProdShopeeItemId("");
         setNewProdMlItemId("");
         setPublishToMeli(false);
@@ -2560,35 +2558,19 @@ export default function AdminDashboard() {
                   />
                 </div>
 
-                {/* Estoques */}
+                {/* Estoque */}
                 <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
                   <label style={{ fontSize: "0.8rem", fontWeight: "600", color: "var(--foreground)" }}>Estoque Inicial <span style={{ color: "#ff4d4d" }}>*</span></label>
-                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.75rem" }}>
-                    <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
-                      <span style={{ fontSize: "0.72rem", fontWeight: "600", color: "var(--gold)" }}>Mercado Livre</span>
-                      <input
-                        type="number"
-                        min="0"
-                        value={newProdMlStock}
-                        onChange={(e) => setNewProdMlStock(e.target.value)}
-                        placeholder="0"
-                        className="admin-input"
-                        style={{ background: "#ffffff", border: "1px solid rgba(212, 175, 55, 0.25)", color: "var(--foreground)", padding: "0.65rem 0.85rem", borderRadius: "8px", fontSize: "0.85rem" }}
-                      />
-                    </div>
-                    <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
-                      <span style={{ fontSize: "0.72rem", fontWeight: "600", color: "#ee4d2d" }}>Shopee</span>
-                      <input
-                        type="number"
-                        min="0"
-                        value={newProdShopeeStock}
-                        onChange={(e) => setNewProdShopeeStock(e.target.value)}
-                        placeholder="0"
-                        className="admin-input"
-                        style={{ background: "#ffffff", border: "1px solid rgba(238,77,45,0.25)", color: "var(--foreground)", padding: "0.65rem 0.85rem", borderRadius: "8px", fontSize: "0.85rem" }}
-                      />
-                    </div>
-                  </div>
+                  <span style={{ fontSize: "0.68rem", color: "var(--foreground-muted)" }}>Sincronizado automaticamente entre Mercado Livre, Shopee e TikTok Shop.</span>
+                  <input
+                    type="number"
+                    min="0"
+                    value={newProdStock}
+                    onChange={(e) => setNewProdStock(e.target.value)}
+                    placeholder="0"
+                    className="admin-input"
+                    style={{ background: "#ffffff", border: "1px solid rgba(45, 43, 39, 0.15)", color: "var(--foreground)", padding: "0.65rem 0.85rem", borderRadius: "8px", fontSize: "0.85rem" }}
+                  />
                 </div>
               </div>
 

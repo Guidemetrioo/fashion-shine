@@ -198,7 +198,7 @@ export async function POST(request: NextRequest) {
       mlStock: mlStockNum,
       mlSynced: mlSynced,
       mlItemId: mlItemId,
-      totalStock: shopeeStockNum + mlStockNum,
+      totalStock: shopeeStockNum,
       lastSync: new Date().toLocaleTimeString("pt-BR"),
       description: description || undefined,
       imageUrl: imageUrl || undefined,

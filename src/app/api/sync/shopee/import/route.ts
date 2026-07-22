@@ -108,7 +108,8 @@ export async function POST(request: NextRequest) {
         existingProduct.shopeeItemId = shopeeItemId;
         existingProduct.shopeeStock = shopeeStock;
         existingProduct.shopeeSynced = true;
-        existingProduct.totalStock = existingProduct.mlStock + shopeeStock;
+        existingProduct.mlStock = shopeeStock;
+        existingProduct.totalStock = shopeeStock;
         existingProduct.lastSync = new Date().toLocaleTimeString("pt-BR");
         
         if (!existingProduct.name) {
