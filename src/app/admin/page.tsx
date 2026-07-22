@@ -121,6 +121,29 @@ export default function AdminDashboard() {
     });
   };
 
+  const handleNameChange = (name: string) => {
+    setNewProdName(name);
+
+    const lowerName = name.toLowerCase();
+    
+    // Keywords for Necklaces (Colares, Pingente, Gargantilha, Choker, etc.)
+    const isColar = ["colar", "colares", "pingente", "pingentes", "gargantilha", "gargantilhas", "choker", "chokers", "gravatinha", "escapulário", "escapularios"].some(word => lowerName.includes(word));
+    
+    // Keywords for Earrings (Brinco, Argola, Piercing, Trio, etc.)
+    const isBrinco = ["brinco", "brincos", "argola", "argolas", "piercing", "piercings", "ear cuff", "earcuff", "trio"].some(word => lowerName.includes(word));
+    
+    // Keywords for Bracelets (Pulseira, Bracelete, Tornozeleira, etc.)
+    const isPulseira = ["pulseira", "pulseiras", "bracelete", "braceletes", "tornozeleira", "tornozeleiras"].some(word => lowerName.includes(word));
+
+    if (isColar) {
+      setMeliCategoryId("MLB1434");
+    } else if (isBrinco) {
+      setMeliCategoryId("MLB1467");
+    } else if (isPulseira) {
+      setMeliCategoryId("MLB1471");
+    }
+  };
+
   // Drag and drop states
   const [isDragging, setIsDragging] = useState(false);
   const [imagePreview, setImagePreview] = useState("");
@@ -2372,7 +2395,7 @@ export default function AdminDashboard() {
                     required
                     maxLength={60}
                     value={newProdName}
-                    onChange={(e) => setNewProdName(e.target.value)}
+                    onChange={(e) => handleNameChange(e.target.value)}
                     placeholder="Ex: Colar Brilhante Ouro 18k Feminino"
                     className="admin-input"
                     style={{ background: "#ffffff", border: "1px solid rgba(45, 43, 39, 0.15)", color: "var(--foreground)", padding: "0.65rem 0.85rem", borderRadius: "8px", fontSize: "0.85rem" }}
@@ -2459,16 +2482,17 @@ export default function AdminDashboard() {
                   <label style={{ fontSize: "0.8rem", fontWeight: "600", color: "var(--foreground)" }}>
                     Categoria MLB (category_id) <span style={{ color: "#ff4d4d" }}>*</span>
                   </label>
-                  <span style={{ fontSize: "0.68rem", color: "var(--foreground-muted)" }}>Consulte em: developers.mercadolivre.com.br/categories</span>
-                  <input
-                    type="text"
+                  <span style={{ fontSize: "0.68rem", color: "var(--foreground-muted)" }}>Selecione a categoria correspondente à joia</span>
+                  <select
                     value={meliCategoryId}
                     onChange={(e) => setMeliCategoryId(e.target.value)}
-                    placeholder="Ex: MLB1434"
                     className="admin-input"
                     style={{ background: "#ffffff", border: "1px solid rgba(212, 175, 55, 0.25)", color: "var(--foreground)", padding: "0.65rem 0.85rem", borderRadius: "8px", fontSize: "0.85rem" }}
-                  />
-                  <span style={{ fontSize: "0.68rem", color: "var(--foreground-muted)" }}>MLB1434 = Colares e Pingentes · MLB1467 = Brincos · MLB1471 = Pulseiras</span>
+                  >
+                    <option value="MLB1434">Colares e Pingentes (MLB1434)</option>
+                    <option value="MLB1467">Brincos (MLB1467)</option>
+                    <option value="MLB1471">Pulseiras (MLB1471)</option>
+                  </select>
                 </div>
 
                 {/* Tipo de Anúncio */}
