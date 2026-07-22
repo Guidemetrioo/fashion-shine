@@ -1882,38 +1882,55 @@ A credencial de acesso temporária (access_token) do Mercado Livre expirou ou n�
                 </button>
               </div>
 
-              {config.mlConnected ? (
-                <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
-                  <div style={{
-                    background: "rgba(255, 230, 0, 0.05)",
-                    border: "1px solid rgba(255, 230, 0, 0.15)",
-                    padding: "1rem",
-                    borderRadius: "4px",
-                    fontSize: "0.85rem"
-                  }}>
-                    <span style={{ color: "var(--foreground-muted)" }}>Conta Conectada: </span>
-                    <strong style={{ color: "#ffe600" }}>{mlAccountName}</strong>
-                  </div>
-                  <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
-                    <label style={{ fontSize: "0.75rem", color: "var(--foreground-muted)" }}>ID do Aplicativo (Client ID)</label>
-                    <input
-                      type="text"
-                      readOnly
-                      value={mlInputClientId || "6534119322003352"}
-                      className="admin-input"
-                      style={{ opacity: 0.9, cursor: "default" }}
-                    />
-                  </div>
-                  <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
-                    <label style={{ fontSize: "0.75rem", color: "var(--foreground-muted)" }}>Chave Secreta (Client Secret)</label>
-                    <input
-                      type="password"
-                      readOnly
-                      value={mlInputClientSecret || "qMwiSB3NuHA3PnRRCUC4KhgtXK50NjaA"}
-                      className="admin-input"
-                      style={{ opacity: 0.9, cursor: "default" }}
-                    />
-                  </div>
+              {config.mlConnected && (
+                <div style={{
+                  background: "rgba(255, 230, 0, 0.05)",
+                  border: "1px solid rgba(255, 230, 0, 0.15)",
+                  padding: "1rem",
+                  borderRadius: "4px",
+                  fontSize: "0.85rem",
+                  marginBottom: "1rem"
+                }}>
+                  <span style={{ color: "var(--foreground-muted)" }}>Conta Conectada: </span>
+                  <strong style={{ color: "#ffe600" }}>{mlAccountName}</strong>
+                </div>
+              )}
+
+              <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+                <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+                  <label style={{ fontSize: "0.75rem", color: "var(--foreground-muted)" }}>ID do Aplicativo (Client ID)</label>
+                  <input
+                    type="text"
+                    placeholder="Ex: 6534119322003352"
+                    value={mlInputClientId}
+                    onChange={(e) => setMlInputClientId(e.target.value)}
+                    className="admin-input"
+                  />
+                </div>
+                <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+                  <label style={{ fontSize: "0.75rem", color: "var(--foreground-muted)" }}>Chave Secreta (Client Secret)</label>
+                  <input
+                    type="password"
+                    placeholder="Sua chave secreta da API"
+                    value={mlInputClientSecret}
+                    onChange={(e) => setMlInputClientSecret(e.target.value)}
+                    className="admin-input"
+                  />
+                </div>
+                <button
+                  onClick={handleSaveMlCredentials}
+                  className="btn-outline"
+                  style={{ padding: "0.5rem 0", fontSize: "0.8rem", width: "100%", border: "1px solid var(--gold)", color: "var(--gold)", background: "transparent", borderRadius: "4px", cursor: "pointer" }}
+                >
+                  Salvar Credenciais da API
+                </button>
+                <div style={{ color: "var(--foreground-muted)", fontSize: "0.8rem", fontStyle: "italic", marginTop: "4px" }}>
+                  {isMlConfigured 
+                    ? "✓ Credenciais configuradas e salvas."
+                    : "ⓘ Credenciais não configuradas. Preencha os campos e salve."}
+                </div>
+
+                {config.mlConnected && (
                   <button
                     onClick={handleImportMlProducts}
                     disabled={isImportingMl}
@@ -1942,43 +1959,8 @@ A credencial de acesso temporária (access_token) do Mercado Livre expirou ou n�
                     </svg>
                     {isImportingMl ? "Importando Catálogo..." : "Importar Catálogo do Mercado Livre"}
                   </button>
-                </div>
-              ) : (
-                <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
-                  <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
-                    <label style={{ fontSize: "0.75rem", color: "var(--foreground-muted)" }}>ID do Aplicativo (Client ID)</label>
-                    <input
-                      type="text"
-                      placeholder="Ex: 6534119322003352"
-                      value={mlInputClientId}
-                      onChange={(e) => setMlInputClientId(e.target.value)}
-                      className="admin-input"
-                    />
-                  </div>
-                  <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
-                    <label style={{ fontSize: "0.75rem", color: "var(--foreground-muted)" }}>Chave Secreta (Client Secret)</label>
-                    <input
-                      type="password"
-                      placeholder="Sua chave secreta da API"
-                      value={mlInputClientSecret}
-                      onChange={(e) => setMlInputClientSecret(e.target.value)}
-                      className="admin-input"
-                    />
-                  </div>
-                  <button
-                    onClick={handleSaveMlCredentials}
-                    className="btn-outline"
-                    style={{ padding: "0.5rem 0", fontSize: "0.8rem", width: "100%" }}
-                  >
-                    Salvar Credenciais da API
-                  </button>
-                  <div style={{ color: "var(--foreground-muted)", fontSize: "0.8rem", fontStyle: "italic", marginTop: "4px" }}>
-                    {isMlConfigured 
-                      ? "✓ Credenciais configuradas e ativas."
-                      : "ⓘ Credenciais não configuradas. Preencha os campos para integração."}
-                  </div>
-                </div>
-              )}
+                )}
+              </div>
             </div>
           </div>
 
