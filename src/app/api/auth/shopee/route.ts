@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import { NextResponse } from "next/server";
 import { getTokens } from "../../../../utils/tokenStorage";
 import crypto from "crypto";
