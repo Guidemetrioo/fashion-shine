@@ -90,6 +90,20 @@ export default function AdminDashboard() {
   const [dashOrderSearch, setDashOrderSearch] = useState("");
   const [selectedOrderIds, setSelectedOrderIds] = useState<string[]>([]);
 
+  // Persistent deleted items tracking across serverless sessions
+  const [deletedSkus, setDeletedSkus] = useState<string[]>([]);
+
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem("fashion_shine_deleted_skus");
+      if (saved) {
+        setDeletedSkus(JSON.parse(saved));
+      }
+    } catch (e) {
+      console.error("Failed to load deleted SKUs from localStorage:", e);
+    }
+  }, []);
+
   // Drag and drop states
   const [isDragging, setIsDragging] = useState(false);
   const [imagePreview, setImagePreview] = useState("");
@@ -547,10 +561,19 @@ export default function AdminDashboard() {
     const confirmed = window.confirm(`Tem certeza que deseja excluir o produto "${product.name}"? Esta ação removerá o produto do estoque interno.`);
     if (!confirmed) return;
 
-    // Instantly remove from local state for UI responsiveness
     const targetId = product.id;
     const targetSku = product.sku;
     const targetMlId = product.mlItemId;
+
+    // Save to deletedSkus state and localStorage for permanent serverless persistence
+    setDeletedSkus(prev => {
+      const toAdd = [targetId, targetSku, ...(targetMlId ? [targetMlId] : [])];
+      const next = Array.from(new Set([...prev, ...toAdd]));
+      try {
+        localStorage.setItem("fashion_shine_deleted_skus", JSON.stringify(next));
+      } catch (e) {}
+      return next;
+    });
 
     setProducts(prev => prev.filter(p => p.id !== targetId && p.sku !== targetSku && (targetMlId ? p.mlItemId !== targetMlId : true)));
 
@@ -567,23 +590,11 @@ export default function AdminDashboard() {
       } else {
         const errData = await res.json();
         const errorMsg = errData.error || "Erro desconhecido";
-        // Re-fetch products from server if delete failed
-        const prodRes = await fetch("/api/sync/products");
-        if (prodRes.ok) {
-          const prodData = await prodRes.json();
-          if (prodData.products) setProducts(prodData.products);
-        }
         addLog(`Estoque Central: Falha ao excluir o produto SKU ${product.sku} (${errorMsg}).`, "all", "error");
         alert(`❌ Falha ao excluir o produto: ${errorMsg}`);
       }
     } catch (err) {
       console.error("Delete product error:", err);
-      // Re-fetch products from server if network error
-      const prodRes = await fetch("/api/sync/products");
-      if (prodRes.ok) {
-        const prodData = await prodRes.json();
-        if (prodData.products) setProducts(prodData.products);
-      }
       addLog(`Estoque Central: Erro ao se conectar com o servidor para excluir o produto.`, "all", "error");
       alert(`❌ Erro de rede ao tentar excluir o produto.`);
     }
@@ -667,6 +678,15 @@ export default function AdminDashboard() {
   });
 
   const filteredProducts = products.filter((p) => {
+    // Exclude products explicitly deleted by the user
+    if (
+      deletedSkus.includes(p.id) ||
+      deletedSkus.includes(p.sku) ||
+      (p.mlItemId && deletedSkus.includes(p.mlItemId))
+    ) {
+      return false;
+    }
+
     const query = productSearchQuery.toLowerCase().trim();
     if (!query) return true;
     return (
