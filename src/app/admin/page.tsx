@@ -393,7 +393,7 @@ A credencial de acesso tempor√°ria (access_token) do Mercado Livre expirou ou n√
     async function checkStatusAndProducts() {
       // 1. Fetch unified stock levels first (source of truth)
       try {
-        const res = await fetch("/api/sync/products");
+        const res = await fetch("/api/sync/products", { cache: "no-store" });
         if (res.ok) {
           const data = await res.json();
           if (data.products && Array.isArray(data.products)) {

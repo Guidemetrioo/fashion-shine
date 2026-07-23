@@ -3,10 +3,20 @@ import { getDBProducts, saveDBProducts } from "../../../../utils/productStorage"
 import { syncStockToChannels } from "../../../../utils/syncEngine";
 
 export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 export async function GET() {
   const products = await getDBProducts();
-  return NextResponse.json({ products });
+  return NextResponse.json(
+    { products },
+    {
+      headers: {
+        "Cache-Control": "no-store, no-cache, must-revalidate, proxy-revalidate",
+        "Pragma": "no-cache",
+        "Expires": "0"
+      }
+    }
+  );
 }
 
 export async function POST(request: NextRequest) {
@@ -14,7 +24,7 @@ export async function POST(request: NextRequest) {
     const { productId, shopeeStock, mlStock, channel } = await request.json();
 
     const products = await getDBProducts();
-    const productIndex = products.findIndex(p => p.id === productId);
+    const productIndex = products.findIndex(p => p.id === productId || p.sku === productId);
 
     if (productIndex === -1) {
       return NextResponse.json({ error: "Product not found" }, { status: 404 });

@@ -10,14 +10,15 @@ envContent.split('\n').forEach(line => {
   }
 });
 
-const { getDBProducts } = require('./src/utils/productStorage');
+const { neon } = require('@neondatabase/serverless');
+const databaseUrl = process.env.DATABASE_URL;
+const sql = neon(databaseUrl);
 
-async function checkProductsCheckedState() {
-  console.log('--- Testing DB Products for isChecked field ---');
-  const products = await getDBProducts();
-  console.log(`Loaded ${products.length} products from DB.`);
-  const checkedProducts = products.filter(p => p.isChecked);
-  console.log(`Currently Checked Products: ${checkedProducts.length}`);
+async function verifyCounts() {
+  const fileData = JSON.parse(fs.readFileSync('products.json', 'utf8'));
+  console.log('LOCAL PRODUCTS.JSON COUNT:', fileData.length);
+  const dbData = await sql.query('SELECT COUNT(*) FROM products');
+  console.log('NEON DB PRODUCTS COUNT:', dbData[0].count);
 }
 
-checkProductsCheckedState().catch(console.error);
+verifyCounts().catch(console.error);
