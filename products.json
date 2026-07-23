@@ -2863,21 +2863,5 @@
     "description": "Brinco Max Oval Perola Volta Elos Dal Ou Perola/unico - Importado do relatório Fashion Shine",
     "shopeeIsPreOrder": false,
     "shopeeLogistics": []
-  },
-  {
-    "id": "prod-1784762621513",
-    "name": "Brinco Argolinha Joiafina",
-    "sku": "2400002307487",
-    "basePrice": 25,
-    "shopeeStock": 0,
-    "shopeeSynced": false,
-    "mlStock": 1,
-    "mlSynced": true,
-    "mlItemId": "MLB7230147894",
-    "totalStock": 0,
-    "lastSync": "20:23:42",
-    "imageUrl": "https://images.unsplash.com/photo-1635767798638-3e25273a8236?auto=format&fit=crop&w=400&q=80",
-    "shopeeIsPreOrder": false,
-    "shopeeLogistics": []
   }
 ]

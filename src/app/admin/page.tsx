@@ -384,6 +384,9 @@ A credencial de acesso tempor√°ria (access_token) do Mercado Livre expirou ou n√
           if (data.mercadolivre.clientId) {
             setMlInputClientId(data.mercadolivre.clientId);
           }
+          if (data.mercadolivre.clientSecret) {
+            setMlInputClientSecret(data.mercadolivre.clientSecret);
+          }
           if (data.shopee.partnerId) {
             setShopeeInputPartnerId(data.shopee.partnerId);
           }
@@ -410,8 +413,12 @@ A credencial de acesso tempor√°ria (access_token) do Mercado Livre expirou ou n√
   }, []);
 
   const handleSaveMlCredentials = async () => {
-    if (!mlInputClientId || !mlInputClientSecret) {
-      alert("Por favor, preencha o Client ID e Client Secret.");
+    if (!mlInputClientId) {
+      alert("Por favor, preencha o Client ID do Mercado Livre.");
+      return;
+    }
+    if (!isMlConfigured && !mlInputClientSecret) {
+      alert("Por favor, preencha o Client Secret do Mercado Livre.");
       return;
     }
     try {
@@ -426,11 +433,15 @@ A credencial de acesso tempor√°ria (access_token) do Mercado Livre expirou ou n√
       });
       if (res.ok) {
         setIsMlConfigured(true);
-        addLog("Mercado Livre API: Credentials saved securely.", "mercadolivre", "success");
-        alert("Mercado Livre API credentials saved successfully!");
+        addLog("Mercado Livre API: Credenciais salvas com sucesso.", "mercadolivre", "success");
+        alert("Credenciais da API do Mercado Livre salvas com sucesso! Agora voc√™ j√° pode clicar em 'Conectar Conta'.");
+      } else {
+        const errData = await res.json();
+        alert(`Erro ao salvar credenciais: ${errData.error || "Erro desconhecido"}`);
       }
     } catch (err) {
       console.error(err);
+      alert("Erro de rede ao tentar salvar as credenciais.");
     }
   };
 
@@ -472,8 +483,12 @@ A credencial de acesso tempor√°ria (access_token) do Mercado Livre expirou ou n√
   };
 
   const handleSaveShopeeCredentials = async () => {
-    if (!shopeeInputPartnerId || !shopeeInputPartnerKey) {
-      alert("Por favor, preencha o Partner ID e Partner Key.");
+    if (!shopeeInputPartnerId) {
+      alert("Por favor, preencha o Partner ID da Shopee.");
+      return;
+    }
+    if (!isShopeeConfigured && !shopeeInputPartnerKey) {
+      alert("Por favor, preencha o Partner Key da Shopee.");
       return;
     }
     try {
@@ -490,9 +505,13 @@ A credencial de acesso tempor√°ria (access_token) do Mercado Livre expirou ou n√
         setIsShopeeConfigured(true);
         addLog("API Shopee: Credenciais salvas com seguran√ßa.", "shopee", "success");
         alert("Credenciais da API da Shopee salvas com sucesso!");
+      } else {
+        const errData = await res.json();
+        alert(`Erro ao salvar credenciais: ${errData.error || "Erro desconhecido"}`);
       }
     } catch (err) {
       console.error(err);
+      alert("Erro de rede ao tentar salvar as credenciais.");
     }
   };
 

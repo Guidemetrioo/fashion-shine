@@ -13,14 +13,18 @@ export async function GET() {
   const shopeePartnerId = tokens.shopee.partnerId || process.env.SHOPEE_PARTNER_ID || "";
   const shopeeConfigured = !!shopeePartnerId && shopeePartnerId !== "insira-seu-partner-id-aqui";
 
+  // Check if actually connected with real tokens
+  const isMlConnected = tokens.mercadolivre.connected && !!tokens.mercadolivre.accessToken && tokens.mercadolivre.accessToken !== "ml_active_access_token";
+  const isShopeeConnected = tokens.shopee.connected && !!tokens.shopee.accessToken && tokens.shopee.accessToken !== "shopee_active_access_token";
+
   return NextResponse.json({
     shopee: {
-      connected: tokens.shopee.connected,
+      connected: isShopeeConnected,
       configured: shopeeConfigured,
       partnerId: shopeePartnerId
     },
     mercadolivre: {
-      connected: tokens.mercadolivre.connected || mlClientIdConfigured,
+      connected: isMlConnected,
       nickname: tokens.mercadolivre.nickname || "fashionshine",
       configured: mlClientIdConfigured,
       clientId: mlClientId,
@@ -88,33 +92,33 @@ export async function POST(request: Request) {
       return NextResponse.json({ success: true });
     }
 
-    // Save Credentials and activate Mercado Livre integration
+    // Save Credentials for Mercado Livre (without fake tokens)
     if (channel === "mercadolivre" && clientId) {
+      const current = await getTokens();
+      const finalSecret = (clientSecret && clientSecret !== "••••••••••••••••") 
+        ? clientSecret 
+        : current.mercadolivre.clientSecret;
+
       await saveTokens({
         mercadolivre: {
           clientId,
-          clientSecret: clientSecret || "",
-          connected: true,
-          accessToken: "ml_active_access_token",
-          refreshToken: "ml_active_refresh_token",
-          expiresAt: Date.now() + 365 * 24 * 3600 * 1000,
-          userId: clientId,
-          nickname: nickname || "fashionshine"
+          clientSecret: finalSecret
         }
       });
       return NextResponse.json({ success: true });
     }
 
+    // Save Credentials for Shopee
     if (channel === "shopee" && partnerId) {
+      const current = await getTokens();
+      const finalKey = (partnerKey && partnerKey !== "••••••••••••••••")
+        ? partnerKey
+        : current.shopee.partnerKey;
+
       await saveTokens({
         shopee: {
           partnerId,
-          partnerKey: partnerKey || "",
-          connected: true,
-          accessToken: "shopee_active_access_token",
-          refreshToken: "shopee_active_refresh_token",
-          expiresAt: Date.now() + 365 * 24 * 3600 * 1000,
-          shopId: partnerId
+          partnerKey: finalKey
         }
       });
       return NextResponse.json({ success: true });

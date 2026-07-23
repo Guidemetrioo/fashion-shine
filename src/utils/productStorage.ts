@@ -147,6 +147,62 @@ export async function saveDBProducts(products: DBProduct[]): Promise<void> {
   // 2. Upsert to Neon if configured
   if (isNeonConfigured() && products.length > 0) {
     try {
+      if (products.length === 1) {
+        const p = products[0];
+        await sql`
+          INSERT INTO products (
+            id, name, sku, base_price, shopee_stock, shopee_synced, shopee_item_id, ml_stock, ml_synced, ml_item_id, total_stock, last_sync, description, image_url,
+            shopee_category_id, shopee_brand_id, shopee_is_pre_order, shopee_days_to_ship, shopee_logistics, tiktok_category_id, tiktok_brand_id
+          ) VALUES (
+            ${p.id},
+            ${p.name ?? ""},
+            ${p.sku},
+            ${p.basePrice ?? 0},
+            ${p.shopeeStock ?? 0},
+            ${p.shopeeSynced ?? false},
+            ${p.shopeeItemId ?? null},
+            ${p.mlStock ?? 0},
+            ${p.mlSynced ?? false},
+            ${p.mlItemId ?? null},
+            ${p.totalStock ?? 0},
+            ${p.lastSync ?? ""},
+            ${p.description ?? null},
+            ${p.imageUrl ?? null},
+            ${p.shopeeCategoryId ?? null},
+            ${p.shopeeBrandId ?? null},
+            ${p.shopeeIsPreOrder ?? false},
+            ${p.shopeeDaysToShip ?? null},
+            ${p.shopeeLogistics ? p.shopeeLogistics.join(",") : null},
+            ${p.tiktokCategoryId ?? null},
+            ${p.tiktokBrandId ?? null}
+          )
+          ON CONFLICT (id)
+          DO UPDATE SET
+            name = EXCLUDED.name,
+            sku = EXCLUDED.sku,
+            base_price = EXCLUDED.base_price,
+            shopee_stock = EXCLUDED.shopee_stock,
+            shopee_synced = EXCLUDED.shopee_synced,
+            shopee_item_id = EXCLUDED.shopee_item_id,
+            ml_stock = EXCLUDED.ml_stock,
+            ml_synced = EXCLUDED.ml_synced,
+            ml_item_id = EXCLUDED.ml_item_id,
+            total_stock = EXCLUDED.total_stock,
+            last_sync = EXCLUDED.last_sync,
+            description = EXCLUDED.description,
+            image_url = EXCLUDED.image_url,
+            shopee_category_id = EXCLUDED.shopee_category_id,
+            shopee_brand_id = EXCLUDED.shopee_brand_id,
+            shopee_is_pre_order = EXCLUDED.shopee_is_pre_order,
+            shopee_days_to_ship = EXCLUDED.shopee_days_to_ship,
+            shopee_logistics = EXCLUDED.shopee_logistics,
+            tiktok_category_id = EXCLUDED.tiktok_category_id,
+            tiktok_brand_id = EXCLUDED.tiktok_brand_id
+          RETURNING id
+        `;
+        return;
+      }
+
       const chunks: DBProduct[][] = [];
       const chunkSize = 50;
       for (let i = 0; i < products.length; i += chunkSize) {
@@ -220,6 +276,7 @@ export async function saveDBProducts(products: DBProduct[]): Promise<void> {
             shopee_logistics = EXCLUDED.shopee_logistics,
             tiktok_category_id = EXCLUDED.tiktok_category_id,
             tiktok_brand_id = EXCLUDED.tiktok_brand_id
+          RETURNING id
         `;
 
         await sql(query, params);
