@@ -117,14 +117,29 @@ export default function AdminDashboard() {
     }
   }, []);
 
-  const handleToggleCheckProduct = (productId: string) => {
+  const handleToggleCheckProduct = async (productId: string) => {
+    // Optimistic UI update
     setCheckedProductIds(prev => {
-      const next = prev.includes(productId)
-        ? prev.filter(id => id !== productId)
-        : [...prev, productId];
-      localStorage.setItem("fashion_shine_checked_products", JSON.stringify(next));
-      return next;
+      const isChecked = prev.includes(productId);
+      return isChecked ? prev.filter(id => id !== productId) : [...prev, productId];
     });
+
+    setProducts(prev => prev.map(p => {
+      if (p.id === productId || p.sku === productId) {
+        return { ...p, isChecked: !p.isChecked };
+      }
+      return p;
+    }));
+
+    try {
+      await fetch("/api/products/toggle-check", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ productId })
+      });
+    } catch (err) {
+      console.error("Failed to sync product check toggle to DB:", err);
+    }
   };
 
   const handleNameChange = (name: string) => {
@@ -383,6 +398,8 @@ A credencial de acesso temporÃ¡ria (access_token) do Mercado Livre expirou ou nÃ
           const data = await res.json();
           if (data.products && Array.isArray(data.products)) {
             setProducts(data.products);
+            const checkedIds = data.products.filter((p: any) => p.isChecked).map((p: any) => p.id);
+            setCheckedProductIds(checkedIds);
           }
         }
       } catch (err) {

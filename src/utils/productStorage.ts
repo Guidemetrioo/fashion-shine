@@ -20,6 +20,7 @@ export interface DBProduct {
   lastSync: string;
   description?: string;
   imageUrl?: string;
+  isChecked?: boolean;
   shopeeCategoryId?: string;
   shopeeBrandId?: string;
   shopeeIsPreOrder?: boolean;
@@ -78,6 +79,7 @@ export async function getDBProducts(): Promise<DBProduct[]> {
       lastSync: row.last_sync ?? "",
       description: row.description ?? undefined,
       imageUrl: row.image_url ?? undefined,
+      isChecked: row.is_checked ?? false,
       shopeeCategoryId: row.shopee_category_id ?? undefined,
       shopeeBrandId: row.shopee_brand_id ?? undefined,
       shopeeIsPreOrder: row.shopee_is_pre_order ?? false,

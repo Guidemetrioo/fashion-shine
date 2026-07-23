@@ -10,57 +10,14 @@ envContent.split('\n').forEach(line => {
   }
 });
 
-const { getTokens } = require('./src/utils/tokenStorage');
+const { getDBProducts } = require('./src/utils/productStorage');
 
-async function closeDuplicates() {
-  console.log('--- Cleaning Up Duplicate Items on Mercado Livre ---');
-
-  const tokens = await getTokens();
-  const accessToken = tokens.mercadolivre.accessToken;
-
-  const duplicateIds = [
-    'MLB4932255931',
-    'MLB4932254697',
-    'MLB4932250261',
-    'MLB4932245521',
-    'MLB4932236869',
-    'MLB4932235977',
-    'MLB4932235099',
-    'MLB4932234407'
-  ];
-
-  for (const id of duplicateIds) {
-    console.log(`Closing item ${id}...`);
-    
-    // First pause the item
-    await fetch(`https://api.mercadolibre.com/items/${id}`, {
-      method: 'PUT',
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ status: 'paused' })
-    });
-
-    // Then close the item
-    const res = await fetch(`https://api.mercadolibre.com/items/${id}`, {
-      method: 'PUT',
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ status: 'closed' })
-    });
-
-    const data = await res.json();
-    if (res.ok) {
-      console.log(`✅ Item ${id} CLOSED successfully!`);
-    } else {
-      console.error(`❌ Failed to close item ${id}:`, data.message || JSON.stringify(data));
-    }
-  }
-
-  console.log('\n🎉 ALL DUPLICATES CLOSED! Only item MLB7238449392 (the correct one with real photo) remains active.');
+async function checkProductsCheckedState() {
+  console.log('--- Testing DB Products for isChecked field ---');
+  const products = await getDBProducts();
+  console.log(`Loaded ${products.length} products from DB.`);
+  const checkedProducts = products.filter(p => p.isChecked);
+  console.log(`Currently Checked Products: ${checkedProducts.length}`);
 }
 
-closeDuplicates().catch(console.error);
+checkProductsCheckedState().catch(console.error);

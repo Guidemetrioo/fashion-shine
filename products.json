@@ -13,6 +13,7 @@
     "lastSync": "20:33:24",
     "description": "Pulseira Perolas Amarradinhos Ou Perola Novos Tamanhos Unico",
     "imageUrl": "https://http2.mlstatic.com/D_847431-MLB107189589843_022026-I.jpg",
+    "isChecked": false,
     "shopeeIsPreOrder": false,
     "shopeeLogistics": []
   },
@@ -30,6 +31,7 @@
     "lastSync": "20:33:24",
     "description": "Pulseira  Veneziana Com Perolas Prata 925 Rb Perola",
     "imageUrl": "https://http2.mlstatic.com/D_708114-MLB106541678040_022026-I.jpg",
+    "isChecked": false,
     "shopeeIsPreOrder": false,
     "shopeeLogistics": []
   },
@@ -47,6 +49,7 @@
     "lastSync": "20:33:24",
     "description": "Pulseira Mini 7 Coras Rb Zirc Br Novos Tamanhos Unico",
     "imageUrl": "https://http2.mlstatic.com/D_844545-MLB107190717213_022026-I.jpg",
+    "isChecked": false,
     "shopeeIsPreOrder": false,
     "shopeeLogistics": []
   },
@@ -64,6 +67,7 @@
     "lastSync": "20:33:24",
     "description": "Pulseira Mini 5 Coras  Rb Zirc Br Novos Tamanhos Unico",
     "imageUrl": "https://http2.mlstatic.com/D_671842-MLB107190777257_022026-I.jpg",
+    "isChecked": false,
     "shopeeIsPreOrder": false,
     "shopeeLogistics": []
   },
@@ -81,6 +85,7 @@
     "lastSync": "16:36:38",
     "description": "Brinco Argolinha Joiafina Ródio Negro com pedras. Semijoia elegante da coleção Fashion Shine.",
     "imageUrl": "/brinco-argolinha.jpg",
+    "isChecked": false,
     "shopeeIsPreOrder": false,
     "shopeeLogistics": []
   },
@@ -98,6 +103,7 @@
     "lastSync": "20:33:24",
     "description": "Pulseira Malha Cravejada Rose Zirc Branc Novos Tamanhos Unic",
     "imageUrl": "https://http2.mlstatic.com/D_996263-MLB106543017184_022026-I.jpg",
+    "isChecked": false,
     "shopeeIsPreOrder": false,
     "shopeeLogistics": []
   },
@@ -115,6 +121,7 @@
     "lastSync": "20:33:24",
     "description": "Bracelete Liso Pérolas Rose Perol Novos Tamanhos Unico",
     "imageUrl": "https://http2.mlstatic.com/D_797033-MLB106543076534_022026-I.jpg",
+    "isChecked": false,
     "shopeeIsPreOrder": false,
     "shopeeLogistics": []
   },
@@ -132,6 +139,7 @@
     "lastSync": "20:33:24",
     "description": "Bracelete Fino 5 Pontos Rb Zirc Br Novos Tamanhos Unico",
     "imageUrl": "https://http2.mlstatic.com/D_684832-MLB107189589849_022026-I.jpg",
+    "isChecked": false,
     "shopeeIsPreOrder": false,
     "shopeeLogistics": []
   },
@@ -149,6 +157,7 @@
     "lastSync": "20:33:24",
     "description": "Bracelete Fino 5 Pontos Ou Zirc Br Novos Tamanhos Unico",
     "imageUrl": "https://http2.mlstatic.com/D_696615-MLB106542185518_022026-I.jpg",
+    "isChecked": false,
     "shopeeIsPreOrder": false,
     "shopeeLogistics": []
   },
@@ -166,6 +175,7 @@
     "lastSync": "20:33:24",
     "description": "Pulseira Pastilhas Diversas  Colors Fe Colors",
     "imageUrl": "https://http2.mlstatic.com/D_685823-MLB107190717233_022026-I.jpg",
+    "isChecked": false,
     "shopeeIsPreOrder": false,
     "shopeeLogistics": []
   },
@@ -183,6 +193,7 @@
     "lastSync": "20:33:24",
     "description": "Pulseira Pastilhas Magic Colors Novos Tamanhos Unico",
     "imageUrl": "https://http2.mlstatic.com/D_725867-MLB107190597391_022026-I.jpg",
+    "isChecked": false,
     "shopeeIsPreOrder": false,
     "shopeeLogistics": []
   },
@@ -200,6 +211,7 @@
     "lastSync": "20:33:24",
     "description": "Argola Resina Color Coral",
     "imageUrl": "https://http2.mlstatic.com/D_688161-MLB107117743997_022026-I.jpg",
+    "isChecked": false,
     "shopeeIsPreOrder": false,
     "shopeeLogistics": []
   },
@@ -217,6 +229,7 @@
     "lastSync": "20:33:24",
     "description": "Argola Cravejada Coração",
     "imageUrl": "https://http2.mlstatic.com/D_945111-MLB107118219513_022026-I.jpg",
+    "isChecked": false,
     "shopeeIsPreOrder": false,
     "shopeeLogistics": []
   },
@@ -234,23 +247,7 @@
     "lastSync": "20:33:24",
     "description": "Brinco Dourado Gota Rendada",
     "imageUrl": "https://http2.mlstatic.com/D_763058-MLB107114023929_022026-I.jpg",
-    "shopeeIsPreOrder": false,
-    "shopeeLogistics": []
-  },
-  {
-    "id": "ml-prod-MLB4472086285",
-    "name": "Brinco Botão Cravejado",
-    "sku": "3361",
-    "basePrice": 105.86,
-    "shopeeStock": 0,
-    "shopeeSynced": false,
-    "mlStock": 1,
-    "mlSynced": true,
-    "mlItemId": "MLB4472086285",
-    "totalStock": 1,
-    "lastSync": "20:33:24",
-    "description": "Brinco Botão Cravejado",
-    "imageUrl": "https://http2.mlstatic.com/D_792509-MLB106473889164_022026-I.jpg",
+    "isChecked": false,
     "shopeeIsPreOrder": false,
     "shopeeLogistics": []
   },
@@ -268,6 +265,7 @@
     "lastSync": "20:33:24",
     "description": "Argola Esmeralda",
     "imageUrl": "https://http2.mlstatic.com/D_704736-MLB107118219549_022026-I.jpg",
+    "isChecked": false,
     "shopeeIsPreOrder": false,
     "shopeeLogistics": []
   },
@@ -285,23 +283,7 @@
     "lastSync": "20:33:24",
     "description": "Argola Cravejada Grafite Pp",
     "imageUrl": "https://http2.mlstatic.com/D_743402-MLB107117653915_022026-I.jpg",
-    "shopeeIsPreOrder": false,
-    "shopeeLogistics": []
-  },
-  {
-    "id": "ml-prod-MLB4472021267",
-    "name": "Brinco Gota Vazada Fúcsia",
-    "sku": "3367",
-    "basePrice": 105.86,
-    "shopeeStock": 0,
-    "shopeeSynced": false,
-    "mlStock": 1,
-    "mlSynced": true,
-    "mlItemId": "MLB4472021267",
-    "totalStock": 1,
-    "lastSync": "20:33:24",
-    "description": "Brinco Gota Vazada Fúcsia",
-    "imageUrl": "https://http2.mlstatic.com/D_986354-MLB107113934639_022026-I.jpg",
+    "isChecked": false,
     "shopeeIsPreOrder": false,
     "shopeeLogistics": []
   },
@@ -319,6 +301,7 @@
     "lastSync": "20:33:24",
     "description": "Brinco Lustre Triangular",
     "imageUrl": "https://http2.mlstatic.com/D_803825-MLB107467882420_032026-I.jpg",
+    "isChecked": false,
     "shopeeIsPreOrder": false,
     "shopeeLogistics": []
   },
@@ -336,6 +319,7 @@
     "lastSync": "20:33:24",
     "description": "Brinco 4 Pontos Cravejados",
     "imageUrl": "https://http2.mlstatic.com/D_958959-MLB106474248480_022026-I.jpg",
+    "isChecked": false,
     "shopeeIsPreOrder": false,
     "shopeeLogistics": []
   },
@@ -353,6 +337,7 @@
     "lastSync": "20:33:24",
     "description": "Argola Dente Sharp",
     "imageUrl": "https://http2.mlstatic.com/D_980495-MLB107117653929_022026-I.jpg",
+    "isChecked": false,
     "shopeeIsPreOrder": false,
     "shopeeLogistics": []
   },
@@ -370,6 +355,7 @@
     "lastSync": "20:33:24",
     "description": "Argola Fina Cravejada Gota",
     "imageUrl": "https://http2.mlstatic.com/D_821899-MLB107119015179_022026-I.jpg",
+    "isChecked": false,
     "shopeeIsPreOrder": false,
     "shopeeLogistics": []
   },
@@ -387,6 +373,7 @@
     "lastSync": "20:33:24",
     "description": "Colar Laço Cravejado",
     "imageUrl": "https://http2.mlstatic.com/D_916213-MLB106303317220_022026-I.jpg",
+    "isChecked": false,
     "shopeeIsPreOrder": false,
     "shopeeLogistics": []
   },
@@ -404,6 +391,7 @@
     "lastSync": "20:33:24",
     "description": "Colar Paz Cravejado",
     "imageUrl": "https://http2.mlstatic.com/D_758653-MLB107101306999_022026-I.jpg",
+    "isChecked": false,
     "shopeeIsPreOrder": false,
     "shopeeLogistics": []
   },
@@ -421,6 +409,7 @@
     "lastSync": "20:33:24",
     "description": "Colar Choker Elos Corrente",
     "imageUrl": "https://http2.mlstatic.com/D_999404-MLB107025090527_022026-I.jpg",
+    "isChecked": false,
     "shopeeIsPreOrder": false,
     "shopeeLogistics": []
   },
@@ -438,6 +427,7 @@
     "lastSync": "20:33:24",
     "description": "Colar Gotinha Ruby",
     "imageUrl": "https://http2.mlstatic.com/D_947925-MLB107025478395_022026-I.jpg",
+    "isChecked": false,
     "shopeeIsPreOrder": false,
     "shopeeLogistics": []
   },
@@ -455,6 +445,7 @@
     "lastSync": "20:33:24",
     "description": "Colar Laço Lux",
     "imageUrl": "https://http2.mlstatic.com/D_804337-MLB107101930689_022026-I.jpg",
+    "isChecked": false,
     "shopeeIsPreOrder": false,
     "shopeeLogistics": []
   },
@@ -472,6 +463,7 @@
     "lastSync": "20:33:24",
     "description": "Colar Aurora Azul",
     "imageUrl": "https://http2.mlstatic.com/D_920205-MLB107025388809_022026-I.jpg",
+    "isChecked": false,
     "shopeeIsPreOrder": false,
     "shopeeLogistics": []
   },
@@ -489,6 +481,7 @@
     "lastSync": "20:33:24",
     "description": "Colar Cúpula Cravejada",
     "imageUrl": "https://http2.mlstatic.com/D_622512-MLB107025478411_022026-I.jpg",
+    "isChecked": false,
     "shopeeIsPreOrder": false,
     "shopeeLogistics": []
   },
@@ -506,6 +499,7 @@
     "lastSync": "20:33:24",
     "description": "Colar Gota Pool Fusion M",
     "imageUrl": "https://http2.mlstatic.com/D_937105-MLB106389574748_022026-I.jpg",
+    "isChecked": false,
     "shopeeIsPreOrder": false,
     "shopeeLogistics": []
   },
@@ -523,6 +517,7 @@
     "lastSync": "20:33:24",
     "description": "Colar Poll Fusion M",
     "imageUrl": "https://http2.mlstatic.com/D_865722-MLB107101901069_022026-I.jpg",
+    "isChecked": false,
     "shopeeIsPreOrder": false,
     "shopeeLogistics": []
   },
@@ -540,6 +535,7 @@
     "lastSync": "20:33:24",
     "description": "Colar Mega Long",
     "imageUrl": "https://http2.mlstatic.com/D_961184-MLB107103535239_022026-I.jpg",
+    "isChecked": false,
     "shopeeIsPreOrder": false,
     "shopeeLogistics": []
   },
@@ -557,6 +553,7 @@
     "lastSync": "20:33:24",
     "description": "Colar Mega Long Ametista",
     "imageUrl": "https://http2.mlstatic.com/D_863962-MLB107102642985_022026-I.jpg",
+    "isChecked": false,
     "shopeeIsPreOrder": false,
     "shopeeLogistics": []
   },
@@ -574,6 +571,7 @@
     "lastSync": "20:33:24",
     "description": "Colar Gota Mega Long",
     "imageUrl": "https://http2.mlstatic.com/D_960915-MLB106389574788_022026-I.jpg",
+    "isChecked": false,
     "shopeeIsPreOrder": false,
     "shopeeLogistics": []
   },
@@ -591,6 +589,7 @@
     "lastSync": "20:33:24",
     "description": "Colar Gravata Longa Coração",
     "imageUrl": "https://http2.mlstatic.com/D_902362-MLB107025209847_022026-I.jpg",
+    "isChecked": false,
     "shopeeIsPreOrder": false,
     "shopeeLogistics": []
   },
@@ -608,6 +607,7 @@
     "lastSync": "20:33:24",
     "description": "Colar Maxi Cruxifixo",
     "imageUrl": "https://http2.mlstatic.com/D_899136-MLB107101277417_022026-I.jpg",
+    "isChecked": false,
     "shopeeIsPreOrder": false,
     "shopeeLogistics": []
   },
@@ -625,6 +625,7 @@
     "lastSync": "20:33:24",
     "description": "Colar Gota Morgan Fusion",
     "imageUrl": "https://http2.mlstatic.com/D_683205-MLB107025448775_022026-I.jpg",
+    "isChecked": false,
     "shopeeIsPreOrder": false,
     "shopeeLogistics": []
   },
@@ -642,6 +643,7 @@
     "lastSync": "20:33:24",
     "description": "Colar Patuá Pingentes",
     "imageUrl": "https://http2.mlstatic.com/D_788052-MLB107101841527_022026-I.jpg",
+    "isChecked": false,
     "shopeeIsPreOrder": false,
     "shopeeLogistics": []
   },
@@ -659,6 +661,7 @@
     "lastSync": "20:33:24",
     "description": "Colar Gravata Pêndulo",
     "imageUrl": "https://http2.mlstatic.com/D_719399-MLB106389514776_022026-I.jpg",
+    "isChecked": false,
     "shopeeIsPreOrder": false,
     "shopeeLogistics": []
   },
@@ -676,6 +679,7 @@
     "lastSync": "20:33:24",
     "description": "Colar Boss Cravejado",
     "imageUrl": "https://http2.mlstatic.com/D_641291-MLB106389574760_022026-I.jpg",
+    "isChecked": false,
     "shopeeIsPreOrder": false,
     "shopeeLogistics": []
   },
@@ -693,6 +697,7 @@
     "lastSync": "20:33:24",
     "description": "Colar Asa Fusion",
     "imageUrl": "https://http2.mlstatic.com/D_691368-MLB106389574834_022026-I.jpg",
+    "isChecked": false,
     "shopeeIsPreOrder": false,
     "shopeeLogistics": []
   },
@@ -710,6 +715,7 @@
     "lastSync": "20:33:24",
     "description": "Argola Gravatinha",
     "imageUrl": "https://http2.mlstatic.com/D_646880-MLB107118955397_022026-I.jpg",
+    "isChecked": false,
     "shopeeIsPreOrder": false,
     "shopeeLogistics": []
   },
@@ -727,6 +733,7 @@
     "lastSync": "20:33:24",
     "description": "Colar Crucifixo Fino",
     "imageUrl": "https://http2.mlstatic.com/D_813775-MLB107025418895_022026-I.jpg",
+    "isChecked": false,
     "shopeeIsPreOrder": false,
     "shopeeLogistics": []
   },
@@ -744,6 +751,7 @@
     "lastSync": "20:33:24",
     "description": "Argola Mini Coração Cravejado Ou Multico Brinco Un",
     "imageUrl": "https://http2.mlstatic.com/D_733746-MLB107118280021_022026-I.jpg",
+    "isChecked": false,
     "shopeeIsPreOrder": false,
     "shopeeLogistics": []
   },
@@ -761,6 +769,7 @@
     "lastSync": "20:33:24",
     "description": "Argola Star Cravejado Colorate Ou Multico Brinco Un",
     "imageUrl": "https://http2.mlstatic.com/D_717674-MLB107117594515_022026-I.jpg",
+    "isChecked": false,
     "shopeeIsPreOrder": false,
     "shopeeLogistics": []
   },
@@ -778,6 +787,7 @@
     "lastSync": "20:33:24",
     "description": "Argola Mini Coração Cravejado Rb Zirc Br Brinco Un",
     "imageUrl": "https://http2.mlstatic.com/D_892767-MLB107118280033_022026-I.jpg",
+    "isChecked": false,
     "shopeeIsPreOrder": false,
     "shopeeLogistics": []
   },
@@ -795,23 +805,7 @@
     "lastSync": "20:33:24",
     "description": "Pulseira Elos Grumet",
     "imageUrl": "https://http2.mlstatic.com/D_829865-MLB107190717193_022026-I.jpg",
-    "shopeeIsPreOrder": false,
-    "shopeeLogistics": []
-  },
-  {
-    "id": "ml-prod-MLB4473458493",
-    "name": "Pulseira Elos Love",
-    "sku": "3463",
-    "basePrice": 37.54,
-    "shopeeStock": 0,
-    "shopeeSynced": false,
-    "mlStock": 1,
-    "mlSynced": true,
-    "mlItemId": "MLB4473458493",
-    "totalStock": 1,
-    "lastSync": "20:33:24",
-    "description": "Pulseira Elos Love",
-    "imageUrl": "https://http2.mlstatic.com/D_954014-MLB106542424680_022026-I.jpg",
+    "isChecked": false,
     "shopeeIsPreOrder": false,
     "shopeeLogistics": []
   },
@@ -829,6 +823,7 @@
     "lastSync": "20:33:24",
     "description": "Anel Coração Madre Pérola Prata 925 Rb Zirc Br 20/21'",
     "imageUrl": "https://http2.mlstatic.com/D_861059-MLB106932072767_022026-I.jpg",
+    "isChecked": false,
     "shopeeIsPreOrder": false,
     "shopeeLogistics": []
   },
@@ -846,40 +841,7 @@
     "lastSync": "20:33:24",
     "description": "Colar Coração Love Ou Zirc Br Novos Tamanhos Tam. 60",
     "imageUrl": "https://http2.mlstatic.com/D_993627-MLB107024704907_022026-I.jpg",
-    "shopeeIsPreOrder": false,
-    "shopeeLogistics": []
-  },
-  {
-    "id": "ml-prod-MLB6244414534",
-    "name": "Colar Coração Duplo Uso Ouro+rn Novos Tamanhos Unico",
-    "sku": "3471-3667",
-    "basePrice": 139.43,
-    "shopeeStock": 0,
-    "shopeeSynced": false,
-    "mlStock": 1,
-    "mlSynced": true,
-    "mlItemId": "MLB6244414534",
-    "totalStock": 1,
-    "lastSync": "20:33:24",
-    "description": "Colar Coração Duplo Uso Ouro+rn Novos Tamanhos Unico",
-    "imageUrl": "https://http2.mlstatic.com/D_802185-MLB107024765085_022026-I.jpg",
-    "shopeeIsPreOrder": false,
-    "shopeeLogistics": []
-  },
-  {
-    "id": "ml-prod-MLB4471950045",
-    "name": "Argola Bolinhas Lux Ouro Novos Tamanhos Unico",
-    "sku": "3473-3669",
-    "basePrice": 178.38,
-    "shopeeStock": 0,
-    "shopeeSynced": false,
-    "mlStock": 1,
-    "mlSynced": true,
-    "mlItemId": "MLB4471950045",
-    "totalStock": 1,
-    "lastSync": "20:33:24",
-    "description": "Argola Bolinhas Lux Ouro Novos Tamanhos Unico",
-    "imageUrl": "https://http2.mlstatic.com/D_632663-MLB107117594503_022026-I.jpg",
+    "isChecked": false,
     "shopeeIsPreOrder": false,
     "shopeeLogistics": []
   },
@@ -897,6 +859,7 @@
     "lastSync": "20:33:24",
     "description": "Brinco Duplo Correntes Rb Zirc Br Novos Tamanhos Unico",
     "imageUrl": "https://http2.mlstatic.com/D_734182-MLB106473353348_022026-I.jpg",
+    "isChecked": false,
     "shopeeIsPreOrder": false,
     "shopeeLogistics": []
   },
@@ -914,23 +877,7 @@
     "lastSync": "20:33:24",
     "description": "Brinco G Inverso Rb Zirc Br Novos Tamanhos Unico",
     "imageUrl": "https://http2.mlstatic.com/D_817286-MLB107115214871_022026-I.jpg",
-    "shopeeIsPreOrder": false,
-    "shopeeLogistics": []
-  },
-  {
-    "id": "ml-prod-MLB4471950053",
-    "name": "Argola Torcida Dupla Rb Novos Tamanhos Unico",
-    "sku": "3483-3679",
-    "basePrice": 344.98,
-    "shopeeStock": 0,
-    "shopeeSynced": false,
-    "mlStock": 1,
-    "mlSynced": true,
-    "mlItemId": "MLB4471950053",
-    "totalStock": 1,
-    "lastSync": "20:33:24",
-    "description": "Argola Torcida Dupla Rb Novos Tamanhos Unico",
-    "imageUrl": "https://http2.mlstatic.com/D_715981-MLB107118955391_022026-I.jpg",
+    "isChecked": false,
     "shopeeIsPreOrder": false,
     "shopeeLogistics": []
   },
@@ -948,6 +895,7 @@
     "lastSync": "20:33:24",
     "description": "Colar Ursinho Teddy  Ou Fancyye Novos Tamanhos Tam. 50",
     "imageUrl": "https://http2.mlstatic.com/D_988389-MLB107102703129_022026-I.jpg",
+    "isChecked": false,
     "shopeeIsPreOrder": false,
     "shopeeLogistics": []
   },
@@ -965,6 +913,7 @@
     "lastSync": "20:33:24",
     "description": "Pulseira Couro Eco Macramê Ou Azul Novos Tamanhos Unico",
     "imageUrl": "https://http2.mlstatic.com/D_778291-MLB107188666031_022026-I.jpg",
+    "isChecked": false,
     "shopeeIsPreOrder": false,
     "shopeeLogistics": []
   },
@@ -982,6 +931,7 @@
     "lastSync": "20:33:24",
     "description": "Brinco Earcuff Piercing Duo Gotas Ou Turmalina",
     "imageUrl": "https://http2.mlstatic.com/D_866353-MLB106473502814_022026-I.jpg",
+    "isChecked": false,
     "shopeeIsPreOrder": false,
     "shopeeLogistics": []
   },
@@ -999,6 +949,7 @@
     "lastSync": "20:33:24",
     "description": "Colar Relicário Letra Cravejada Tam. 55 Letra P",
     "imageUrl": "https://http2.mlstatic.com/D_704449-MLB107102613203_022026-I.jpg",
+    "isChecked": false,
     "shopeeIsPreOrder": false,
     "shopeeLogistics": []
   },
@@ -1016,6 +967,7 @@
     "lastSync": "20:33:24",
     "description": "Bracelete Caju Esmaltado Azul Bb Novos Tamanhos Unico",
     "imageUrl": "https://http2.mlstatic.com/D_714187-MLB106541947648_022026-I.jpg",
+    "isChecked": false,
     "shopeeIsPreOrder": false,
     "shopeeLogistics": []
   },
@@ -1033,6 +985,7 @@
     "lastSync": "20:33:24",
     "description": "Brinco Quadradinho  Liz Ou Zirc Br Novos Tamanhos Unico",
     "imageUrl": "https://http2.mlstatic.com/D_663935-MLB107114234043_022026-I.jpg",
+    "isChecked": false,
     "shopeeIsPreOrder": false,
     "shopeeLogistics": []
   },
@@ -1050,6 +1003,7 @@
     "lastSync": "20:33:24",
     "description": "Brinco Franja Degradê Ouro Novos Tamanhos Unico",
     "imageUrl": "https://http2.mlstatic.com/D_622812-MLB106474218608_022026-I.jpg",
+    "isChecked": false,
     "shopeeIsPreOrder": false,
     "shopeeLogistics": []
   },
@@ -1067,6 +1021,7 @@
     "lastSync": "20:33:24",
     "description": "Colar  Viking Lotus Ou Zirc Br Novos Tamanhos Tam. 60",
     "imageUrl": "https://http2.mlstatic.com/D_959537-MLB107025508441_022026-I.jpg",
+    "isChecked": false,
     "shopeeIsPreOrder": false,
     "shopeeLogistics": []
   },
@@ -1084,6 +1039,7 @@
     "lastSync": "20:33:24",
     "description": "Brinco Renda Vintage Ou Zirc Br Novos Tamanhos Unico",
     "imageUrl": "https://http2.mlstatic.com/D_998055-MLB106473443388_022026-I.jpg",
+    "isChecked": false,
     "shopeeIsPreOrder": false,
     "shopeeLogistics": []
   },
@@ -1101,57 +1057,7 @@
     "lastSync": "20:33:24",
     "description": "Colar Estrelinha Vazada Rb Novos Tamanhos Tam. 40",
     "imageUrl": "https://http2.mlstatic.com/D_724995-MLB107025329167_022026-I.jpg",
-    "shopeeIsPreOrder": false,
-    "shopeeLogistics": []
-  },
-  {
-    "id": "ml-prod-MLB4471956743",
-    "name": "Brinco Aro Croissant Ouro Novos Tamanhos Unico",
-    "sku": "3553-3795",
-    "basePrice": 105.86,
-    "shopeeStock": 0,
-    "shopeeSynced": false,
-    "mlStock": 1,
-    "mlSynced": true,
-    "mlItemId": "MLB4471956743",
-    "totalStock": 1,
-    "lastSync": "20:33:24",
-    "description": "Brinco Aro Croissant Ouro Novos Tamanhos Unico",
-    "imageUrl": "https://http2.mlstatic.com/D_911713-MLB106473592862_022026-I.jpg",
-    "shopeeIsPreOrder": false,
-    "shopeeLogistics": []
-  },
-  {
-    "id": "ml-prod-MLB4472125033",
-    "name": "Brinco Aro Croissant Rb Novos Tamanhos Unico",
-    "sku": "3553-3797",
-    "basePrice": 105.86,
-    "shopeeStock": 0,
-    "shopeeSynced": false,
-    "mlStock": 1,
-    "mlSynced": true,
-    "mlItemId": "MLB4472125033",
-    "totalStock": 1,
-    "lastSync": "20:33:24",
-    "description": "Brinco Aro Croissant Rb Novos Tamanhos Unico",
-    "imageUrl": "https://http2.mlstatic.com/D_911713-MLB106473592862_022026-I.jpg",
-    "shopeeIsPreOrder": false,
-    "shopeeLogistics": []
-  },
-  {
-    "id": "ml-prod-MLB4472053497",
-    "name": "Argola Croissant Lisa P Ouro Novos Tamanhos Unico",
-    "sku": "3557-3801",
-    "basePrice": 115.97,
-    "shopeeStock": 0,
-    "shopeeSynced": false,
-    "mlStock": 1,
-    "mlSynced": true,
-    "mlItemId": "MLB4472053497",
-    "totalStock": 1,
-    "lastSync": "20:33:24",
-    "description": "Argola Croissant Lisa P Ouro Novos Tamanhos Unico",
-    "imageUrl": "https://http2.mlstatic.com/D_962870-MLB107117744015_022026-I.jpg",
+    "isChecked": false,
     "shopeeIsPreOrder": false,
     "shopeeLogistics": []
   },
@@ -1169,6 +1075,7 @@
     "lastSync": "20:33:24",
     "description": "Colar Gota Crave Ou Rubi Novos Tamanhos Tam. 40",
     "imageUrl": "https://http2.mlstatic.com/D_756286-MLB107025388843_022026-I.jpg",
+    "isChecked": false,
     "shopeeIsPreOrder": false,
     "shopeeLogistics": []
   },
@@ -1186,6 +1093,7 @@
     "lastSync": "20:33:24",
     "description": "Colar Clássico Serpentina Rb Novos Tamanhos Tam. 55",
     "imageUrl": "https://http2.mlstatic.com/D_655201-MLB106389604424_022026-I.jpg",
+    "isChecked": false,
     "shopeeIsPreOrder": false,
     "shopeeLogistics": []
   },
@@ -1203,6 +1111,7 @@
     "lastSync": "20:33:24",
     "description": "Brinco Forma Gota Florzinhas Rn Fucsia Novos Tamanhos Unico",
     "imageUrl": "https://http2.mlstatic.com/D_680331-MLB106473473238_022026-I.jpg",
+    "isChecked": false,
     "shopeeIsPreOrder": false,
     "shopeeLogistics": []
   },
@@ -1220,6 +1129,7 @@
     "lastSync": "20:33:24",
     "description": "Brinco Wave Chic Rb Novos Tamanhos Unico",
     "imageUrl": "https://http2.mlstatic.com/D_683055-MLB107114234025_022026-I.jpg",
+    "isChecked": false,
     "shopeeIsPreOrder": false,
     "shopeeLogistics": []
   },
@@ -1237,6 +1147,7 @@
     "lastSync": "20:33:24",
     "description": "Pulseira Couro Spikes Preto Novos Tamanhos Unico Preto",
     "imageUrl": "https://http2.mlstatic.com/D_678606-MLB107188666045_022026-I.jpg",
+    "isChecked": false,
     "shopeeIsPreOrder": false,
     "shopeeLogistics": []
   },
@@ -1254,6 +1165,7 @@
     "lastSync": "20:33:24",
     "description": "Brinco Mimo Flor Rb Novos Tamanhos Unico",
     "imageUrl": "https://http2.mlstatic.com/D_992574-MLB107115065087_022026-I.jpg",
+    "isChecked": false,
     "shopeeIsPreOrder": false,
     "shopeeLogistics": []
   },
@@ -1271,6 +1183,7 @@
     "lastSync": "20:33:24",
     "description": "Brinco Duplo Círculos Ouro Novos Tamanhos Unico",
     "imageUrl": "https://http2.mlstatic.com/D_742762-MLB106473473212_022026-I.jpg",
+    "isChecked": false,
     "shopeeIsPreOrder": false,
     "shopeeLogistics": []
   },
@@ -1288,6 +1201,7 @@
     "lastSync": "20:33:24",
     "description": "Bracelete Pérola Oval Ou Perola Novos Tamanhos Unico",
     "imageUrl": "https://http2.mlstatic.com/D_769547-MLB106541947628_022026-I.jpg",
+    "isChecked": false,
     "shopeeIsPreOrder": false,
     "shopeeLogistics": []
   },
@@ -1305,23 +1219,7 @@
     "lastSync": "20:33:24",
     "description": "Brinco Quad Arabesco Ou+rb Novos Tamanhos Unico",
     "imageUrl": "https://http2.mlstatic.com/D_892948-MLB107114234053_022026-I.jpg",
-    "shopeeIsPreOrder": false,
-    "shopeeLogistics": []
-  },
-  {
-    "id": "ml-prod-MLB4472086271",
-    "name": "Brinco Antonella Ouro Novos Tamanhos Unico",
-    "sku": "3597-3887",
-    "basePrice": 49.6,
-    "shopeeStock": 0,
-    "shopeeSynced": false,
-    "mlStock": 1,
-    "mlSynced": true,
-    "mlItemId": "MLB4472086271",
-    "totalStock": 1,
-    "lastSync": "20:33:24",
-    "description": "Brinco Antonella Ouro Novos Tamanhos Unico",
-    "imageUrl": "https://http2.mlstatic.com/D_929290-MLB106474308428_022026-I.jpg",
+    "isChecked": false,
     "shopeeIsPreOrder": false,
     "shopeeLogistics": []
   },
@@ -1339,6 +1237,7 @@
     "lastSync": "20:33:24",
     "description": "Brinco Heloísa Ouro Novos Tamanhos Unico",
     "imageUrl": "https://http2.mlstatic.com/D_661085-MLB107113725747_022026-I.jpg",
+    "isChecked": false,
     "shopeeIsPreOrder": false,
     "shopeeLogistics": []
   },
@@ -1356,6 +1255,7 @@
     "lastSync": "20:33:24",
     "description": "Brinco Earcuff Asa Angel Ou Champag Novos Tamanhos Unico",
     "imageUrl": "https://http2.mlstatic.com/D_945297-MLB106474398202_022026-I.jpg",
+    "isChecked": false,
     "shopeeIsPreOrder": false,
     "shopeeLogistics": []
   },
@@ -1373,6 +1273,7 @@
     "lastSync": "20:33:24",
     "description": "Brinco Earcuff Asa Angel Ou Zirc Pr Novos Tamanhos Unico",
     "imageUrl": "https://http2.mlstatic.com/D_626609-MLB106473383424_022026-I.jpg",
+    "isChecked": false,
     "shopeeIsPreOrder": false,
     "shopeeLogistics": []
   },
@@ -1390,6 +1291,7 @@
     "lastSync": "20:33:24",
     "description": "Brinco Earcuff Asa Angel Ou Fucsia Novos Tamanhos Unico",
     "imageUrl": "https://http2.mlstatic.com/D_959142-MLB107114826169_022026-I.jpg",
+    "isChecked": false,
     "shopeeIsPreOrder": false,
     "shopeeLogistics": []
   },
@@ -1407,6 +1309,7 @@
     "lastSync": "20:33:24",
     "description": "Brinco Asa Baguetada Ou Zirc Br Novos Tamanhos Unico",
     "imageUrl": "https://http2.mlstatic.com/D_631014-MLB107115125205_022026-I.jpg",
+    "isChecked": false,
     "shopeeIsPreOrder": false,
     "shopeeLogistics": []
   },
@@ -1424,6 +1327,7 @@
     "lastSync": "20:33:24",
     "description": "Pulseira Soda Rb Novos Tamanhos Unico",
     "imageUrl": "https://http2.mlstatic.com/D_954748-MLB111188704483_052026-I.jpg",
+    "isChecked": false,
     "shopeeIsPreOrder": false,
     "shopeeLogistics": []
   },
@@ -1441,6 +1345,7 @@
     "lastSync": "20:33:24",
     "description": "Brinco Globo Cristais Ou Zirc Br Novos Tamanhos Unico",
     "imageUrl": "https://http2.mlstatic.com/D_930511-MLB107115065075_022026-I.jpg",
+    "isChecked": false,
     "shopeeIsPreOrder": false,
     "shopeeLogistics": []
   },
@@ -1458,23 +1363,7 @@
     "lastSync": "20:33:24",
     "description": "Colar Círculo My Ou Zirc Br Novos Tamanhos Tam. 40",
     "imageUrl": "https://http2.mlstatic.com/D_932159-MLB107024765067_022026-I.jpg",
-    "shopeeIsPreOrder": false,
-    "shopeeLogistics": []
-  },
-  {
-    "id": "ml-prod-MLB4472008539",
-    "name": "Brinco Coracao Chapa Lisa Ouro Novos Tamanhos Unico",
-    "sku": "3635-3931",
-    "basePrice": 25,
-    "shopeeStock": 0,
-    "shopeeSynced": false,
-    "mlStock": 2,
-    "mlSynced": true,
-    "mlItemId": "MLB4472008539",
-    "totalStock": 2,
-    "lastSync": "20:33:24",
-    "description": "Brinco Coracao Chapa Lisa Ouro Novos Tamanhos Unico",
-    "imageUrl": "https://http2.mlstatic.com/D_810143-MLB107113785543_022026-I.jpg",
+    "isChecked": false,
     "shopeeIsPreOrder": false,
     "shopeeLogistics": []
   },
@@ -1492,6 +1381,7 @@
     "lastSync": "20:33:24",
     "description": "Anel Rainbow Lux Rb Multico 14/15",
     "imageUrl": "https://http2.mlstatic.com/D_918665-MLB106933054793_022026-I.jpg",
+    "isChecked": false,
     "shopeeIsPreOrder": false,
     "shopeeLogistics": []
   },
@@ -1509,23 +1399,7 @@
     "lastSync": "20:33:24",
     "description": "Argola Coração Colorate Ou Multico Brinco Un",
     "imageUrl": "https://http2.mlstatic.com/D_949738-MLB107118219535_022026-I.jpg",
-    "shopeeIsPreOrder": false,
-    "shopeeLogistics": []
-  },
-  {
-    "id": "ml-prod-MLB4472047129",
-    "name": "Brinco Snake Enrolada Rb Fucsia Brinco Un",
-    "sku": "3647-3977",
-    "basePrice": 49.6,
-    "shopeeStock": 0,
-    "shopeeSynced": false,
-    "mlStock": 1,
-    "mlSynced": true,
-    "mlItemId": "MLB4472047129",
-    "totalStock": 1,
-    "lastSync": "20:33:24",
-    "description": "Brinco Snake Enrolada Rb Fucsia Brinco Un",
-    "imageUrl": "https://http2.mlstatic.com/D_854250-MLB106547432288_022026-I.jpg",
+    "isChecked": false,
     "shopeeIsPreOrder": false,
     "shopeeLogistics": []
   },
@@ -1543,6 +1417,7 @@
     "lastSync": "20:33:24",
     "description": "Brinco Ear Hook Prata Ou Zirc Br Brinco Un",
     "imageUrl": "https://http2.mlstatic.com/D_983492-MLB107113755769_022026-I.jpg",
+    "isChecked": false,
     "shopeeIsPreOrder": false,
     "shopeeLogistics": []
   },
@@ -1560,6 +1435,7 @@
     "lastSync": "20:33:24",
     "description": "Colar Gargantilha Meteoro",
     "imageUrl": "https://http2.mlstatic.com/D_844759-MLB107025180057_022026-I.jpg",
+    "isChecked": false,
     "shopeeIsPreOrder": false,
     "shopeeLogistics": []
   },
@@ -1577,6 +1453,7 @@
     "lastSync": "20:33:24",
     "description": "Colar Choker Gota Fusion Ou Turm Fu Novos Tamanhos Tam. 40",
     "imageUrl": "https://http2.mlstatic.com/D_853161-MLB107025329233_022026-I.jpg",
+    "isChecked": false,
     "shopeeIsPreOrder": false,
     "shopeeLogistics": []
   },
@@ -1594,6 +1471,7 @@
     "lastSync": "20:33:24",
     "description": "Bracelete Bolas Resinada Verdebande Pulseira Un",
     "imageUrl": "https://http2.mlstatic.com/D_711016-MLB106541738032_022026-I.jpg",
+    "isChecked": false,
     "shopeeIsPreOrder": false,
     "shopeeLogistics": []
   },
@@ -1611,6 +1489,7 @@
     "lastSync": "20:33:24",
     "description": "Colar Malha Medalha Leao Liso Ouro",
     "imageUrl": "https://http2.mlstatic.com/D_631600-MLB105987682861_012026-I.jpg",
+    "isChecked": false,
     "shopeeIsPreOrder": false,
     "shopeeLogistics": []
   }
