@@ -122,7 +122,8 @@ export async function POST(request: NextRequest) {
         mlAttributes.push({ id: "seller_package_height", value_name: `${height} cm` });
       }
 
-      const mlPayload = {
+      const mlPayload: any = {
+        family_name: name.trim(),
         category_id: categoryId || "MLB1434",
         price: priceNum,
         currency_id: "BRL",
@@ -136,8 +137,7 @@ export async function POST(request: NextRequest) {
         description: {
           plain_text: description || "Produto de alta qualidade da Fashion Shine."
         },
-        attributes: mlAttributes,
-        family_name: name.trim()
+        attributes: mlAttributes
       };
 
       console.log(`[ML Publisher]: Publishing item SKU ${sku} to Mercado Livre...`);

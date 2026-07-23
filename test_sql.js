@@ -3,27 +3,42 @@ const path = require('path');
 
 const envPath = path.join(__dirname, '.env.local');
 const envContent = fs.readFileSync(envPath, 'utf8');
-const match = envContent.match(/DATABASE_URL=["']?([^"'\r\n]+)["']?/);
-if (match) {
-  process.env.DATABASE_URL = match[1];
-}
+envContent.split('\n').forEach(line => {
+  const m = line.match(/^([^=]+)=(.*)$/);
+  if (m) {
+    process.env[m[1].trim()] = m[2].trim();
+  }
+});
 
-const { neon } = require('@neondatabase/serverless');
+const { getDBProducts, saveDBProducts } = require('./src/utils/productStorage');
 
-const databaseUrl = process.env.DATABASE_URL;
-const neonSql = neon(databaseUrl);
+async function registerInDb() {
+  const products = await getDBProducts();
 
-async function test() {
-  try {
-    const r1 = await neonSql.query('SELECT * FROM integration_tokens');
-    console.log('r1 via query:', r1);
+  const newProd = {
+    id: "prod-brinco-argolinha-2400002307486",
+    name: "Brinco Argolinha Joiafina Ródio Negro",
+    sku: "2400002307486",
+    basePrice: 25,
+    shopeeStock: 1,
+    shopeeSynced: false,
+    mlStock: 1,
+    mlSynced: true,
+    mlItemId: "MLB7238449392",
+    totalStock: 1,
+    lastSync: new Date().toLocaleTimeString("pt-BR"),
+    description: "Brinco Argolinha Joiafina Ródio Negro com pedras. Semijoia elegante da coleção Fashion Shine.",
+    imageUrl: "/brinco-argolinha.jpg"
+  };
 
-    const channel = 'mercadolivre';
-    const r2 = await neonSql`SELECT * FROM integration_tokens WHERE channel = ${channel}`;
-    console.log('r2 via template:', r2);
-  } catch (err) {
-    console.error('Error:', err);
+  const exists = products.some(p => p.sku === newProd.sku || p.mlItemId === newProd.mlItemId);
+  if (!exists) {
+    products.unshift(newProd);
+    await saveDBProducts(products);
+    console.log('✅ Registered product in local database and Neon DB!');
+  } else {
+    console.log('Product already registered in database.');
   }
 }
 
-test();
+registerInDb().catch(console.error);
