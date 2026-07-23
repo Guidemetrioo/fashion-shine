@@ -71,17 +71,18 @@ export default function AdminDashboard() {
 
 
   // New Meli publishing states
-  const [publishToMeli, setPublishToMeli] = useState(false);
-  const [meliCategoryId, setMeliCategoryId] = useState("MLB1434"); // Defaults to Necklaces
+  const [publishToMeli, setPublishToMeli] = useState(true);
+  const [meliCategoryId, setMeliCategoryId] = useState("MLB1434");
 
   // Mercado Livre required fields (API POST /items)
   const [newProdCondition, setNewProdCondition] = useState<"new" | "used">("new");
   const [newProdListingType, setNewProdListingType] = useState("gold_special");
   const [newProdGtin, setNewProdGtin] = useState("");
-  const [newProdBrand, setNewProdBrand] = useState("");
-  const [newProdMaterial, setNewProdMaterial] = useState("");
+  const [newProdBrand, setNewProdBrand] = useState("Fashion Shine");
+  const [newProdMaterial, setNewProdMaterial] = useState("Prata 925");
   const [newProdColor, setNewProdColor] = useState("");
-  const [newProdGender, setNewProdGender] = useState("");
+  const [newProdGender, setNewProdGender] = useState("Feminino");
+  const [newProdWithGemstone, setNewProdWithGemstone] = useState(false);
   const [newProdSizes, setNewProdSizes] = useState("");
   const [newProdWeight, setNewProdWeight] = useState("");
   const [newProdLength, setNewProdLength] = useState("");
@@ -131,22 +132,35 @@ export default function AdminDashboard() {
 
     const lowerName = name.toLowerCase();
     
-    // Keywords for Necklaces (Colares, Pingente, Gargantilha, Choker, etc.)
+    // Keywords for Necklaces
     const isColar = ["colar", "colares", "pingente", "pingentes", "gargantilha", "gargantilhas", "choker", "chokers", "gravatinha", "escapulário", "escapularios"].some(word => lowerName.includes(word));
     
-    // Keywords for Earrings (Brinco, Argola, Piercing, Trio, etc.)
+    // Keywords for Earrings
     const isBrinco = ["brinco", "brincos", "argola", "argolas", "piercing", "piercings", "ear cuff", "earcuff", "trio"].some(word => lowerName.includes(word));
     
-    // Keywords for Bracelets (Pulseira, Bracelete, Tornozeleira, etc.)
+    // Keywords for Bracelets
     const isPulseira = ["pulseira", "pulseiras", "bracelete", "braceletes", "tornozeleira", "tornozeleiras"].some(word => lowerName.includes(word));
+
+    // Keywords for Rings
+    const isAnel = ["anel", "anéis", "aneis", "aliança", "aliancas", "solitário", "solitarios"].some(word => lowerName.includes(word));
 
     if (isColar) {
       setMeliCategoryId("MLB1434");
     } else if (isBrinco) {
-      setMeliCategoryId("MLB1467");
+      setMeliCategoryId("MLB1432");
     } else if (isPulseira) {
       setMeliCategoryId("MLB1471");
+    } else if (isAnel) {
+      setMeliCategoryId("MLB1436");
     }
+  };
+
+  const handleGenerateSkuAndGtin = () => {
+    const randomCode = Math.floor(100000 + Math.random() * 900000).toString();
+    const generatedSku = `FS-${randomCode}`;
+    setNewProdSku(generatedSku);
+    const generatedGtin = `789${Math.floor(100000000 + Math.random() * 900000000)}`;
+    setNewProdGtin(generatedGtin);
   };
 
   const handleSkuChange = (sku: string) => {
@@ -279,7 +293,12 @@ A credencial de acesso temporária (access_token) do Mercado Livre expirou ou n�
         }
         
         addLog(`Central Inventory: Registered new product SKU ${newProdSku} successfully.`, "all", "success");
-        alert("Produto cadastrado com sucesso!");
+        
+        if (data.product && data.product.mlItemId) {
+          alert(`🎉 PRODUTO CADASTRADO E PUBLICADO NO MERCADO LIVRE COM SUCESSO!\n\nID do Anúncio: ${data.product.mlItemId}\nSKU: ${data.product.sku}\n\nO produto já está ativo e sincronizado com a conta da Fashion Shine!`);
+        } else {
+          alert("Produto cadastrado com sucesso no estoque central!");
+        }
         
         // Reset form
         setNewProdName("");
@@ -291,21 +310,23 @@ A credencial de acesso temporária (access_token) do Mercado Livre expirou ou n�
         setNewProdStock("");
         setNewProdShopeeItemId("");
         setNewProdMlItemId("");
-        setPublishToMeli(false);
+        setPublishToMeli(true);
         setMeliCategoryId("MLB1434");
-        // Reset ML fields
+        // Reset ML fields to smart defaults
         setNewProdCondition("new");
         setNewProdListingType("gold_special");
         setNewProdGtin("");
-        setNewProdBrand("");
-        setNewProdMaterial("");
+        setNewProdBrand("Fashion Shine");
+        setNewProdMaterial("Prata 925");
         setNewProdColor("");
-        setNewProdGender("");
+        setNewProdGender("Feminino");
+        setNewProdWithGemstone(false);
         setNewProdSizes("");
         setNewProdWeight("");
         setNewProdLength("");
         setNewProdWidth("");
         setNewProdHeight("");
+        setShowAddProductModal(false);
         // Reset Shopee and TikTok fields
         setPublishToShopee(false);
         setShopeeCategoryId("101140");
@@ -2470,21 +2491,50 @@ A credencial de acesso temporária (access_token) do Mercado Livre expirou ou n�
                   />
                 </div>
 
-                {/* SKU */}
+                {/* SKU e EAN com Gerador Automático */}
                 <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
-                  <label style={{ fontSize: "0.8rem", fontWeight: "600", color: "var(--foreground)" }}>
-                    SKU Interno <span style={{ color: "#ff4d4d" }}>*</span>
-                  </label>
-                  <span style={{ fontSize: "0.68rem", color: "var(--foreground-muted)" }}>Seu código único de controle (seller_custom_field no ML).</span>
-                  <input
-                    type="text"
-                    required
-                    value={newProdSku}
-                    onChange={(e) => handleSkuChange(e.target.value)}
-                    placeholder="Ex: FS-1023"
-                    className="admin-input"
-                    style={{ background: "#ffffff", border: "1px solid rgba(45, 43, 39, 0.15)", color: "var(--foreground)", padding: "0.65rem 0.85rem", borderRadius: "8px", fontSize: "0.85rem" }}
-                  />
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                    <label style={{ fontSize: "0.8rem", fontWeight: "600", color: "var(--foreground)" }}>
+                      SKU Interno & EAN (Código de Barras) <span style={{ color: "#ff4d4d" }}>*</span>
+                    </label>
+                    <button
+                      type="button"
+                      onClick={handleGenerateSkuAndGtin}
+                      style={{
+                        padding: "0.25rem 0.6rem",
+                        background: "rgba(212, 175, 55, 0.15)",
+                        color: "var(--gold)",
+                        border: "1px solid var(--gold)",
+                        borderRadius: "4px",
+                        fontSize: "0.68rem",
+                        fontWeight: "600",
+                        cursor: "pointer"
+                      }}
+                    >
+                      ⚡ Gerar SKU e EAN Automático
+                    </button>
+                  </div>
+                  <span style={{ fontSize: "0.68rem", color: "var(--foreground-muted)" }}>Seu código único de controle (seller_custom_field no ML) e código GTIN/EAN de 13 dígitos.</span>
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.5rem" }}>
+                    <input
+                      type="text"
+                      required
+                      value={newProdSku}
+                      onChange={(e) => handleSkuChange(e.target.value)}
+                      placeholder="SKU ex: FS-1023"
+                      className="admin-input"
+                      style={{ background: "#ffffff", border: "1px solid rgba(45, 43, 39, 0.15)", color: "var(--foreground)", padding: "0.65rem 0.85rem", borderRadius: "8px", fontSize: "0.85rem" }}
+                    />
+                    <input
+                      type="text"
+                      maxLength={14}
+                      value={newProdGtin}
+                      onChange={(e) => setNewProdGtin(e.target.value.replace(/\D/g, ""))}
+                      placeholder="EAN ex: 7891234567890"
+                      className="admin-input"
+                      style={{ background: "#ffffff", border: "1px solid rgba(45, 43, 39, 0.15)", color: "var(--foreground)", padding: "0.65rem 0.85rem", borderRadius: "8px", fontSize: "0.85rem", fontFamily: "monospace" }}
+                    />
+                  </div>
                 </div>
 
                 {/* Condição */}
@@ -2547,9 +2597,9 @@ A credencial de acesso temporária (access_token) do Mercado Livre expirou ou n�
                 {/* Categoria MLB */}
                 <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
                   <label style={{ fontSize: "0.8rem", fontWeight: "600", color: "var(--foreground)" }}>
-                    Categoria MLB (category_id) <span style={{ color: "#ff4d4d" }}>*</span>
+                    Categoria Mercado Livre (category_id) <span style={{ color: "#ff4d4d" }}>*</span>
                   </label>
-                  <span style={{ fontSize: "0.68rem", color: "var(--foreground-muted)" }}>Selecione a categoria correspondente à joia</span>
+                  <span style={{ fontSize: "0.68rem", color: "var(--foreground-muted)" }}>Reconhecida automaticamente pelo nome do produto ou selecione abaixo:</span>
                   <select
                     value={meliCategoryId}
                     onChange={(e) => setMeliCategoryId(e.target.value)}
@@ -2557,8 +2607,9 @@ A credencial de acesso temporária (access_token) do Mercado Livre expirou ou n�
                     style={{ background: "#ffffff", border: "1px solid rgba(212, 175, 55, 0.25)", color: "var(--foreground)", padding: "0.65rem 0.85rem", borderRadius: "8px", fontSize: "0.85rem" }}
                   >
                     <option value="MLB1434">Colares e Pingentes (MLB1434)</option>
-                    <option value="MLB1467">Brincos (MLB1467)</option>
-                    <option value="MLB1471">Pulseiras (MLB1471)</option>
+                    <option value="MLB1432">Brincos e Argolas (MLB1432)</option>
+                    <option value="MLB1471">Pulseiras e Braceletes (MLB1471)</option>
+                    <option value="MLB1436">Anéis e Alianças (MLB1436)</option>
                   </select>
                 </div>
 
@@ -2591,7 +2642,7 @@ A credencial de acesso temporária (access_token) do Mercado Livre expirou ou n�
                     onChange={(e) => setPublishToMeli(e.target.checked)}
                     style={{ accentColor: "var(--gold)", cursor: "pointer", width: "16px", height: "16px" }}
                   />
-                  <label htmlFor="publish-to-meli-checkbox" style={{ fontSize: "0.8rem", color: "var(--foreground)", cursor: "pointer" }}>
+                  <label htmlFor="publish-to-meli-checkbox" style={{ fontSize: "0.8rem", color: "var(--foreground)", cursor: "pointer", fontWeight: "600" }}>
                     Publicar anúncio no Mercado Livre imediatamente após salvar
                   </label>
                 </div>
@@ -2674,7 +2725,7 @@ A credencial de acesso temporária (access_token) do Mercado Livre expirou ou n�
                   />
                 </div>
 
-                {/* Material */}
+                {/* Material com Chips Rápidos */}
                 <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
                   <label style={{ fontSize: "0.78rem", fontWeight: "600", color: "var(--foreground)" }}>
                     Material Principal (MATERIAL) {publishToMeli && <span style={{ color: "#ff4d4d" }}>*</span>}
@@ -2684,10 +2735,90 @@ A credencial de acesso temporária (access_token) do Mercado Livre expirou ou n�
                     required={publishToMeli}
                     value={newProdMaterial}
                     onChange={(e) => setNewProdMaterial(e.target.value)}
-                    placeholder="Ex: Prata 925, Aço Inoxidável, Liga de metal, Acrílico"
+                    placeholder="Ex: Prata 925, Estanho, Aço Inoxidável"
                     className="admin-input"
                     style={{ background: "#ffffff", border: "1px solid rgba(99,102,241,0.25)", color: "var(--foreground)", padding: "0.6rem 0.75rem", borderRadius: "8px", fontSize: "0.82rem" }}
                   />
+                  <div style={{ display: "flex", gap: "4px", flexWrap: "wrap", marginTop: "2px" }}>
+                    {["Prata 925", "Estanho", "Aço Inoxidável", "Banhado a Ouro 18k", "Ródio Negro"].map((mat) => (
+                      <button
+                        key={mat}
+                        type="button"
+                        onClick={() => setNewProdMaterial(mat)}
+                        style={{
+                          padding: "0.2rem 0.5rem",
+                          borderRadius: "4px",
+                          fontSize: "0.68rem",
+                          border: newProdMaterial === mat ? "1px solid #6366f1" : "1px solid rgba(99,102,241,0.2)",
+                          background: newProdMaterial === mat ? "rgba(99,102,241,0.15)" : "#ffffff",
+                          color: newProdMaterial === mat ? "#6366f1" : "var(--foreground-muted)",
+                          cursor: "pointer"
+                        }}
+                      >
+                        {mat}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Cor com Chips Rápidos */}
+                <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+                  <label style={{ fontSize: "0.78rem", fontWeight: "600", color: "var(--foreground)" }}>Cor Principal (COLOR)</label>
+                  <input
+                    type="text"
+                    value={newProdColor}
+                    onChange={(e) => setNewProdColor(e.target.value)}
+                    placeholder="Ex: Dourado, Prata, Ródio Negro"
+                    className="admin-input"
+                    style={{ background: "#ffffff", border: "1px solid rgba(99,102,241,0.25)", color: "var(--foreground)", padding: "0.6rem 0.75rem", borderRadius: "8px", fontSize: "0.82rem" }}
+                  />
+                  <div style={{ display: "flex", gap: "4px", flexWrap: "wrap", marginTop: "2px" }}>
+                    {["Dourado", "Prata", "Ródio Negro", "Rose Gold", "Preto", "Azul"].map((c) => (
+                      <button
+                        key={c}
+                        type="button"
+                        onClick={() => setNewProdColor(c)}
+                        style={{
+                          padding: "0.2rem 0.5rem",
+                          borderRadius: "4px",
+                          fontSize: "0.68rem",
+                          border: newProdColor === c ? "1px solid #6366f1" : "1px solid rgba(99,102,241,0.2)",
+                          background: newProdColor === c ? "rgba(99,102,241,0.15)" : "#ffffff",
+                          color: newProdColor === c ? "#6366f1" : "var(--foreground-muted)",
+                          cursor: "pointer"
+                        }}
+                      >
+                        {c}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Com Pedra (WITH_GEMSTONE) */}
+                <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+                  <label style={{ fontSize: "0.78rem", fontWeight: "600", color: "var(--foreground)" }}>Possui Pedra / Zircônia (WITH_GEMSTONE)</label>
+                  <div style={{ display: "flex", gap: "8px" }}>
+                    {[true, false].map((v) => (
+                      <button
+                        key={v ? "sim" : "nao"}
+                        type="button"
+                        onClick={() => setNewProdWithGemstone(v)}
+                        style={{
+                          flex: 1,
+                          padding: "0.45rem 0.3rem",
+                          borderRadius: "6px",
+                          fontSize: "0.72rem",
+                          fontWeight: "500",
+                          border: newProdWithGemstone === v ? "1px solid #6366f1" : "1px solid rgba(45, 43, 39, 0.12)",
+                          background: newProdWithGemstone === v ? "rgba(99,102,241,0.15)" : "#ffffff",
+                          color: newProdWithGemstone === v ? "#6366f1" : "var(--foreground-muted)",
+                          cursor: "pointer"
+                        }}
+                      >
+                        {v ? "Sim (Com pedra/zircônia)" : "Não (Sem pedra)"}
+                      </button>
+                    ))}
+                  </div>
                 </div>
 
                 {/* Gênero */}
@@ -2718,19 +2849,6 @@ A credencial de acesso temporária (access_token) do Mercado Livre expirou ou n�
                       </button>
                     ))}
                   </div>
-                </div>
-
-                {/* Cor */}
-                <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
-                  <label style={{ fontSize: "0.78rem", fontWeight: "600", color: "var(--foreground)" }}>Cor Principal (COLOR)</label>
-                  <input
-                    type="text"
-                    value={newProdColor}
-                    onChange={(e) => setNewProdColor(e.target.value)}
-                    placeholder="Ex: Dourado, Prata, Rose Gold"
-                    className="admin-input"
-                    style={{ background: "#ffffff", border: "1px solid rgba(99,102,241,0.25)", color: "var(--foreground)", padding: "0.6rem 0.75rem", borderRadius: "8px", fontSize: "0.82rem" }}
-                  />
                 </div>
 
                 {/* Tamanhos */}

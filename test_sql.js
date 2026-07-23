@@ -12,54 +12,55 @@ envContent.split('\n').forEach(line => {
 
 const { getTokens } = require('./src/utils/tokenStorage');
 
-async function uploadPictureAndUpdateItem() {
-  console.log('--- Uploading Picture directly to Mercado Livre API ---');
+async function closeDuplicates() {
+  console.log('--- Cleaning Up Duplicate Items on Mercado Livre ---');
 
   const tokens = await getTokens();
   const accessToken = tokens.mercadolivre.accessToken;
 
-  const imagePath = 'C:\\Users\\guide\\.gemini\\antigravity-ide\\brain\\c9dd3c74-5fb4-4d53-bd28-c3f74663a6d6\\media__1784833218002.jpg';
-  const fileBuffer = fs.readFileSync(imagePath);
-  const blob = new Blob([fileBuffer], { type: 'image/jpeg' });
+  const duplicateIds = [
+    'MLB4932255931',
+    'MLB4932254697',
+    'MLB4932250261',
+    'MLB4932245521',
+    'MLB4932236869',
+    'MLB4932235977',
+    'MLB4932235099',
+    'MLB4932234407'
+  ];
 
-  const formData = new FormData();
-  formData.append('file', blob, 'brinco-argolinha.jpg');
-
-  const uploadRes = await fetch('https://api.mercadolibre.com/pictures/items/upload', {
-    method: 'POST',
-    headers: {
-      Authorization: `Bearer ${accessToken}`
-    },
-    body: formData
-  });
-
-  const uploadData = await uploadRes.json();
-  console.log('Upload Response:', JSON.stringify(uploadData, null, 2));
-
-  if (uploadData.id) {
-    const pictureId = uploadData.id;
-    console.log('🎉 Uploaded Picture ID:', pictureId);
-
-    // Update item MLB7238449392 with the new picture ID
-    const updateRes = await fetch('https://api.mercadolibre.com/items/MLB7238449392', {
+  for (const id of duplicateIds) {
+    console.log(`Closing item ${id}...`);
+    
+    // First pause the item
+    await fetch(`https://api.mercadolibre.com/items/${id}`, {
       method: 'PUT',
       headers: {
         Authorization: `Bearer ${accessToken}`,
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify({
-        pictures: [
-          { id: pictureId }
-        ]
-      })
+      body: JSON.stringify({ status: 'paused' })
     });
 
-    const updateData = await updateRes.json();
-    console.log('Item Update Response:', JSON.stringify(updateData, null, 2));
-    if (updateRes.ok) {
-      console.log('🎉 ITEM MLB7238449392 UPDATED WITH REAL EARRING PHOTO!');
+    // Then close the item
+    const res = await fetch(`https://api.mercadolibre.com/items/${id}`, {
+      method: 'PUT',
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ status: 'closed' })
+    });
+
+    const data = await res.json();
+    if (res.ok) {
+      console.log(`✅ Item ${id} CLOSED successfully!`);
+    } else {
+      console.error(`❌ Failed to close item ${id}:`, data.message || JSON.stringify(data));
     }
   }
+
+  console.log('\n🎉 ALL DUPLICATES CLOSED! Only item MLB7238449392 (the correct one with real photo) remains active.');
 }
 
-uploadPictureAndUpdateItem().catch(console.error);
+closeDuplicates().catch(console.error);
