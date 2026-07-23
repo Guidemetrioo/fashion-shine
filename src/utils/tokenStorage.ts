@@ -122,6 +122,8 @@ export async function getTokens(): Promise<StoredTokens> {
     tokens.mercadolivre.clientId &&
     tokens.mercadolivre.clientSecret &&
     tokens.mercadolivre.refreshToken &&
+    tokens.mercadolivre.refreshToken !== "mock_ml_refresh_token" &&
+    tokens.mercadolivre.refreshToken !== "ml_active_refresh_token" &&
     Date.now() >= tokens.mercadolivre.expiresAt - 5 * 60 * 1000
   ) {
     if (activeMlRefreshPromise) {
@@ -143,6 +145,7 @@ export async function getTokens(): Promise<StoredTokens> {
             client_secret: tokens.mercadolivre.clientSecret,
             refresh_token: tokens.mercadolivre.refreshToken,
           }),
+          signal: AbortSignal.timeout(4000)
         });
 
         const data = await response.json();
@@ -178,6 +181,8 @@ export async function getTokens(): Promise<StoredTokens> {
     tokens.shopee.partnerId &&
     tokens.shopee.partnerKey &&
     tokens.shopee.refreshToken &&
+    tokens.shopee.refreshToken !== "mock_shopee_refresh_token" &&
+    tokens.shopee.refreshToken !== "shopee_active_refresh_token" &&
     tokens.shopee.shopId &&
     Date.now() >= tokens.shopee.expiresAt - 10 * 60 * 1000
   ) {

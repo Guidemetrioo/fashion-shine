@@ -1,23 +1,4 @@
-import { Pool } from "@neondatabase/serverless";
-
-let poolInstance: Pool | null = null;
-
-const getPool = () => {
-  if (!poolInstance) {
-    const databaseUrl = 
-      process.env.DATABASE_URL || 
-      process.env.DETABASE_URL || 
-      process.env.detabase_url || 
-      "";
-    
-    if (!databaseUrl || databaseUrl.includes("placeholder")) {
-      throw new Error("Neon database URL not configured");
-    }
-    
-    poolInstance = new Pool({ connectionString: databaseUrl });
-  }
-  return poolInstance;
-};
+import { neon } from "@neondatabase/serverless";
 
 export const isNeonConfigured = () => {
   const databaseUrl = 
@@ -32,17 +13,30 @@ export const isNeonConfigured = () => {
   );
 };
 
+const getNeonSql = () => {
+  const databaseUrl = 
+    process.env.DATABASE_URL || 
+    process.env.DETABASE_URL || 
+    process.env.detabase_url || 
+    "";
+  
+  if (!databaseUrl || databaseUrl.includes("placeholder")) {
+    throw new Error("Neon database URL not configured");
+  }
+  
+  return neon(databaseUrl);
+};
+
 export const sql = async (strings: TemplateStringsArray | string, ...values: any[]) => {
-  const pool = getPool();
+  const neonSql = getNeonSql();
   
   if (typeof strings === "string") {
-    // Conventional call: sql(queryText, params)
-    const result = await pool.query(strings, values[0] || []);
-    return result.rows;
+    // Conventional call: sql("SELECT * FROM table WHERE id = $1", [id])
+    const rows = await neonSql.query(strings, values[0] || []);
+    return rows;
   } else {
-    // Template literal call: sql`SELECT * FROM users WHERE id = ${id}`
-    const queryText = strings.reduce((acc, str, idx) => acc + str + `$${idx + 1}`, "").slice(0, -`$${strings.length}`.length);
-    const result = await pool.query(queryText, values);
-    return result.rows;
+    // Template literal call: sql`SELECT * FROM table WHERE id = ${id}`
+    const rows = await (neonSql as any)(strings, ...values);
+    return rows;
   }
 };
