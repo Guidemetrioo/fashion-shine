@@ -695,24 +695,13 @@ A credencial de acesso temporária (access_token) do Mercado Livre expirou ou n�
     const product = products.find(p => p.id === productId || p.sku === productId || p.mlItemId === productId);
     if (!product) return;
 
-    const confirmed = window.confirm(`Tem certeza que deseja excluir o produto "${product.name}"? Esta ação removerá o produto do estoque interno.`);
+    const confirmed = window.confirm(`Tem certeza que deseja excluir permanentemente o produto "${product.name}"? Esta ação removerá o produto do servidor para todos os usuários.`);
     if (!confirmed) return;
 
     const targetId = product.id;
-    const targetSku = product.sku;
-    const targetMlId = product.mlItemId;
 
-    // Save to deletedSkus state and localStorage for permanent serverless persistence
-    setDeletedSkus(prev => {
-      const toAdd = [targetId, targetSku, ...(targetMlId ? [targetMlId] : [])];
-      const next = Array.from(new Set([...prev, ...toAdd]));
-      try {
-        localStorage.setItem("fashion_shine_deleted_skus", JSON.stringify(next));
-      } catch (e) {}
-      return next;
-    });
-
-    setProducts(prev => prev.filter(p => p.id !== targetId && p.sku !== targetSku && (targetMlId ? p.mlItemId !== targetMlId : true)));
+    // Optimistic UI update
+    setProducts(prev => prev.filter(p => p.id !== targetId && p.sku !== product.sku));
 
     try {
       const res = await fetch("/api/products/delete", {
@@ -722,13 +711,26 @@ A credencial de acesso temporária (access_token) do Mercado Livre expirou ou n�
       });
 
       if (res.ok) {
-        addLog(`Estoque Central: Produto SKU ${product.sku} excluído com sucesso.`, "all", "success");
-        alert(`Produto "${product.name}" excluído com sucesso!`);
+        addLog(`Estoque Central: Produto SKU ${product.sku} ("${product.name}") excluído permanentemente do servidor.`, "all", "success");
+        const syncRes = await fetch("/api/sync/products", { cache: "no-store" });
+        if (syncRes.ok) {
+          const syncData = await syncRes.json();
+          if (syncData.products) {
+            setProducts(syncData.products);
+          }
+        }
       } else {
         const errData = await res.json();
         const errorMsg = errData.error || "Erro desconhecido";
         addLog(`Estoque Central: Falha ao excluir o produto SKU ${product.sku} (${errorMsg}).`, "all", "error");
         alert(`Falha ao excluir o produto: ${errorMsg}`);
+        const syncRes = await fetch("/api/sync/products", { cache: "no-store" });
+        if (syncRes.ok) {
+          const syncData = await syncRes.json();
+          if (syncData.products) {
+            setProducts(syncData.products);
+          }
+        }
       }
     } catch (err) {
       console.error("Delete product error:", err);
