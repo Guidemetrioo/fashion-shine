@@ -84,7 +84,37 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ error: "Integração do Mercado Livre não está ativa." }, { status: 400 });
       }
 
-      // Generate public image URL using the dynamic route handler
+      // Support direct picture upload to ML if base64 is provided
+      let mlPictureId: string | null = null;
+      if (imageUrl && imageUrl.startsWith("data:image")) {
+        try {
+          const match = imageUrl.match(/^data:(image\/\w+);base64,(.*)$/);
+          if (match) {
+            const mimeType = match[1];
+            const base64Data = match[2];
+            const buffer = Buffer.from(base64Data, "base64");
+            const blob = new Blob([buffer], { type: mimeType });
+            const formData = new FormData();
+            formData.append("file", blob, `product-${productId}.jpg`);
+
+            const uploadRes = await fetchMeli("/pictures/items/upload", {
+              method: "POST",
+              body: formData as any
+            });
+
+            if (uploadRes.ok) {
+              const uploadData = await uploadRes.json();
+              if (uploadData.id) {
+                mlPictureId = uploadData.id;
+              }
+            }
+          }
+        } catch (e) {
+          console.error("Failed direct ML picture upload:", e);
+        }
+      }
+
+      // Generate public image URL using the dynamic route handler as fallback
       const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
       const publicImageUrl = `${appUrl}/api/products/image/${productId}`;
 
@@ -131,9 +161,11 @@ export async function POST(request: NextRequest) {
         buying_mode: "buy_it_now",
         listing_type_id: listing_type_id || "gold_special",
         condition: condition || "new",
-        pictures: imageUrl 
-          ? (imageUrl.startsWith("http") ? [{ source: imageUrl }] : [{ source: publicImageUrl }])
-          : [],
+        pictures: mlPictureId
+          ? [{ id: mlPictureId }]
+          : (imageUrl 
+            ? (imageUrl.startsWith("http") ? [{ source: imageUrl }] : [{ source: publicImageUrl }])
+            : []),
         description: {
           plain_text: description || "Produto de alta qualidade da Fashion Shine."
         },
