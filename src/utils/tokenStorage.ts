@@ -25,6 +25,15 @@ export interface StoredTokens {
     clientId: string;
     clientSecret: string;
   };
+  tiktok: {
+    connected: boolean;
+    accessToken: string;
+    refreshToken: string;
+    expiresAt: number;
+    openId: string;
+    clientKey: string;
+    clientSecret: string;
+  };
 }
 
 const defaultTokens: StoredTokens = {
@@ -47,6 +56,15 @@ const defaultTokens: StoredTokens = {
     clientId: "",
     clientSecret: "",
   },
+  tiktok: {
+    connected: false,
+    accessToken: "",
+    refreshToken: "",
+    expiresAt: 0,
+    openId: "",
+    clientKey: "",
+    clientSecret: "",
+  },
 };
 
 export function getLocalTokens(): StoredTokens {
@@ -65,6 +83,7 @@ export function getLocalTokens(): StoredTokens {
 
 let activeMlRefreshPromise: Promise<StoredTokens> | null = null;
 let activeShopeeRefreshPromise: Promise<StoredTokens> | null = null;
+let activeTikTokRefreshPromise: Promise<StoredTokens> | null = null;
 
 export async function getTokens(): Promise<StoredTokens> {
   let tokens: StoredTokens;
@@ -77,6 +96,7 @@ export async function getTokens(): Promise<StoredTokens> {
 
       const mlRow = data?.find((r: any) => r.channel === "mercadolivre");
       const shopeeRow = data?.find((r: any) => r.channel === "shopee");
+      const tiktokRow = data?.find((r: any) => r.channel === "tiktok");
 
       tokens = {
         shopee: {
@@ -97,6 +117,15 @@ export async function getTokens(): Promise<StoredTokens> {
           nickname: mlRow?.nickname ?? "",
           clientId: mlRow?.client_id ?? "",
           clientSecret: mlRow?.client_secret ?? "",
+        },
+        tiktok: {
+          connected: tiktokRow?.connected ?? false,
+          accessToken: tiktokRow?.access_token ?? "",
+          refreshToken: tiktokRow?.refresh_token ?? "",
+          expiresAt: Number(tiktokRow?.expires_at ?? 0),
+          openId: tiktokRow?.user_id ?? "",
+          clientKey: tiktokRow?.client_id ?? "",
+          clientSecret: tiktokRow?.client_secret ?? "",
         },
       };
 
@@ -207,18 +236,49 @@ export async function getTokens(): Promise<StoredTokens> {
     return activeShopeeRefreshPromise;
   }
 
+  // Auto-refresh TikTok token if connected and expired/expiring soon
+  if (
+    tokens.tiktok.connected &&
+    tokens.tiktok.clientKey &&
+    tokens.tiktok.clientSecret &&
+    tokens.tiktok.refreshToken &&
+    Date.now() >= tokens.tiktok.expiresAt - 5 * 60 * 1000
+  ) {
+    if (activeTikTokRefreshPromise) {
+      return activeTikTokRefreshPromise;
+    }
+
+    activeTikTokRefreshPromise = (async () => {
+      console.log("TikTok token expiring soon. Refreshing...");
+      try {
+        const updatedTokens = await forceRefreshTikTokToken();
+        console.log("TikTok token refreshed and saved successfully.");
+        return updatedTokens;
+      } catch (err) {
+        console.error("Failed to refresh TikTok token:", err);
+        return tokens;
+      } finally {
+        activeTikTokRefreshPromise = null;
+      }
+    })();
+
+    return activeTikTokRefreshPromise;
+  }
+
   return tokens;
 }
 
 export async function saveTokens(tokens: {
   shopee?: Partial<StoredTokens["shopee"]>;
   mercadolivre?: Partial<StoredTokens["mercadolivre"]>;
+  tiktok?: Partial<StoredTokens["tiktok"]>;
 }): Promise<StoredTokens> {
   const current = await getTokens();
   const updated = {
     ...current,
     shopee: { ...current.shopee, ...tokens.shopee },
     mercadolivre: { ...current.mercadolivre, ...tokens.mercadolivre },
+    tiktok: { ...current.tiktok, ...tokens.tiktok },
   };
 
   // 1. Save locally
@@ -282,6 +342,31 @@ export async function saveTokens(tokens: {
             shop_id = EXCLUDED.shop_id,
             partner_id = EXCLUDED.partner_id,
             partner_key = EXCLUDED.partner_key
+        `;
+      }
+      if (tokens.tiktok) {
+        await sql`
+          INSERT INTO integration_tokens (
+            channel, connected, access_token, refresh_token, expires_at, user_id, client_id, client_secret
+          ) VALUES (
+            'tiktok',
+            ${updated.tiktok.connected ?? false},
+            ${updated.tiktok.accessToken ?? ""},
+            ${updated.tiktok.refreshToken ?? ""},
+            ${updated.tiktok.expiresAt ?? 0},
+            ${updated.tiktok.openId ?? ""},
+            ${updated.tiktok.clientKey ?? ""},
+            ${updated.tiktok.clientSecret ?? ""}
+          )
+          ON CONFLICT (channel)
+          DO UPDATE SET
+            connected = EXCLUDED.connected,
+            access_token = EXCLUDED.access_token,
+            refresh_token = EXCLUDED.refresh_token,
+            expires_at = EXCLUDED.expires_at,
+            user_id = EXCLUDED.user_id,
+            client_id = EXCLUDED.client_id,
+            client_secret = EXCLUDED.client_secret
         `;
       }
     } catch (err) {
@@ -412,6 +497,84 @@ export async function fetchMeli(endpoint: string, options: RequestInit = {}): Pr
       response = await fetch(url, { ...options, headers });
     } catch (err) {
       console.error("Token refresh failed during fetchMeli retry:", err);
+    }
+  }
+
+  return response;
+}
+
+export async function forceRefreshTikTokToken(): Promise<StoredTokens> {
+  const tokens = await getTokens();
+  if (
+    !tokens.tiktok.clientKey ||
+    !tokens.tiktok.clientSecret ||
+    !tokens.tiktok.refreshToken
+  ) {
+    throw new Error("Missing TikTok Shop credentials for token refresh");
+  }
+
+  console.log("Refreshing TikTok Shop access token...");
+  const response = await fetch("https://auth.tiktok-shops.com/api/v2/token/refresh", {
+    method: "POST",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body: new URLSearchParams({
+      grant_type: "refresh_token",
+      client_key: tokens.tiktok.clientKey,
+      client_secret: tokens.tiktok.clientSecret,
+      refresh_token: tokens.tiktok.refreshToken,
+    }),
+  });
+
+  const data = await response.json();
+  if (!response.ok || data.code !== 0) {
+    throw new Error(`TikTok token refresh failed [${response.status}]: ${JSON.stringify(data)}`);
+  }
+
+  const updatedTokens = await saveTokens({
+    tiktok: {
+      accessToken: data.data.access_token,
+      refreshToken: data.data.refresh_token,
+      expiresAt: Date.now() + data.data.access_token_expire_in * 1000,
+      openId: data.data.open_id,
+    },
+  });
+
+  return updatedTokens;
+}
+
+/**
+ * Helper para fazer chamadas autenticadas à API do TikTok Shop.
+ * Renova o token automaticamente se receber 401.
+ */
+export async function fetchTikTok(
+  endpoint: string,
+  options: RequestInit = {}
+): Promise<Response> {
+  let tokens = await getTokens();
+  if (!tokens.tiktok.connected) {
+    throw new Error("TikTok Shop not connected");
+  }
+
+  const baseUrl = "https://open-api.tiktokglobalshop.com";
+  const url = `${baseUrl}${endpoint}`;
+  const headers: Record<string, string> = {
+    "x-tts-access-token": tokens.tiktok.accessToken,
+    "Content-Type": "application/json",
+    Accept: "application/json",
+    ...(options.headers as Record<string, string>),
+  };
+
+  let response = await fetch(url, { ...options, headers });
+
+  // Token expirado — tenta renovar e repetir a requisição
+  if (response.status === 401) {
+    console.log("TikTok Shop API returned 401. Attempting token refresh...");
+    try {
+      tokens = await forceRefreshTikTokToken();
+      headers["x-tts-access-token"] = tokens.tiktok.accessToken;
+      response = await fetch(url, { ...options, headers });
+    } catch (err) {
+      console.error("Token refresh failed during fetchTikTok retry:", err);
     }
   }
 

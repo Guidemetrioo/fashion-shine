@@ -26,6 +26,9 @@ CREATE TABLE IF NOT EXISTS products (
     ml_stock INTEGER DEFAULT 0,
     ml_synced BOOLEAN DEFAULT FALSE,
     ml_item_id VARCHAR(100),
+    tiktok_stock INTEGER DEFAULT 0,
+    tiktok_synced BOOLEAN DEFAULT FALSE,
+    tiktok_item_id VARCHAR(100),
     total_stock INTEGER DEFAULT 0,
     last_sync VARCHAR(100),
     description TEXT,
@@ -43,3 +46,4 @@ CREATE TABLE IF NOT EXISTS products (
 CREATE TABLE IF NOT EXISTS processed_orders (
     order_id VARCHAR(100) PRIMARY KEY
 );
+
