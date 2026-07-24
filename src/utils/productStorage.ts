@@ -122,12 +122,18 @@ export async function deleteDBProduct(identifier: string): Promise<boolean> {
       const targetId = productToDelete?.id || identifier;
       const targetSku = productToDelete?.sku || identifier;
       const targetMlId = productToDelete?.mlItemId || identifier;
+      const targetShopeeId = productToDelete?.shopeeItemId || identifier;
 
       await sql`
         DELETE FROM products 
         WHERE id = ${targetId} 
            OR sku = ${targetSku} 
            OR ml_item_id = ${targetMlId}
+           OR shopee_item_id = ${targetShopeeId}
+           OR id = ${identifier}
+           OR sku = ${identifier}
+           OR ml_item_id = ${identifier}
+           OR shopee_item_id = ${identifier}
       `;
       console.log(`Successfully deleted product ${identifier} from Neon Database.`);
     } catch (err) {
@@ -135,7 +141,7 @@ export async function deleteDBProduct(identifier: string): Promise<boolean> {
     }
   }
 
-  return index !== -1;
+  return index !== -1 || isNeonConfigured();
 }
 
 export async function saveDBProducts(products: DBProduct[]): Promise<void> {
