@@ -1,5 +1,5 @@
 import crypto from "crypto";
-import { getTokens, fetchMeli } from "./tokenStorage";
+import { getTokens, getLocalTokens, fetchMeli } from "./tokenStorage";
 import { getDBProducts, saveDBProducts, DBProduct } from "./productStorage";
 
 const PARTNER_ID = Number(process.env.SHOPEE_PARTNER_ID || "0");
@@ -242,22 +242,52 @@ export async function publishProductToShopee(params: ShopeePublishParams): Promi
   }
 }
 
+// Helper: fetch com timeout manual (funciona em qualquer versão do Node)
+function fetchWithTimeout(url: string, options: RequestInit = {}, timeoutMs: number = 8000): Promise<Response> {
+  return new Promise((resolve, reject) => {
+    const controller = new AbortController();
+    const timer = setTimeout(() => {
+      controller.abort();
+      reject(new Error(`Timeout de ${timeoutMs}ms excedido para ${url.substring(0, 80)}`));
+    }, timeoutMs);
+
+    fetch(url, { ...options, signal: controller.signal })
+      .then(resolve)
+      .catch(reject)
+      .finally(() => clearTimeout(timer));
+  });
+}
+
 export async function deleteProductFromMercadoLivre(itemId: string): Promise<boolean> {
-  const tokens = await getTokens();
+  // Usa getLocalTokens() para NÃO travar no refresh do token OAuth
+  const tokens = getLocalTokens();
   if (!tokens.mercadolivre.connected) return false;
 
-  try {
-    // 1. Close the listing
-    await fetchMeli(`/items/${itemId}`, {
-      method: "PUT",
-      body: JSON.stringify({ status: "closed" }),
-    });
+  const url = `https://api.mercadolibre.com/items/${itemId}`;
+  const headers = {
+    Authorization: `Bearer ${tokens.mercadolivre.accessToken}`,
+    Accept: "application/json",
+    "Content-Type": "application/json",
+  };
 
-    // 2. Set as deleted
-    await fetchMeli(`/items/${itemId}`, {
+  try {
+    // 1. Close the listing (timeout 8s)
+    const closeRes = await fetchWithTimeout(url, {
       method: "PUT",
+      headers,
+      body: JSON.stringify({ status: "closed" }),
+    }, 8000);
+    const closeData = await closeRes.text();
+    console.log(`ML Close item ${itemId}: status=${closeRes.status} body=${closeData.substring(0, 200)}`);
+
+    // 2. Set as deleted (timeout 8s)
+    const deleteRes = await fetchWithTimeout(url, {
+      method: "PUT",
+      headers,
       body: JSON.stringify({ deleted: "true" }),
-    });
+    }, 8000);
+    const deleteData = await deleteRes.text();
+    console.log(`ML Delete item ${itemId}: status=${deleteRes.status} body=${deleteData.substring(0, 200)}`);
 
     console.log(`ML Deletion success: Closed and deleted item ${itemId}.`);
     return true;
@@ -268,7 +298,8 @@ export async function deleteProductFromMercadoLivre(itemId: string): Promise<boo
 }
 
 export async function deleteProductFromShopee(itemId: string): Promise<boolean> {
-  const tokens = await getTokens();
+  // Usa getLocalTokens() para NÃO travar no refresh do token OAuth
+  const tokens = getLocalTokens();
   if (!tokens.shopee.connected) return false;
 
   try {
@@ -276,11 +307,11 @@ export async function deleteProductFromShopee(itemId: string): Promise<boolean> 
     const shopId = Number(tokens.shopee.shopId);
     const url = getShopeeUrl(apiPath, {}, tokens.shopee.accessToken, shopId);
 
-    const response = await fetch(url, {
+    const response = await fetchWithTimeout(url, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ item_id: Number(itemId) }),
-    });
+    }, 8000);
 
     const data = await response.json();
     if (!response.ok || data.error) {
@@ -297,15 +328,22 @@ export async function deleteProductFromShopee(itemId: string): Promise<boolean> 
 }
 
 export async function deleteProductFromChannels(product: DBProduct): Promise<void> {
-  const promises: Promise<boolean>[] = [];
+  // Timeout total de 15s para toda a operação de exclusão dos canais
+  const timeout = new Promise<void>((_, reject) =>
+    setTimeout(() => reject(new Error("Timeout total de 15s para exclusão dos canais")), 15000)
+  );
 
-  if (product.mlItemId) {
-    promises.push(deleteProductFromMercadoLivre(product.mlItemId));
-  }
+  const work = async () => {
+    const promises: Promise<boolean>[] = [];
+    if (product.mlItemId) {
+      promises.push(deleteProductFromMercadoLivre(product.mlItemId));
+    }
+    if (product.shopeeItemId) {
+      promises.push(deleteProductFromShopee(product.shopeeItemId));
+    }
+    await Promise.all(promises);
+  };
 
-  if (product.shopeeItemId) {
-    promises.push(deleteProductFromShopee(product.shopeeItemId));
-  }
-
-  await Promise.all(promises);
+  await Promise.race([work(), timeout]);
 }
+

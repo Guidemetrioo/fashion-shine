@@ -161,6 +161,8 @@ export async function getTokens(): Promise<StoredTokens> {
 
     activeMlRefreshPromise = (async () => {
       console.log("Mercado Livre token expiring soon. Refreshing...");
+      const controller = new AbortController();
+      const refreshTimer = setTimeout(() => controller.abort(), 5000);
       try {
         const response = await fetch("https://api.mercadolibre.com/oauth/token", {
           method: "POST",
@@ -174,7 +176,7 @@ export async function getTokens(): Promise<StoredTokens> {
             client_secret: tokens.mercadolivre.clientSecret,
             refresh_token: tokens.mercadolivre.refreshToken,
           }),
-          signal: AbortSignal.timeout(4000)
+          signal: controller.signal
         });
 
         const data = await response.json();
@@ -197,6 +199,7 @@ export async function getTokens(): Promise<StoredTokens> {
         console.error("Failed to refresh Mercado Livre token:", err);
         return tokens; // Return current tokens as fallback
       } finally {
+        clearTimeout(refreshTimer);
         activeMlRefreshPromise = null;
       }
     })();

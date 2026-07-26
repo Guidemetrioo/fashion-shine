@@ -25,19 +25,23 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Produto não encontrado no banco de dados" }, { status: 404 });
     }
 
-    // DEPOIS: Tentar excluir dos canais em background (não bloqueia a resposta)
+    // DEPOIS: Tentar excluir dos canais (cada chamada tem timeout de 10s no fetchMeli)
+    let channelResult = "não tentado";
     if (product) {
-      // Fire-and-forget com timeout de 5s para não travar
-      const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error("Channel delete timeout")), 5000));
-      Promise.race([deleteProductFromChannels(product), timeoutPromise]).catch(err => {
-        console.warn(`Channel deletion for ${product.sku} failed or timed out:`, err);
-      });
+      try {
+        await deleteProductFromChannels(product);
+        channelResult = "removido dos marketplaces";
+      } catch (err: any) {
+        console.warn(`Channel deletion for ${product.sku} failed:`, err?.message || err);
+        channelResult = "falha ao remover dos marketplaces (token expirado ou API offline)";
+      }
     }
 
     return NextResponse.json(
       {
         success: true,
-        message: `Produto ${product?.name || productId} excluído com sucesso.`
+        message: `Produto ${product?.name || productId} excluído com sucesso.`,
+        channelResult
       },
       {
         headers: {
