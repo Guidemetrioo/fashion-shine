@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getTokens, fetchMeli } from "../../../../../utils/tokenStorage";
-import { getDBProducts, saveDBProducts, DBProduct } from "../../../../../utils/productStorage";
+import { getDBProducts, saveDBProducts, DBProduct, getDeletedIdentifiers } from "../../../../../utils/productStorage";
 import { sql, isNeonConfigured } from "../../../../../utils/neonClient";
 
 export async function POST(request: NextRequest) {
@@ -70,6 +70,7 @@ export async function POST(request: NextRequest) {
     }
 
     const dbProducts = await getDBProducts();
+    const deletedSet = await getDeletedIdentifiers();
     let importedCount = 0;
     let updatedCount = 0;
 
@@ -85,6 +86,17 @@ export async function POST(request: NextRequest) {
       const name = item.title;
       const basePrice = item.price || 0;
       const mlStock = item.available_quantity || 0;
+
+      // Check tombstone set - skip permanently deleted items
+      if (
+        deletedSet.has(mlItemId) ||
+        (sku && deletedSet.has(sku)) ||
+        deletedSet.has(`ml-prod-${mlItemId}`) ||
+        deletedSet.has(`prod-ml-${mlItemId}`)
+      ) {
+        console.log(`[ML Import]: Skipping permanently deleted item ${mlItemId} (SKU: ${sku})`);
+        continue;
+      }
 
       // Find if product already exists in local DB
       // We look by mlItemId first, then by SKU (if SKU is defined)

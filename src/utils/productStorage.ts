@@ -4,6 +4,7 @@ import { sql, isNeonConfigured } from "./neonClient";
 
 const PRODUCTS_FILE = path.join(process.cwd(), "products.json");
 const ORDERS_LOG_FILE = path.join(process.cwd(), "orders.json");
+const DELETED_PRODUCTS_FILE = path.join(process.cwd(), "deleted_products.json");
 
 export interface DBProduct {
   id: string;
@@ -43,6 +44,88 @@ export function getLocalProducts(): DBProduct[] {
   }
 }
 
+export async function getDeletedIdentifiers(): Promise<Set<string>> {
+  const set = new Set<string>();
+
+  // 1. Read from local backup file
+  try {
+    if (fs.existsSync(DELETED_PRODUCTS_FILE)) {
+      const data = JSON.parse(fs.readFileSync(DELETED_PRODUCTS_FILE, "utf8"));
+      if (Array.isArray(data)) {
+        data.forEach(id => set.add(String(id)));
+      }
+    }
+  } catch (e) {
+    console.error("Error reading local deleted_products.json:", e);
+  }
+
+  // 2. Read from Neon DB if configured
+  if (isNeonConfigured()) {
+    try {
+      await sql`
+        CREATE TABLE IF NOT EXISTS deleted_products (
+          identifier VARCHAR(150) PRIMARY KEY,
+          sku VARCHAR(100),
+          ml_item_id VARCHAR(100),
+          shopee_item_id VARCHAR(100),
+          deleted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+      `;
+      const rows = await sql`SELECT identifier, sku, ml_item_id, shopee_item_id FROM deleted_products`;
+      (rows || []).forEach((r: any) => {
+        if (r.identifier) set.add(String(r.identifier));
+        if (r.sku) set.add(String(r.sku));
+        if (r.ml_item_id) set.add(String(r.ml_item_id));
+        if (r.shopee_item_id) set.add(String(r.shopee_item_id));
+      });
+      // Save local backup file
+      fs.writeFileSync(DELETED_PRODUCTS_FILE, JSON.stringify(Array.from(set), null, 2), "utf8");
+    } catch (dbErr) {
+      console.error("Failed to fetch deleted_products from Neon DB:", dbErr);
+    }
+  }
+
+  return set;
+}
+
+export async function registerDeletedProduct(productToDelete: { identifier: string; id?: string; sku?: string; mlItemId?: string; shopeeItemId?: string }): Promise<void> {
+  const { identifier, id, sku, mlItemId, shopeeItemId } = productToDelete;
+
+  // 1. Save locally
+  try {
+    const list = Array.from(await getDeletedIdentifiers());
+    [identifier, id, sku, mlItemId, shopeeItemId].filter(Boolean).forEach(val => {
+      if (val && !list.includes(String(val))) list.push(String(val));
+    });
+    fs.writeFileSync(DELETED_PRODUCTS_FILE, JSON.stringify(list, null, 2), "utf8");
+  } catch (e) {
+    console.error("Failed to write local deleted_products.json:", e);
+  }
+
+  // 2. Save to Neon DB
+  if (isNeonConfigured()) {
+    try {
+      await sql`
+        CREATE TABLE IF NOT EXISTS deleted_products (
+          identifier VARCHAR(150) PRIMARY KEY,
+          sku VARCHAR(100),
+          ml_item_id VARCHAR(100),
+          shopee_item_id VARCHAR(100),
+          deleted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+      `;
+      const primaryId = identifier || id || sku || "unknown-id";
+      await sql`
+        INSERT INTO deleted_products (identifier, sku, ml_item_id, shopee_item_id)
+        VALUES (${primaryId}, ${sku ?? null}, ${mlItemId ?? null}, ${shopeeItemId ?? null})
+        ON CONFLICT (identifier) DO NOTHING
+      `;
+    } catch (err) {
+      console.error("Failed to register deleted product in Neon DB:", err);
+    }
+  }
+}
+
 export function getLocalProcessedOrders(): string[] {
   try {
     if (!fs.existsSync(ORDERS_LOG_FILE)) {
@@ -57,44 +140,50 @@ export function getLocalProcessedOrders(): string[] {
 }
 
 export async function getDBProducts(): Promise<DBProduct[]> {
+  const deletedSet = await getDeletedIdentifiers();
+
   if (!isNeonConfigured()) {
-    return getLocalProducts();
+    const local = getLocalProducts();
+    return local.filter(p => !deletedSet.has(p.id) && !deletedSet.has(p.sku) && (!p.mlItemId || !deletedSet.has(p.mlItemId)) && (!p.shopeeItemId || !deletedSet.has(p.shopeeItemId)));
   }
 
   try {
     const data = await sql`SELECT * FROM products ORDER BY sku ASC`;
 
-    const mapped: DBProduct[] = (data || []).map((row: any) => ({
-      id: row.id,
-      name: row.name,
-      sku: row.sku,
-      basePrice: Number(row.base_price ?? 0),
-      shopeeStock: row.shopee_stock ?? 0,
-      shopeeSynced: row.shopee_synced ?? false,
-      shopeeItemId: row.shopee_item_id ?? undefined,
-      mlStock: row.ml_stock ?? 0,
-      mlSynced: row.ml_synced ?? false,
-      mlItemId: row.ml_item_id ?? undefined,
-      totalStock: row.total_stock ?? 0,
-      lastSync: row.last_sync ?? "",
-      description: row.description ?? undefined,
-      imageUrl: row.image_url ?? undefined,
-      isChecked: row.is_checked ?? false,
-      shopeeCategoryId: row.shopee_category_id ?? undefined,
-      shopeeBrandId: row.shopee_brand_id ?? undefined,
-      shopeeIsPreOrder: row.shopee_is_pre_order ?? false,
-      shopeeDaysToShip: row.shopee_days_to_ship ? Number(row.shopee_days_to_ship) : undefined,
-      shopeeLogistics: row.shopee_logistics ? row.shopee_logistics.split(",") : [],
-      tiktokCategoryId: row.tiktok_category_id ?? undefined,
-      tiktokBrandId: row.tiktok_brand_id ?? undefined,
-    }));
+    const mapped: DBProduct[] = (data || [])
+      .map((row: any) => ({
+        id: row.id,
+        name: row.name,
+        sku: row.sku,
+        basePrice: Number(row.base_price ?? 0),
+        shopeeStock: row.shopee_stock ?? 0,
+        shopeeSynced: row.shopee_synced ?? false,
+        shopeeItemId: row.shopee_item_id ?? undefined,
+        mlStock: row.ml_stock ?? 0,
+        mlSynced: row.ml_synced ?? false,
+        mlItemId: row.ml_item_id ?? undefined,
+        totalStock: row.total_stock ?? 0,
+        lastSync: row.last_sync ?? "",
+        description: row.description ?? undefined,
+        imageUrl: row.image_url ?? undefined,
+        isChecked: row.is_checked ?? false,
+        shopeeCategoryId: row.shopee_category_id ?? undefined,
+        shopeeBrandId: row.shopee_brand_id ?? undefined,
+        shopeeIsPreOrder: row.shopee_is_pre_order ?? false,
+        shopeeDaysToShip: row.shopee_days_to_ship ? Number(row.shopee_days_to_ship) : undefined,
+        shopeeLogistics: row.shopee_logistics ? row.shopee_logistics.split(",") : [],
+        tiktokCategoryId: row.tiktok_category_id ?? undefined,
+        tiktokBrandId: row.tiktok_brand_id ?? undefined,
+      }))
+      .filter(p => !deletedSet.has(p.id) && !deletedSet.has(p.sku) && (!p.mlItemId || !deletedSet.has(p.mlItemId)) && (!p.shopeeItemId || !deletedSet.has(p.shopeeItemId)));
 
     // Backup locally
     fs.writeFileSync(PRODUCTS_FILE, JSON.stringify(mapped, null, 2), "utf8");
     return mapped;
   } catch (err) {
     console.warn("Neon load products error, falling back to local storage:", err);
-    return getLocalProducts();
+    const local = getLocalProducts();
+    return local.filter(p => !deletedSet.has(p.id) && !deletedSet.has(p.sku) && (!p.mlItemId || !deletedSet.has(p.mlItemId)) && (!p.shopeeItemId || !deletedSet.has(p.shopeeItemId)));
   }
 }
 
@@ -108,16 +197,23 @@ export async function deleteDBProduct(identifier: string): Promise<boolean> {
 
   const productToDelete = index !== -1 ? products[index] : null;
 
+  // Register in tombstone table so imports and future syncs never recreate it
+  await registerDeletedProduct({
+    identifier,
+    id: productToDelete?.id || identifier,
+    sku: productToDelete?.sku || identifier,
+    mlItemId: productToDelete?.mlItemId || (identifier.startsWith("MLB") ? identifier : undefined),
+    shopeeItemId: productToDelete?.shopeeItemId || (identifier.startsWith("shp-") ? identifier : undefined),
+  });
+
   // 1. Remove from local file
-  if (index !== -1) {
-    products = products.filter(
-      p => !(p.id === identifier || p.sku === identifier || (productToDelete && (p.id === productToDelete.id || p.sku === productToDelete.sku)))
-    );
-    try {
-      fs.writeFileSync(PRODUCTS_FILE, JSON.stringify(products, null, 2), "utf8");
-    } catch (error) {
-      console.error("Error updating local products file on deletion:", error);
-    }
+  products = products.filter(
+    p => !(p.id === identifier || p.sku === identifier || (productToDelete && (p.id === productToDelete.id || p.sku === productToDelete.sku)))
+  );
+  try {
+    fs.writeFileSync(PRODUCTS_FILE, JSON.stringify(products, null, 2), "utf8");
+  } catch (error) {
+    console.error("Error updating local products file on deletion:", error);
   }
 
   // 2. Delete from Neon database if configured
@@ -141,30 +237,34 @@ export async function deleteDBProduct(identifier: string): Promise<boolean> {
 
       // Also ensure local backup file remains in sync with DB
       const dbData = await sql`SELECT * FROM products ORDER BY sku ASC`;
-      const mapped: DBProduct[] = (dbData || []).map((row: any) => ({
-        id: row.id,
-        name: row.name,
-        sku: row.sku,
-        basePrice: Number(row.base_price ?? 0),
-        shopeeStock: row.shopee_stock ?? 0,
-        shopeeSynced: row.shopee_synced ?? false,
-        shopeeItemId: row.shopee_item_id ?? undefined,
-        mlStock: row.ml_stock ?? 0,
-        mlSynced: row.ml_synced ?? false,
-        mlItemId: row.ml_item_id ?? undefined,
-        totalStock: row.total_stock ?? 0,
-        lastSync: row.last_sync ?? "",
-        description: row.description ?? undefined,
-        imageUrl: row.image_url ?? undefined,
-        isChecked: row.is_checked ?? false,
-        shopeeCategoryId: row.shopee_category_id ?? undefined,
-        shopeeBrandId: row.shopee_brand_id ?? undefined,
-        shopeeIsPreOrder: row.shopee_is_pre_order ?? false,
-        shopeeDaysToShip: row.shopee_days_to_ship ? Number(row.shopee_days_to_ship) : undefined,
-        shopeeLogistics: row.shopee_logistics ? row.shopee_logistics.split(",") : [],
-        tiktokCategoryId: row.tiktok_category_id ?? undefined,
-        tiktokBrandId: row.tiktok_brand_id ?? undefined,
-      }));
+      const deletedSet = await getDeletedIdentifiers();
+      const mapped: DBProduct[] = (dbData || [])
+        .map((row: any) => ({
+          id: row.id,
+          name: row.name,
+          sku: row.sku,
+          basePrice: Number(row.base_price ?? 0),
+          shopeeStock: row.shopee_stock ?? 0,
+          shopeeSynced: row.shopee_synced ?? false,
+          shopeeItemId: row.shopee_item_id ?? undefined,
+          mlStock: row.ml_stock ?? 0,
+          mlSynced: row.ml_synced ?? false,
+          mlItemId: row.ml_item_id ?? undefined,
+          totalStock: row.total_stock ?? 0,
+          lastSync: row.last_sync ?? "",
+          description: row.description ?? undefined,
+          imageUrl: row.image_url ?? undefined,
+          isChecked: row.is_checked ?? false,
+          shopeeCategoryId: row.shopee_category_id ?? undefined,
+          shopeeBrandId: row.shopee_brand_id ?? undefined,
+          shopeeIsPreOrder: row.shopee_is_pre_order ?? false,
+          shopeeDaysToShip: row.shopee_days_to_ship ? Number(row.shopee_days_to_ship) : undefined,
+          shopeeLogistics: row.shopee_logistics ? row.shopee_logistics.split(",") : [],
+          tiktokCategoryId: row.tiktok_category_id ?? undefined,
+          tiktokBrandId: row.tiktok_brand_id ?? undefined,
+        }))
+        .filter(p => !deletedSet.has(p.id) && !deletedSet.has(p.sku) && (!p.mlItemId || !deletedSet.has(p.mlItemId)) && (!p.shopeeItemId || !deletedSet.has(p.shopeeItemId)));
+
       fs.writeFileSync(PRODUCTS_FILE, JSON.stringify(mapped, null, 2), "utf8");
     } catch (err) {
       console.error("Neon product deletion query failed:", err);

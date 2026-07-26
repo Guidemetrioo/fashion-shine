@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getTokens, fetchMeli } from "../../../../../utils/tokenStorage";
+import { getDeletedIdentifiers } from "../../../../../utils/productStorage";
 
 export async function GET(request: NextRequest) {
   const tokens = await getTokens();
@@ -41,29 +42,36 @@ export async function GET(request: NextRequest) {
     }
 
     const detailData = await detailRes.json();
+    const deletedSet = await getDeletedIdentifiers();
 
     // Map Meli items into system products format
-    const mappedProducts = detailData.map((resItem: any) => {
-      const item = resItem.body;
-      if (!item) return null;
+    const mappedProducts = detailData
+      .map((resItem: any) => {
+        const item = resItem.body;
+        if (!item) return null;
 
-      // Extract SKU attribute
-      const skuAttr = (item.attributes || []).find((attr: any) => attr.id === "SELLER_SKU");
-      const sku = skuAttr ? skuAttr.value_name : item.id;
+        // Extract SKU attribute
+        const skuAttr = (item.attributes || []).find((attr: any) => attr.id === "SELLER_SKU");
+        const sku = skuAttr ? skuAttr.value_name : item.id;
 
-      return {
-        id: item.id,
-        name: item.title,
-        sku: sku || item.id,
-        basePrice: item.price,
-        shopeeStock: 0,
-        shopeeSynced: false,
-        mlStock: item.available_quantity,
-        mlSynced: true,
-        totalStock: item.available_quantity,
-        lastSync: new Date().toLocaleTimeString("pt-BR"),
-      };
-    }).filter(Boolean);
+        if (deletedSet.has(item.id) || (sku && deletedSet.has(sku))) {
+          return null;
+        }
+
+        return {
+          id: item.id,
+          name: item.title,
+          sku: sku || item.id,
+          basePrice: item.price,
+          shopeeStock: 0,
+          shopeeSynced: false,
+          mlStock: item.available_quantity,
+          mlSynced: true,
+          totalStock: item.available_quantity,
+          lastSync: new Date().toLocaleTimeString("pt-BR"),
+        };
+      })
+      .filter(Boolean);
 
     return NextResponse.json({
       connected: true,

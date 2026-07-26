@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getTokens } from "../../../../../utils/tokenStorage";
-import { getDBProducts, saveDBProducts, DBProduct } from "../../../../../utils/productStorage";
+import { getDBProducts, saveDBProducts, DBProduct, getDeletedIdentifiers } from "../../../../../utils/productStorage";
 import crypto from "crypto";
 
 const PARTNER_ID = Number(process.env.SHOPEE_PARTNER_ID || "0");
@@ -85,6 +85,7 @@ export async function POST(request: NextRequest) {
     }
 
     const dbProducts = await getDBProducts();
+    const deletedSet = await getDeletedIdentifiers();
     let importedCount = 0;
     let updatedCount = 0;
 
@@ -96,6 +97,12 @@ export async function POST(request: NextRequest) {
       
       // Stock parsing (Shopee API can return normal_stock inside stock_info)
       const shopeeStock = item.stock_info?.[0]?.normal_stock ?? item.stock_info?.normal_stock ?? item.stock_info?.total_stock ?? 0;
+
+      // Skip permanently deleted products
+      if (deletedSet.has(shopeeItemId) || (sku && deletedSet.has(sku)) || deletedSet.has(`shp-prod-${shopeeItemId}`)) {
+        console.log(`[Shopee Import]: Skipping permanently deleted item ${shopeeItemId}`);
+        continue;
+      }
 
       // Find existing
       let existingProduct = dbProducts.find(p => p.shopeeItemId === shopeeItemId);

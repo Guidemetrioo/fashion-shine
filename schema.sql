@@ -47,3 +47,12 @@ CREATE TABLE IF NOT EXISTS processed_orders (
     order_id VARCHAR(100) PRIMARY KEY
 );
 
+-- Tabela de Tombstone para descarte permanente de produtos excluídos
+CREATE TABLE IF NOT EXISTS deleted_products (
+    identifier VARCHAR(150) PRIMARY KEY,
+    sku VARCHAR(100),
+    ml_item_id VARCHAR(100),
+    shopee_item_id VARCHAR(100),
+    deleted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
