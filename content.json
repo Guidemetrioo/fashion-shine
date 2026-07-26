@@ -1,0 +1,12 @@
+{
+  "tab.overview": "Visão Geral",
+  "tab.inventory": "Estoque",
+  "tab.orders": "Rastreamento de Pedidos",
+  "tab.settings": "Configurações de Integração",
+  "card.orders_today": "Pedidos de Hoje",
+  "card.revenue_today": "Faturamento de Hoje",
+  "shipping.tab.today": "Envios de hoje",
+  "shipping.tab.next": "Próximos dias",
+  "shipping.tab.transit": "Em trânsito",
+  "shipping.tab.done": "Finalizadas"
+}

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import "./admin.css";
 import { ChannelOrder, ChannelProduct, IntegrationConfig, SyncLog } from "../../types";
 
@@ -100,6 +100,40 @@ export default function AdminDashboard() {
   // Persistent checked/reviewed products tracking
   const [checkedProductIds, setCheckedProductIds] = useState<string[]>([]);
 
+  // ── CMS Editor: textos editáveis e layout ───────────────────────────────
+  const DEFAULT_CONTENT: Record<string, string> = {
+    "tab.overview": "Visão Geral",
+    "tab.inventory": "Estoque",
+    "tab.orders": "Rastreamento de Pedidos",
+    "tab.settings": "Configurações de Integração",
+    "card.orders_today": "Pedidos de Hoje",
+    "card.revenue_today": "Faturamento de Hoje",
+    "shipping.tab.today": "Envios de hoje",
+    "shipping.tab.next": "Próximos dias",
+    "shipping.tab.transit": "Em trânsito",
+    "shipping.tab.done": "Finalizadas",
+  };
+
+  const DEFAULT_LAYOUT = {
+    cards: [
+      { id: "orders_today", label: "Pedidos de Hoje", visible: true, size: "normal" },
+      { id: "revenue_today", label: "Faturamento de Hoje", visible: true, size: "normal" },
+      { id: "shipping_table", label: "Tabela de Envios", visible: true, size: "large" },
+      { id: "sync_logs", label: "Logs de Sincronização", visible: true, size: "normal" },
+    ],
+  };
+
+  const [cmsContent, setCmsContent] = useState<Record<string, string>>(DEFAULT_CONTENT);
+  const [cmsLayout, setCmsLayout] = useState(DEFAULT_LAYOUT);
+
+  // Helper: retorna o texto de uma chave CMS, com fallback para o padrão
+  const t = useCallback((key: string) => cmsContent[key] ?? DEFAULT_CONTENT[key] ?? key, [cmsContent]);
+
+  // Verifica se um card específico está visível no layout salvo
+  const isCardVisible = useCallback((id: string) => {
+    const card = cmsLayout.cards.find(c => c.id === id);
+    return card ? card.visible : true;
+  }, [cmsLayout]);
 
 
   useEffect(() => {
@@ -116,6 +150,51 @@ export default function AdminDashboard() {
       console.error("Failed to load data from localStorage:", e);
     }
   }, []);
+
+  // ── Carrega content.json e layout.json do servidor ──────────────────────
+  useEffect(() => {
+    fetch("/api/content")
+      .then(r => r.json())
+      .then(data => setCmsContent(data))
+      .catch(() => {});
+
+    fetch("/api/layout")
+      .then(r => r.json())
+      .then(data => setCmsLayout(data))
+      .catch(() => {});
+  }, []);
+
+  // ── Listener de postMessage: recebe atualizações do Editor Visual ────────
+  // O editor visual (em /admin/editor) envia mensagens quando o usuário
+  // muda um texto ou reordena um card. Aqui aplicamos essas mudanças em
+  // tempo real sem recarregar a página.
+  useEffect(() => {
+    const handleMessage = (event: MessageEvent) => {
+      // Aceita apenas mensagens da mesma origem (localhost)
+      if (event.origin !== window.location.origin) return;
+
+      const { type, payload } = event.data || {};
+
+      if (type === "cms:updateContent") {
+        setCmsContent(prev => ({ ...prev, ...payload }));
+      } else if (type === "cms:updateLayout") {
+        setCmsLayout(payload);
+      } else if (type === "cms:getHighlight") {
+        // O editor clicou num elemento e quer que o iframe destaque-o
+        // (usado para scroll até o elemento)
+        const el = document.querySelector(`[data-edit-key="${payload.key}"]`);
+        if (el) {
+          el.scrollIntoView({ behavior: "smooth", block: "center" });
+          (el as HTMLElement).classList.add("cms-highlight");
+          setTimeout(() => (el as HTMLElement).classList.remove("cms-highlight"), 2000);
+        }
+      }
+    };
+
+    window.addEventListener("message", handleMessage);
+    return () => window.removeEventListener("message", handleMessage);
+  }, []);
+
 
   const handleToggleCheckProduct = async (productId: string) => {
     // Optimistic UI update
@@ -388,12 +467,12 @@ A credencial de acesso temporária (access_token) do Mercado Livre expirou ou n�
     }
   };
 
-  // Load status and products database from API on mount
+  // Load status and products database from API on mount + automatic multi-user polling (rede única)
   useEffect(() => {
     async function checkStatusAndProducts() {
       // 1. Fetch unified stock levels first (source of truth)
       try {
-        const res = await fetch("/api/sync/products", { cache: "no-store" });
+        const res = await fetch(`/api/sync/products?t=${Date.now()}`, { cache: "no-store" });
         if (res.ok) {
           const data = await res.json();
           if (data.products && Array.isArray(data.products)) {
@@ -439,6 +518,23 @@ A credencial de acesso temporária (access_token) do Mercado Livre expirou ou n�
     }
     checkStatusAndProducts();
 
+    // Rede Única de Estoque: Polling a cada 10s para refletir alterações feitas em outros computadores
+    const pollInterval = setInterval(async () => {
+      try {
+        const res = await fetch(`/api/sync/products?t=${Date.now()}`, { cache: "no-store" });
+        if (res.ok) {
+          const data = await res.json();
+          if (data.products && Array.isArray(data.products)) {
+            setProducts(data.products);
+            const checkedIds = data.products.filter((p: any) => p.isChecked).map((p: any) => p.id);
+            setCheckedProductIds(checkedIds);
+          }
+        }
+      } catch (err) {
+        // Silent poll error handling
+      }
+    }, 10000);
+
     // Check query params for status = ml_connected
     const params = new URLSearchParams(window.location.search);
     if (params.get("status") === "ml_connected") {
@@ -448,6 +544,8 @@ A credencial de acesso temporária (access_token) do Mercado Livre expirou ou n�
       url.searchParams.delete("status");
       window.history.replaceState({}, document.title, url.pathname + url.search);
     }
+
+    return () => clearInterval(pollInterval);
   }, []);
 
   const handleSaveMlCredentials = async () => {
@@ -712,10 +810,10 @@ A credencial de acesso temporária (access_token) do Mercado Livre expirou ou n�
 
       if (res.ok) {
         addLog(`Estoque Central: Produto SKU ${product.sku} ("${product.name}") excluído permanentemente do servidor.`, "all", "success");
-        const syncRes = await fetch("/api/sync/products", { cache: "no-store" });
+        const syncRes = await fetch(`/api/sync/products?t=${Date.now()}`, { cache: "no-store" });
         if (syncRes.ok) {
           const syncData = await syncRes.json();
-          if (syncData.products) {
+          if (syncData.products && Array.isArray(syncData.products)) {
             setProducts(syncData.products);
           }
         }
@@ -724,10 +822,10 @@ A credencial de acesso temporária (access_token) do Mercado Livre expirou ou n�
         const errorMsg = errData.error || "Erro desconhecido";
         addLog(`Estoque Central: Falha ao excluir o produto SKU ${product.sku} (${errorMsg}).`, "all", "error");
         alert(`Falha ao excluir o produto: ${errorMsg}`);
-        const syncRes = await fetch("/api/sync/products", { cache: "no-store" });
+        const syncRes = await fetch(`/api/sync/products?t=${Date.now()}`, { cache: "no-store" });
         if (syncRes.ok) {
           const syncData = await syncRes.json();
-          if (syncData.products) {
+          if (syncData.products && Array.isArray(syncData.products)) {
             setProducts(syncData.products);
           }
         }
@@ -750,14 +848,8 @@ A credencial de acesso temporária (access_token) do Mercado Livre expirou ou n�
   const shopeeRevenue = orders.filter((o) => o.channel === "shopee").reduce((sum, o) => sum + o.total, 0);
   const mlRevenue = orders.filter((o) => o.channel === "mercadolivre").reduce((sum, o) => sum + o.total, 0);
 
-  // Active products (excluding those deleted by the user)
-  const activeProducts = products.filter((p) => {
-    return !(
-      deletedSkus.includes(p.id) ||
-      deletedSkus.includes(p.sku) ||
-      (p.mlItemId && deletedSkus.includes(p.mlItemId))
-    );
-  });
+  // Active products (Neon DB is the single source of truth for all users/devices)
+  const activeProducts = products;
 
   const totalSyncCount = activeProducts.length;
 
@@ -867,55 +959,95 @@ A credencial de acesso temporária (access_token) do Mercado Livre expirou ou n�
           <button 
             className={`admin-tab-btn ${activeTab === "dashboard" ? "active" : ""}`}
             onClick={() => setActiveTab("dashboard")}
+            data-edit-key="tab.overview"
           >
-            Visão Geral
+            {t("tab.overview")}
           </button>
           <button 
             className={`admin-tab-btn ${activeTab === "inventory" ? "active" : ""}`}
             onClick={() => setActiveTab("inventory")}
+            data-edit-key="tab.inventory"
           >
-            Estoque ({totalSyncCount})
+            {t("tab.inventory")} ({totalSyncCount})
           </button>
           <button 
             className={`admin-tab-btn ${activeTab === "orders" ? "active" : ""}`}
             onClick={() => setActiveTab("orders")}
+            data-edit-key="tab.orders"
           >
-            Rastreamento de Pedidos ({orders.length})
+            {t("tab.orders")} ({orders.length})
           </button>
           <button 
             className={`admin-tab-btn ${activeTab === "settings" ? "active" : ""}`}
             onClick={() => setActiveTab("settings")}
+            data-edit-key="tab.settings"
           >
-            Configurações de Integração
+            {t("tab.settings")}
           </button>
+          {/* Link para o Editor Visual CMS */}
+          <a
+            href="/admin/editor"
+            style={{
+              marginLeft: "auto",
+              padding: "0.5rem 1.1rem",
+              background: "rgba(179, 151, 90, 0.12)",
+              border: "1px solid rgba(179, 151, 90, 0.5)",
+              borderRadius: "6px",
+              color: "var(--gold)",
+              fontSize: "0.82rem",
+              fontWeight: 600,
+              textDecoration: "none",
+              display: "flex",
+              alignItems: "center",
+              gap: "0.4rem",
+              transition: "all 0.2s",
+              whiteSpace: "nowrap",
+            }}
+          >
+            🎨 Editor Visual
+          </a>
         </div>
 
         {/* Tab 1: Dashboard Overview */}
         {activeTab === "dashboard" && (
           <div className="animate-fade-in">
-            {/* Today's Live Stats Row */}
+            {/* Today's Live Stats Row - cards visíveis conforme layout.json */}
             <div className="stats-grid" style={{ marginBottom: "1.5rem" }}>
-              <div className="stats-card" style={{ borderLeft: "4px solid var(--gold)" }}>
-                <span style={{ fontSize: "0.8rem", color: "var(--foreground-muted)", textTransform: "uppercase", letterSpacing: "0.05em", fontWeight: "600" }}>Pedidos de Hoje</span>
-                <h3 className="font-serif" style={{ fontSize: "2.2rem", color: "var(--foreground)", margin: "0.5rem 0", fontWeight: "700" }}>
-                  {todayOrdersCount} {todayOrdersCount === 1 ? "Pedido" : "Pedidos"}
-                </h3>
-                <div style={{ display: "flex", gap: "12px", fontSize: "0.75rem", color: "var(--foreground-muted)" }}>
-                  <span>Shopee: <strong className="channel-shopee">{shopeeTodayOrders.length}</strong></span>
-                  <span>M. Livre: <strong className="channel-ml">{mlTodayOrders.length}</strong></span>
+              {isCardVisible("orders_today") && (
+                <div className="stats-card" style={{ borderLeft: "4px solid var(--gold)" }}>
+                  <span
+                    data-edit-key="card.orders_today"
+                    style={{ fontSize: "0.8rem", color: "var(--foreground-muted)", textTransform: "uppercase", letterSpacing: "0.05em", fontWeight: "600" }}
+                  >
+                    {t("card.orders_today")}
+                  </span>
+                  <h3 className="font-serif" style={{ fontSize: "2.2rem", color: "var(--foreground)", margin: "0.5rem 0", fontWeight: "700" }}>
+                    {todayOrdersCount} {todayOrdersCount === 1 ? "Pedido" : "Pedidos"}
+                  </h3>
+                  <div style={{ display: "flex", gap: "12px", fontSize: "0.75rem", color: "var(--foreground-muted)" }}>
+                    <span>Shopee: <strong className="channel-shopee">{shopeeTodayOrders.length}</strong></span>
+                    <span>M. Livre: <strong className="channel-ml">{mlTodayOrders.length}</strong></span>
+                  </div>
                 </div>
-              </div>
+              )}
 
-              <div className="stats-card" style={{ borderLeft: "4px solid var(--gold)" }}>
-                <span style={{ fontSize: "0.8rem", color: "var(--foreground-muted)", textTransform: "uppercase", letterSpacing: "0.05em", fontWeight: "600" }}>Faturamento de Hoje</span>
-                <h3 className="font-serif" style={{ fontSize: "2.2rem", color: "var(--gold)", margin: "0.5rem 0", fontWeight: "700" }}>
-                  R$ {todayRevenue.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
-                </h3>
-                <div style={{ display: "flex", gap: "12px", fontSize: "0.75rem", color: "var(--foreground-muted)" }}>
-                  <span>Shopee: <strong className="channel-shopee">R$ {shopeeTodayRevenue.toLocaleString("pt-BR")}</strong></span>
-                  <span>M. Livre: <strong className="channel-ml">R$ {mlTodayRevenue.toLocaleString("pt-BR")}</strong></span>
+              {isCardVisible("revenue_today") && (
+                <div className="stats-card" style={{ borderLeft: "4px solid var(--gold)" }}>
+                  <span
+                    data-edit-key="card.revenue_today"
+                    style={{ fontSize: "0.8rem", color: "var(--foreground-muted)", textTransform: "uppercase", letterSpacing: "0.05em", fontWeight: "600" }}
+                  >
+                    {t("card.revenue_today")}
+                  </span>
+                  <h3 className="font-serif" style={{ fontSize: "2.2rem", color: "var(--gold)", margin: "0.5rem 0", fontWeight: "700" }}>
+                    R$ {todayRevenue.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+                  </h3>
+                  <div style={{ display: "flex", gap: "12px", fontSize: "0.75rem", color: "var(--foreground-muted)" }}>
+                    <span>Shopee: <strong className="channel-shopee">R$ {shopeeTodayRevenue.toLocaleString("pt-BR")}</strong></span>
+                    <span>M. Livre: <strong className="channel-ml">R$ {mlTodayRevenue.toLocaleString("pt-BR")}</strong></span>
+                  </div>
                 </div>
-              </div>
+              )}
             </div>
 
             {/* Shipping & Sales Dashboard inspired by Mercado Livre */}
@@ -924,10 +1056,10 @@ A credencial de acesso temporária (access_token) do Mercado Livre expirou ou n�
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "1px solid rgba(45,43,39,0.08)", paddingBottom: "1rem", flexWrap: "wrap", gap: "1rem" }}>
                 <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
                   {[
-                    { id: "today", label: "Envios de hoje", count: orders.filter(o => o.status === "ready_to_ship").length },
-                    { id: "next_days", label: "Próximos dias", count: orders.filter(o => o.status === "pending").length },
-                    { id: "in_transit", label: "Em trânsito", count: orders.filter(o => o.status === "shipped").length },
-                    { id: "completed", label: "Finalizadas", count: orders.filter(o => o.status === "delivered").length }
+                    { id: "today", key: "shipping.tab.today", count: orders.filter(o => o.status === "ready_to_ship").length },
+                    { id: "next_days", key: "shipping.tab.next", count: orders.filter(o => o.status === "pending").length },
+                    { id: "in_transit", key: "shipping.tab.transit", count: orders.filter(o => o.status === "shipped").length },
+                    { id: "completed", key: "shipping.tab.done", count: orders.filter(o => o.status === "delivered").length }
                   ].map((tab) => (
                     <button
                       key={tab.id}
@@ -949,7 +1081,7 @@ A credencial de acesso temporária (access_token) do Mercado Livre expirou ou n�
                         gap: "6px"
                       }}
                     >
-                      {tab.label}
+                      <span data-edit-key={tab.key}>{t(tab.key)}</span>
                       <span style={{
                         fontSize: "0.75rem",
                         background: shippingTab === tab.id ? "var(--gold)" : "rgba(45,43,39,0.1)",

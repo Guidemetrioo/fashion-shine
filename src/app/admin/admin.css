@@ -325,3 +325,29 @@
 .admin-layout form div[style*="photo_camera"] div {
   color: var(--foreground-muted) !important;
 }
+
+/* ── CMS Editor: estilos de destaque de elementos editáveis ── */
+/* Pulsação dourada quando o editor clica num elemento para editá-lo */
+@keyframes cms-pulse {
+  0%   { outline-color: rgba(179, 151, 90, 0.9); box-shadow: 0 0 0 0 rgba(179, 151, 90, 0.6); }
+  50%  { outline-color: rgba(179, 151, 90, 0.5); box-shadow: 0 0 0 6px rgba(179, 151, 90, 0); }
+  100% { outline-color: rgba(179, 151, 90, 0.9); box-shadow: 0 0 0 0 rgba(179, 151, 90, 0); }
+}
+
+.cms-highlight {
+  outline: 2px solid rgba(179, 151, 90, 0.9) !important;
+  outline-offset: 3px;
+  border-radius: 3px;
+  animation: cms-pulse 0.8s ease-in-out 2;
+}
+
+/* Animações usadas pelo Editor Visual */
+@keyframes slideUp {
+  from { transform: translateY(100%); opacity: 0; }
+  to   { transform: translateY(0);    opacity: 1; }
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}

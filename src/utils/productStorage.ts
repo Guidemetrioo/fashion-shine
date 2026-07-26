@@ -99,6 +99,8 @@ export async function getDBProducts(): Promise<DBProduct[]> {
 }
 
 export async function deleteDBProduct(identifier: string): Promise<boolean> {
+  if (!identifier) return false;
+
   let products = getLocalProducts();
   const index = products.findIndex(
     p => p.id === identifier || p.sku === identifier || p.mlItemId === identifier || p.shopeeItemId === identifier
@@ -108,7 +110,9 @@ export async function deleteDBProduct(identifier: string): Promise<boolean> {
 
   // 1. Remove from local file
   if (index !== -1) {
-    products.splice(index, 1);
+    products = products.filter(
+      p => !(p.id === identifier || p.sku === identifier || (productToDelete && (p.id === productToDelete.id || p.sku === productToDelete.sku)))
+    );
     try {
       fs.writeFileSync(PRODUCTS_FILE, JSON.stringify(products, null, 2), "utf8");
     } catch (error) {
@@ -128,14 +132,40 @@ export async function deleteDBProduct(identifier: string): Promise<boolean> {
         DELETE FROM products 
         WHERE id = ${targetId} 
            OR sku = ${targetSku} 
-           OR ml_item_id = ${targetMlId}
-           OR shopee_item_id = ${targetShopeeId}
+           OR (ml_item_id IS NOT NULL AND ml_item_id = ${targetMlId})
+           OR (shopee_item_id IS NOT NULL AND shopee_item_id = ${targetShopeeId})
            OR id = ${identifier}
            OR sku = ${identifier}
-           OR ml_item_id = ${identifier}
-           OR shopee_item_id = ${identifier}
       `;
       console.log(`Successfully deleted product ${identifier} from Neon Database.`);
+
+      // Also ensure local backup file remains in sync with DB
+      const dbData = await sql`SELECT * FROM products ORDER BY sku ASC`;
+      const mapped: DBProduct[] = (dbData || []).map((row: any) => ({
+        id: row.id,
+        name: row.name,
+        sku: row.sku,
+        basePrice: Number(row.base_price ?? 0),
+        shopeeStock: row.shopee_stock ?? 0,
+        shopeeSynced: row.shopee_synced ?? false,
+        shopeeItemId: row.shopee_item_id ?? undefined,
+        mlStock: row.ml_stock ?? 0,
+        mlSynced: row.ml_synced ?? false,
+        mlItemId: row.ml_item_id ?? undefined,
+        totalStock: row.total_stock ?? 0,
+        lastSync: row.last_sync ?? "",
+        description: row.description ?? undefined,
+        imageUrl: row.image_url ?? undefined,
+        isChecked: row.is_checked ?? false,
+        shopeeCategoryId: row.shopee_category_id ?? undefined,
+        shopeeBrandId: row.shopee_brand_id ?? undefined,
+        shopeeIsPreOrder: row.shopee_is_pre_order ?? false,
+        shopeeDaysToShip: row.shopee_days_to_ship ? Number(row.shopee_days_to_ship) : undefined,
+        shopeeLogistics: row.shopee_logistics ? row.shopee_logistics.split(",") : [],
+        tiktokCategoryId: row.tiktok_category_id ?? undefined,
+        tiktokBrandId: row.tiktok_brand_id ?? undefined,
+      }));
+      fs.writeFileSync(PRODUCTS_FILE, JSON.stringify(mapped, null, 2), "utf8");
     } catch (err) {
       console.error("Neon product deletion query failed:", err);
     }

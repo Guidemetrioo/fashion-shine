@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Playfair_Display, Outfit } from "next/font/google";
 import "./globals.css";
+import ThemeProvider from "../components/ThemeProvider";
 
 const playfair = Playfair_Display({
   variable: "--font-playfair",
@@ -41,7 +42,10 @@ export default function RootLayout({
       <head>
         <link rel="icon" href="/favicon.ico" sizes="any" />
       </head>
-      <body>{children}</body>
+      <body>
+        <ThemeProvider />
+        {children}
+      </body>
     </html>
   );
 }

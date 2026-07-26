@@ -1,0 +1,8 @@
+{
+  "cards": [
+    { "id": "orders_today", "label": "Pedidos de Hoje", "visible": true, "size": "normal" },
+    { "id": "revenue_today", "label": "Faturamento de Hoje", "visible": true, "size": "normal" },
+    { "id": "shipping_table", "label": "Tabela de Envios", "visible": true, "size": "large" },
+    { "id": "sync_logs", "label": "Logs de Sincronização", "visible": true, "size": "normal" }
+  ]
+}
