@@ -115,6 +115,11 @@ export async function syncStockToChannels(sku: string, newStock: number, exclude
     promises.push(pushStockToShopee(product.shopeeItemId, newStock));
   }
 
+  // TikTok Shop: propaga estoque se o produto tiver tiktokCategoryId (indicador de publicação)
+  if (product.tiktokCategoryId) {
+    promises.push(pushStockToTikTok(product.id, newStock));
+  }
+
   await Promise.all(promises);
 }
 
@@ -242,6 +247,112 @@ export async function publishProductToShopee(params: ShopeePublishParams): Promi
   }
 }
 
+// ─── PUBLICAR PRODUTO NO MERCADO LIVRE ──────────────────────────────────────
+
+export interface MlPublishParams {
+  title: string;
+  categoryId?: string;     // default: MLB189530 (Bijuterias)
+  price: number;
+  stock: number;
+  condition?: string;      // default: "new"
+  listingType?: string;    // default: "gold_special"
+  description?: string;
+  imageUrls?: string[];
+  sku?: string;
+}
+
+export async function publishProductToMercadoLivre(params: MlPublishParams): Promise<{ success: boolean; itemId?: string; error?: string }> {
+  const tokens = getLocalTokens();
+  if (!tokens.mercadolivre.connected || !tokens.mercadolivre.accessToken) {
+    return { success: false, error: "Mercado Livre não conectado" };
+  }
+
+  const payload: Record<string, any> = {
+    title: params.title.substring(0, 60), // ML limit: 60 chars
+    category_id: params.categoryId || "MLB189530",
+    price: params.price,
+    available_quantity: params.stock,
+    buying_mode: "buy_it_now",
+    listing_type_id: params.listingType || "gold_special",
+    condition: params.condition || "new",
+    currency_id: "BRL",
+  };
+
+  if (params.description) {
+    payload.description = { plain_text: params.description };
+  }
+
+  if (params.imageUrls && params.imageUrls.length > 0) {
+    payload.pictures = params.imageUrls.map(url => ({ source: url }));
+  }
+
+  if (params.sku) {
+    payload.seller_custom_field = params.sku;
+  }
+
+  try {
+    console.log(`[ML Publisher]: Publishing "${params.title}" to Mercado Livre...`);
+    const res = await fetchWithTimeout("https://api.mercadolibre.com/items", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${tokens.mercadolivre.accessToken}`,
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(payload),
+    }, 15000);
+
+    const data = await res.json();
+    if (!res.ok) {
+      console.error(`[ML Publisher Error]:`, data);
+      return { success: false, error: data.message || JSON.stringify(data) };
+    }
+
+    console.log(`[ML Publisher Success]: Item ID: ${data.id}, Permalink: ${data.permalink}`);
+    return { success: true, itemId: data.id };
+  } catch (err: any) {
+    console.error(`[ML Publisher Error]:`, err);
+    return { success: false, error: err.message };
+  }
+}
+
+// ─── PUSH ESTOQUE PARA TIKTOK SHOP ─────────────────────────────────────────
+
+export async function pushStockToTikTok(productId: string, stock: number): Promise<boolean> {
+  const tokens = getLocalTokens();
+  if (!tokens.tiktok.connected || !tokens.tiktok.accessToken) {
+    console.log(`TikTok Stock Push skipped: TikTok not connected (Product ID: ${productId})`);
+    return false;
+  }
+
+  try {
+    const res = await fetchWithTimeout("https://open-api.tiktokglobalshop.com/api/products", {
+      method: "PUT",
+      headers: {
+        "x-tts-access-token": tokens.tiktok.accessToken,
+        "Content-Type": "application/json",
+        Accept: "application/json",
+      },
+      body: JSON.stringify({
+        product_id: productId,
+        skus: [{ inventory: [{ quantity: stock }] }],
+      }),
+    }, 8000);
+
+    const data = await res.json();
+    if (!res.ok || data.code !== 0) {
+      console.error(`TikTok Stock Push failed for product ${productId}:`, data);
+      return false;
+    }
+
+    console.log(`TikTok Stock Push success: Set product ${productId} stock to ${stock}.`);
+    return true;
+  } catch (err) {
+    console.error(`TikTok Stock Push error for product ${productId}:`, err);
+    return false;
+  }
+}
+
 // Helper: fetch com timeout manual (funciona em qualquer versão do Node)
 function fetchWithTimeout(url: string, options: RequestInit = {}, timeoutMs: number = 8000): Promise<Response> {
   return new Promise((resolve, reject) => {
@@ -341,9 +452,136 @@ export async function deleteProductFromChannels(product: DBProduct): Promise<voi
     if (product.shopeeItemId) {
       promises.push(deleteProductFromShopee(product.shopeeItemId));
     }
+    // TikTok: fechar anúncio não tem API direta, mas zeramos o estoque
+    if (product.tiktokCategoryId) {
+      promises.push(pushStockToTikTok(product.id, 0));
+    }
     await Promise.all(promises);
   };
 
   await Promise.race([work(), timeout]);
+}
+
+// ─── ESPELHAMENTO COMPLETO: SISTEMA → MERCADO LIVRE ─────────────────────────
+
+export interface MirrorResult {
+  updated: number;
+  published: number;
+  closed: number;
+  errors: string[];
+}
+
+export async function mirrorProductsToMercadoLivre(): Promise<MirrorResult> {
+  const tokens = getLocalTokens();
+  const result: MirrorResult = { updated: 0, published: 0, closed: 0, errors: [] };
+
+  if (!tokens.mercadolivre.connected || !tokens.mercadolivre.accessToken) {
+    result.errors.push("Mercado Livre não conectado");
+    return result;
+  }
+
+  const dbProducts = await getDBProducts();
+
+  // 1. Buscar todos os anúncios ativos no ML
+  let mlItemIds: string[] = [];
+  try {
+    const searchRes = await fetchWithTimeout(
+      `https://api.mercadolibre.com/users/${tokens.mercadolivre.userId}/items/search?limit=100`,
+      {
+        headers: {
+          Authorization: `Bearer ${tokens.mercadolivre.accessToken}`,
+          Accept: "application/json",
+        },
+      },
+      10000
+    );
+    const searchData = await searchRes.json();
+    mlItemIds = searchData.results || [];
+    console.log(`[Mirror] Found ${mlItemIds.length} active items on ML`);
+  } catch (err: any) {
+    result.errors.push(`Falha ao buscar anúncios ML: ${err.message}`);
+    return result;
+  }
+
+  // 2. Para cada produto do sistema que TEM mlItemId → atualizar estoque/preço no ML
+  for (const product of dbProducts) {
+    if (product.mlItemId) {
+      try {
+        const updateRes = await fetchWithTimeout(
+          `https://api.mercadolibre.com/items/${product.mlItemId}`,
+          {
+            method: "PUT",
+            headers: {
+              Authorization: `Bearer ${tokens.mercadolivre.accessToken}`,
+              Accept: "application/json",
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              available_quantity: product.totalStock,
+              price: product.basePrice,
+            }),
+          },
+          8000
+        );
+
+        if (updateRes.ok) {
+          result.updated++;
+          console.log(`[Mirror] Updated ML item ${product.mlItemId}: stock=${product.totalStock}, price=${product.basePrice}`);
+        } else {
+          const errData = await updateRes.text();
+          result.errors.push(`Update falhou para ${product.sku}: ${errData.substring(0, 100)}`);
+        }
+      } catch (err: any) {
+        result.errors.push(`Timeout update ${product.sku}: ${err.message}`);
+      }
+    }
+  }
+
+  // 3. Para cada produto do sistema SEM mlItemId → publicar no ML
+  const productsWithoutMl = dbProducts.filter(p => !p.mlItemId && p.totalStock > 0);
+  for (const product of productsWithoutMl) {
+    const publishResult = await publishProductToMercadoLivre({
+      title: product.name,
+      price: product.basePrice,
+      stock: product.totalStock,
+      description: product.description,
+      imageUrls: product.imageUrl ? [product.imageUrl] : undefined,
+      sku: product.sku,
+    });
+
+    if (publishResult.success && publishResult.itemId) {
+      // Salvar o mlItemId no produto
+      product.mlItemId = publishResult.itemId;
+      product.mlSynced = true;
+      product.mlStock = product.totalStock;
+      result.published++;
+    } else {
+      result.errors.push(`Publish falhou para ${product.sku}: ${publishResult.error}`);
+    }
+  }
+
+  // Salvar produtos atualizados com novos mlItemIds
+  if (result.published > 0) {
+    await saveDBProducts(dbProducts);
+  }
+
+  // 4. Fechar anúncios no ML que NÃO existem no sistema
+  const systemMlIds = new Set(dbProducts.filter(p => p.mlItemId).map(p => p.mlItemId!));
+  const orphanMlIds = mlItemIds.filter(id => !systemMlIds.has(id));
+
+  for (const orphanId of orphanMlIds) {
+    try {
+      const closed = await deleteProductFromMercadoLivre(orphanId);
+      if (closed) {
+        result.closed++;
+        console.log(`[Mirror] Closed orphan ML item ${orphanId}`);
+      }
+    } catch (err: any) {
+      result.errors.push(`Fechar órfão ${orphanId}: ${err.message}`);
+    }
+  }
+
+  console.log(`[Mirror] Concluído: ${result.updated} atualizados, ${result.published} publicados, ${result.closed} fechados, ${result.errors.length} erros`);
+  return result;
 }
 

@@ -10,6 +10,8 @@ export default function AdminDashboard() {
   const [activeTab, setActiveTab] = useState<"dashboard" | "inventory" | "orders" | "settings">("dashboard");
   const [isSyncing, setIsSyncing] = useState(false);
   const [syncLogs, setSyncLogs] = useState<SyncLog[]>([]);
+  const [isMirroring, setIsMirroring] = useState(false);
+  const [mirrorResult, setMirrorResult] = useState<{ message: string; updated: number; published: number; closed: number; errors: string[] } | null>(null);
 
   // Integration Settings State
   const [config, setConfig] = useState<IntegrationConfig>({
@@ -1269,7 +1271,7 @@ A credencial de acesso temporária (access_token) do Mercado Livre expirou ou n�
               </div>
 
               {/* Actions */}
-              <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
+              <div style={{ display: "flex", gap: "10px", alignItems: "center", flexWrap: "wrap" }}>
                 <button
                   onClick={() => setShowAddProductModal(true)}
                   className="btn-gold"
@@ -1283,8 +1285,76 @@ A credencial de acesso temporária (access_token) do Mercado Livre expirou ou n�
                 >
                   <span style={{ fontSize: "1.1rem", fontWeight: "bold" }}>+</span> Novo Produto
                 </button>
+                <button
+                  disabled={isMirroring}
+                  onClick={async () => {
+                    setIsMirroring(true);
+                    setMirrorResult(null);
+                    try {
+                      const res = await fetch("/api/sync/mirror", { method: "POST" });
+                      const data = await res.json();
+                      setMirrorResult(data);
+                    } catch (err: any) {
+                      setMirrorResult({ message: "Erro: " + err.message, updated: 0, published: 0, closed: 0, errors: [err.message] });
+                    } finally {
+                      setIsMirroring(false);
+                    }
+                  }}
+                  style={{
+                    padding: "0.6rem 1.2rem",
+                    fontSize: "0.8rem",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "6px",
+                    background: isMirroring ? "rgba(179, 151, 90, 0.3)" : "rgba(179, 151, 90, 0.15)",
+                    border: "1px solid rgba(179, 151, 90, 0.5)",
+                    borderRadius: "6px",
+                    color: "var(--gold)",
+                    fontWeight: 600,
+                    cursor: isMirroring ? "wait" : "pointer",
+                  }}
+                >
+                  {isMirroring ? "⏳ Espelhando..." : "🔄 Espelhar para Marketplaces"}
+                </button>
               </div>
             </div>
+
+            {/* Mirror Result Banner */}
+            {mirrorResult && (
+              <div style={{
+                padding: "1rem",
+                marginBottom: "1rem",
+                borderRadius: "6px",
+                background: mirrorResult.errors.length > 0 ? "rgba(255, 160, 0, 0.1)" : "rgba(76, 175, 80, 0.1)",
+                border: `1px solid ${mirrorResult.errors.length > 0 ? "rgba(255, 160, 0, 0.3)" : "rgba(76, 175, 80, 0.3)"}`,
+                fontSize: "0.85rem",
+              }}>
+                <div style={{ fontWeight: 600, marginBottom: "0.5rem" }}>
+                  {mirrorResult.errors.length > 0 ? "⚠️" : "✅"} {mirrorResult.message}
+                </div>
+                <div style={{ display: "flex", gap: "1.5rem", color: "var(--foreground-muted)" }}>
+                  <span>📝 Atualizados: <strong>{mirrorResult.updated}</strong></span>
+                  <span>🆕 Publicados: <strong>{mirrorResult.published}</strong></span>
+                  <span>🚫 Fechados: <strong>{mirrorResult.closed}</strong></span>
+                </div>
+                {mirrorResult.errors.length > 0 && (
+                  <details style={{ marginTop: "0.5rem" }}>
+                    <summary style={{ cursor: "pointer", color: "rgba(255, 160, 0, 0.8)" }}>
+                      {mirrorResult.errors.length} erro(s)
+                    </summary>
+                    <ul style={{ margin: "0.5rem 0", paddingLeft: "1.5rem", fontSize: "0.8rem" }}>
+                      {mirrorResult.errors.map((e, i) => <li key={i}>{e}</li>)}
+                    </ul>
+                  </details>
+                )}
+                <button
+                  onClick={() => setMirrorResult(null)}
+                  style={{ marginTop: "0.5rem", fontSize: "0.75rem", background: "none", border: "none", color: "var(--foreground-muted)", cursor: "pointer", textDecoration: "underline" }}
+                >
+                  Fechar
+                </button>
+              </div>
+            )}
 
             <div className="admin-table-container">
               <table className="admin-table">
