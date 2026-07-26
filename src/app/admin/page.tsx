@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect } from "react";
 import "./admin.css";
 import { ChannelOrder, ChannelProduct, IntegrationConfig, SyncLog } from "../../types";
 
@@ -100,40 +100,7 @@ export default function AdminDashboard() {
   // Persistent checked/reviewed products tracking
   const [checkedProductIds, setCheckedProductIds] = useState<string[]>([]);
 
-  // ── CMS Editor: textos editáveis e layout ───────────────────────────────
-  const DEFAULT_CONTENT: Record<string, string> = {
-    "tab.overview": "Visão Geral",
-    "tab.inventory": "Estoque",
-    "tab.orders": "Rastreamento de Pedidos",
-    "tab.settings": "Configurações de Integração",
-    "card.orders_today": "Pedidos de Hoje",
-    "card.revenue_today": "Faturamento de Hoje",
-    "shipping.tab.today": "Envios de hoje",
-    "shipping.tab.next": "Próximos dias",
-    "shipping.tab.transit": "Em trânsito",
-    "shipping.tab.done": "Finalizadas",
-  };
 
-  const DEFAULT_LAYOUT = {
-    cards: [
-      { id: "orders_today", label: "Pedidos de Hoje", visible: true, size: "normal" },
-      { id: "revenue_today", label: "Faturamento de Hoje", visible: true, size: "normal" },
-      { id: "shipping_table", label: "Tabela de Envios", visible: true, size: "large" },
-      { id: "sync_logs", label: "Logs de Sincronização", visible: true, size: "normal" },
-    ],
-  };
-
-  const [cmsContent, setCmsContent] = useState<Record<string, string>>(DEFAULT_CONTENT);
-  const [cmsLayout, setCmsLayout] = useState(DEFAULT_LAYOUT);
-
-  // Helper: retorna o texto de uma chave CMS, com fallback para o padrão
-  const t = useCallback((key: string) => cmsContent[key] ?? DEFAULT_CONTENT[key] ?? key, [cmsContent]);
-
-  // Verifica se um card específico está visível no layout salvo
-  const isCardVisible = useCallback((id: string) => {
-    const card = cmsLayout.cards.find(c => c.id === id);
-    return card ? card.visible : true;
-  }, [cmsLayout]);
 
 
   useEffect(() => {
@@ -151,49 +118,9 @@ export default function AdminDashboard() {
     }
   }, []);
 
-  // ── Carrega content.json e layout.json do servidor ──────────────────────
-  useEffect(() => {
-    fetch("/api/content")
-      .then(r => r.json())
-      .then(data => setCmsContent(data))
-      .catch(() => {});
 
-    fetch("/api/layout")
-      .then(r => r.json())
-      .then(data => setCmsLayout(data))
-      .catch(() => {});
-  }, []);
 
-  // ── Listener de postMessage: recebe atualizações do Editor Visual ────────
-  // O editor visual (em /admin/editor) envia mensagens quando o usuário
-  // muda um texto ou reordena um card. Aqui aplicamos essas mudanças em
-  // tempo real sem recarregar a página.
-  useEffect(() => {
-    const handleMessage = (event: MessageEvent) => {
-      // Aceita apenas mensagens da mesma origem (localhost)
-      if (event.origin !== window.location.origin) return;
 
-      const { type, payload } = event.data || {};
-
-      if (type === "cms:updateContent") {
-        setCmsContent(prev => ({ ...prev, ...payload }));
-      } else if (type === "cms:updateLayout") {
-        setCmsLayout(payload);
-      } else if (type === "cms:getHighlight") {
-        // O editor clicou num elemento e quer que o iframe destaque-o
-        // (usado para scroll até o elemento)
-        const el = document.querySelector(`[data-edit-key="${payload.key}"]`);
-        if (el) {
-          el.scrollIntoView({ behavior: "smooth", block: "center" });
-          (el as HTMLElement).classList.add("cms-highlight");
-          setTimeout(() => (el as HTMLElement).classList.remove("cms-highlight"), 2000);
-        }
-      }
-    };
-
-    window.addEventListener("message", handleMessage);
-    return () => window.removeEventListener("message", handleMessage);
-  }, []);
 
 
   const handleToggleCheckProduct = async (productId: string) => {
@@ -869,51 +796,29 @@ A credencial de acesso temporária (access_token) do Mercado Livre expirou ou n�
             onClick={() => setActiveTab("dashboard")}
             data-edit-key="tab.overview"
           >
-            {t("tab.overview")}
+            Visão Geral
           </button>
           <button 
             className={`admin-tab-btn ${activeTab === "inventory" ? "active" : ""}`}
             onClick={() => setActiveTab("inventory")}
             data-edit-key="tab.inventory"
           >
-            {t("tab.inventory")} ({totalSyncCount})
+            Estoque ({totalSyncCount})
           </button>
           <button 
             className={`admin-tab-btn ${activeTab === "orders" ? "active" : ""}`}
             onClick={() => setActiveTab("orders")}
             data-edit-key="tab.orders"
           >
-            {t("tab.orders")} ({orders.length})
+            Rastreamento de Pedidos ({orders.length})
           </button>
           <button 
             className={`admin-tab-btn ${activeTab === "settings" ? "active" : ""}`}
             onClick={() => setActiveTab("settings")}
             data-edit-key="tab.settings"
           >
-            {t("tab.settings")}
+            Configurações de Integração
           </button>
-          {/* Link para o Editor Visual CMS */}
-          <a
-            href="/admin/editor"
-            style={{
-              marginLeft: "auto",
-              padding: "0.5rem 1.1rem",
-              background: "rgba(179, 151, 90, 0.12)",
-              border: "1px solid rgba(179, 151, 90, 0.5)",
-              borderRadius: "6px",
-              color: "var(--gold)",
-              fontSize: "0.82rem",
-              fontWeight: 600,
-              textDecoration: "none",
-              display: "flex",
-              alignItems: "center",
-              gap: "0.4rem",
-              transition: "all 0.2s",
-              whiteSpace: "nowrap",
-            }}
-          >
-            🎨 Editor Visual
-          </a>
         </div>
 
         {/* Tab 1: Dashboard Overview */}
@@ -921,13 +826,13 @@ A credencial de acesso temporária (access_token) do Mercado Livre expirou ou n�
           <div className="animate-fade-in">
             {/* Today's Live Stats Row - cards visíveis conforme layout.json */}
             <div className="stats-grid" style={{ marginBottom: "1.5rem" }}>
-              {isCardVisible("orders_today") && (
+              {true && (
                 <div className="stats-card" style={{ borderLeft: "4px solid var(--gold)" }}>
                   <span
                     data-edit-key="card.orders_today"
                     style={{ fontSize: "0.8rem", color: "var(--foreground-muted)", textTransform: "uppercase", letterSpacing: "0.05em", fontWeight: "600" }}
                   >
-                    {t("card.orders_today")}
+                    Pedidos de Hoje
                   </span>
                   <h3 className="font-serif" style={{ fontSize: "2.2rem", color: "var(--foreground)", margin: "0.5rem 0", fontWeight: "700" }}>
                     {todayOrdersCount} {todayOrdersCount === 1 ? "Pedido" : "Pedidos"}
@@ -939,13 +844,13 @@ A credencial de acesso temporária (access_token) do Mercado Livre expirou ou n�
                 </div>
               )}
 
-              {isCardVisible("revenue_today") && (
+              {true && (
                 <div className="stats-card" style={{ borderLeft: "4px solid var(--gold)" }}>
                   <span
                     data-edit-key="card.revenue_today"
                     style={{ fontSize: "0.8rem", color: "var(--foreground-muted)", textTransform: "uppercase", letterSpacing: "0.05em", fontWeight: "600" }}
                   >
-                    {t("card.revenue_today")}
+                    Faturamento de Hoje
                   </span>
                   <h3 className="font-serif" style={{ fontSize: "2.2rem", color: "var(--gold)", margin: "0.5rem 0", fontWeight: "700" }}>
                     R$ {todayRevenue.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
@@ -989,7 +894,7 @@ A credencial de acesso temporária (access_token) do Mercado Livre expirou ou n�
                         gap: "6px"
                       }}
                     >
-                      <span data-edit-key={tab.key}>{t(tab.key)}</span>
+                      <span data-edit-key={tab.key}>{tab.key === "shipping.tab.today" ? "Envios de hoje" : tab.key === "shipping.tab.next" ? "Próximos dias" : tab.key === "shipping.tab.transit" ? "Em trânsito" : "Finalizadas"}</span>
                       <span style={{
                         fontSize: "0.75rem",
                         background: shippingTab === tab.id ? "var(--gold)" : "rgba(45,43,39,0.1)",
