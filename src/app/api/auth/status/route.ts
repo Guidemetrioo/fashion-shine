@@ -1,10 +1,10 @@
 import { NextResponse } from "next/server";
-import { getTokens, saveTokens } from "../../../../utils/tokenStorage";
+import { getTokens, getLocalTokens, saveTokens } from "../../../../utils/tokenStorage";
 
 export const dynamic = "force-dynamic";
 
 export async function GET() {
-  const tokens = await getTokens();
+  const tokens = getLocalTokens();
 
   const mlClientId = tokens.mercadolivre.clientId || process.env.ML_CLIENT_ID || "";
   const mlClientSecret = tokens.mercadolivre.clientSecret || process.env.ML_CLIENT_SECRET || "";
@@ -94,7 +94,7 @@ export async function POST(request: Request) {
 
     // Save Credentials for Mercado Livre (without fake tokens)
     if (channel === "mercadolivre" && clientId) {
-      const current = await getTokens();
+      const current = getLocalTokens();
       const finalSecret = (clientSecret && clientSecret !== "••••••••••••••••") 
         ? clientSecret 
         : current.mercadolivre.clientSecret;
@@ -110,7 +110,7 @@ export async function POST(request: Request) {
 
     // Save Credentials for Shopee
     if (channel === "shopee" && partnerId) {
-      const current = await getTokens();
+      const current = getLocalTokens();
       const finalKey = (partnerKey && partnerKey !== "••••••••••••••••")
         ? partnerKey
         : current.shopee.partnerKey;
