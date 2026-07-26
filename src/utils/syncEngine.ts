@@ -262,7 +262,7 @@ export interface MlPublishParams {
 }
 
 export async function publishProductToMercadoLivre(params: MlPublishParams): Promise<{ success: boolean; itemId?: string; error?: string }> {
-  const tokens = getLocalTokens();
+  const tokens = await getTokens();
   if (!tokens.mercadolivre.connected || !tokens.mercadolivre.accessToken) {
     return { success: false, error: "Mercado Livre não conectado" };
   }
@@ -319,7 +319,7 @@ export async function publishProductToMercadoLivre(params: MlPublishParams): Pro
 // ─── PUSH ESTOQUE PARA TIKTOK SHOP ─────────────────────────────────────────
 
 export async function pushStockToTikTok(productId: string, stock: number): Promise<boolean> {
-  const tokens = getLocalTokens();
+  const tokens = await getTokens();
   if (!tokens.tiktok.connected || !tokens.tiktok.accessToken) {
     console.log(`TikTok Stock Push skipped: TikTok not connected (Product ID: ${productId})`);
     return false;
@@ -370,8 +370,7 @@ function fetchWithTimeout(url: string, options: RequestInit = {}, timeoutMs: num
 }
 
 export async function deleteProductFromMercadoLivre(itemId: string): Promise<boolean> {
-  // Usa getLocalTokens() para NÃO travar no refresh do token OAuth
-  const tokens = getLocalTokens();
+  const tokens = await getTokens();
   if (!tokens.mercadolivre.connected) return false;
 
   const url = `https://api.mercadolibre.com/items/${itemId}`;
@@ -409,8 +408,7 @@ export async function deleteProductFromMercadoLivre(itemId: string): Promise<boo
 }
 
 export async function deleteProductFromShopee(itemId: string): Promise<boolean> {
-  // Usa getLocalTokens() para NÃO travar no refresh do token OAuth
-  const tokens = getLocalTokens();
+  const tokens = await getTokens();
   if (!tokens.shopee.connected) return false;
 
   try {
@@ -472,7 +470,7 @@ export interface MirrorResult {
 }
 
 export async function mirrorProductsToMercadoLivre(): Promise<MirrorResult> {
-  const tokens = getLocalTokens();
+  const tokens = await getTokens();
   const result: MirrorResult = { updated: 0, published: 0, closed: 0, errors: [] };
 
   if (!tokens.mercadolivre.connected || !tokens.mercadolivre.accessToken) {

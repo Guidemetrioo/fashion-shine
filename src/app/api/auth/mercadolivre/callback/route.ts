@@ -12,7 +12,8 @@ export async function GET(request: NextRequest) {
   const tokens = await getTokens();
   const clientId = tokens.mercadolivre.clientId || process.env.ML_CLIENT_ID || "";
   const clientSecret = tokens.mercadolivre.clientSecret || process.env.ML_CLIENT_SECRET || "";
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+  const requestOrigin = request.nextUrl ? request.nextUrl.origin : "";
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || requestOrigin || "http://localhost:3000";
 
   try {
     const response = await fetch("https://api.mercadolibre.com/oauth/token", {
