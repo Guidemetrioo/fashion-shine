@@ -1875,6 +1875,7 @@ A credencial de acesso temporÃ¡ria (access_token) do Mercado Livre expirou ou nÃ
                         body: JSON.stringify({ channel: "mercadolivre", disconnect: true })
                       }).then(() => {
                         setConfig(prev => ({ ...prev, mlConnected: false }));
+                        setMlAccountName("Desconectado");
                         addLog("Disconnected Mercado Livre API channel integration.", "mercadolivre", "warning");
                       });
                     } else {

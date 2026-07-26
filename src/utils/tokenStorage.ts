@@ -276,7 +276,6 @@ export async function saveTokens(tokens: {
   mercadolivre?: Partial<StoredTokens["mercadolivre"]>;
   tiktok?: Partial<StoredTokens["tiktok"]>;
 }): Promise<StoredTokens> {
-  // Usar getLocalTokens() para NÃO travar no refresh do token OAuth
   const current = getLocalTokens();
   const updated = {
     ...current,
