@@ -25,7 +25,7 @@ export default function AdminDashboard() {
   const [mlAccountName, setMlAccountName] = useState("Desconectado");
   const [mlTempAccountName, setMlTempAccountName] = useState("Desconectado");
   const [isConnectingMl, setIsConnectingMl] = useState(false);
-  const [isImportingMl, setIsImportingMl] = useState(false);
+
 
   const [isMlConfigured, setIsMlConfigured] = useState(false);
   const [isShopeeConfigured, setIsShopeeConfigured] = useState(false);
@@ -40,7 +40,7 @@ export default function AdminDashboard() {
   const [shopeeAccountName, setShopeeAccountName] = useState("Desconectado");
   const [shopeeTempAccountName, setShopeeTempAccountName] = useState("Desconectado");
   const [isConnectingShopee, setIsConnectingShopee] = useState(false);
-  const [isImportingShopee, setIsImportingShopee] = useState(false);
+
   const [shopeeInputPartnerId, setShopeeInputPartnerId] = useState("");
   const [shopeeInputPartnerKey, setShopeeInputPartnerKey] = useState("");
 
@@ -443,29 +443,7 @@ A credencial de acesso temporária (access_token) do Mercado Livre expirou ou n�
     }
   };
 
-  // Load real products from API if connected, respecting unified DB deletions
-  const loadRealProducts = async () => {
-    try {
-      const res = await fetch("/api/sync/mercadolivre/products");
-      if (res.ok) {
-        const data = await res.json();
-        if (data.connected && data.products && data.products.length > 0) {
-          const dbRes = await fetch("/api/sync/products");
-          if (dbRes.ok) {
-            const dbData = await dbRes.json();
-            if (dbData.products && dbData.products.length > 0) {
-              setProducts(dbData.products);
-              addLog(`Mercado Livre: Base sincronizada com ${dbData.products.length} anúncios ativos.`, "mercadolivre", "success");
-              return;
-            }
-          }
-          setProducts(data.products);
-        }
-      }
-    } catch (err) {
-      console.error("Error loading products:", err);
-    }
-  };
+
 
   // Load status and products database from API on mount + automatic multi-user polling (rede única)
   useEffect(() => {
@@ -581,42 +559,7 @@ A credencial de acesso temporária (access_token) do Mercado Livre expirou ou n�
     }
   };
 
-  const handleImportMlProducts = async () => {
-    if (isImportingMl) return;
-    setIsImportingMl(true);
-    addLog("Mercado Livre: Starting catalog import...", "mercadolivre", "success");
 
-    try {
-      const res = await fetch("/api/sync/mercadolivre/import", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" }
-      });
-      const data = await res.json();
-      if (res.ok && data.success) {
-        addLog(`Mercado Livre: Catalog imported! Imported: ${data.importedCount}, Updated: ${data.updatedCount} listings.`, "mercadolivre", "success");
-        alert(`Mercado Livre catalog imported successfully!\nImported: ${data.importedCount} new products\nUpdated: ${data.updatedCount} existing products`);
-        
-        // Refresh products list
-        const prodRes = await fetch("/api/sync/products");
-        if (prodRes.ok) {
-          const prodData = await prodRes.json();
-          if (prodData.products) {
-            setProducts(prodData.products);
-          }
-        }
-      } else {
-        const errMsg = data.error || "Failed to import catalog";
-        addLog(`Mercado Livre: Import failed - ${errMsg}`, "mercadolivre", "error");
-        alert(`Import Failed: ${errMsg}`);
-      }
-    } catch (err: any) {
-      console.error("Catalog import error:", err);
-      addLog(`Mercado Livre: Import failed due to server error.`, "mercadolivre", "error");
-      alert(`Import Failed due to server error.`);
-    } finally {
-      setIsImportingMl(false);
-    }
-  };
 
   const handleSaveShopeeCredentials = async () => {
     if (!shopeeInputPartnerId) {
@@ -651,42 +594,7 @@ A credencial de acesso temporária (access_token) do Mercado Livre expirou ou n�
     }
   };
 
-  const handleImportShopeeProducts = async () => {
-    if (isImportingShopee) return;
-    setIsImportingShopee(true);
-    addLog("Shopee: Iniciando importação do catálogo...", "shopee", "success");
 
-    try {
-      const res = await fetch("/api/sync/shopee/import", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" }
-      });
-      const data = await res.json();
-      if (res.ok && data.success) {
-        addLog(`Shopee: Catálogo importado! Importado: ${data.importedCount}, Atualizado: ${data.updatedCount} anúncios.`, "shopee", "success");
-        alert(`Catálogo da Shopee importado com sucesso!\nImportados: ${data.importedCount} novos produtos\nAtualizados: ${data.updatedCount} produtos existentes`);
-        
-        // Refresh products list
-        const prodRes = await fetch("/api/sync/products");
-        if (prodRes.ok) {
-          const prodData = await prodRes.json();
-          if (prodData.products) {
-            setProducts(prodData.products);
-          }
-        }
-      } else {
-        const errMsg = data.error || "Falha ao importar catálogo";
-        addLog(`Shopee: Importação falhou - ${errMsg}`, "shopee", "error");
-        alert(`Falha na Importação: ${errMsg}`);
-      }
-    } catch (err: any) {
-      console.error("Catalog import error:", err);
-      addLog(`Shopee: Importação falhou devido a um erro no servidor.`, "shopee", "error");
-      alert(`Falha na Importação devido a um erro no servidor.`);
-    } finally {
-      setIsImportingShopee(false);
-    }
-  };
 
 
   // Synced Products Data (starts empty)
@@ -1470,35 +1378,6 @@ A credencial de acesso temporária (access_token) do Mercado Livre expirou ou n�
                 >
                   <span style={{ fontSize: "1.1rem", fontWeight: "bold" }}>+</span> Novo Produto
                 </button>
-                
-                {config.mlConnected && (
-                  <button
-                    onClick={handleImportMlProducts}
-                    disabled={isImportingMl}
-                    className="btn-outline"
-                    style={{
-                      padding: "0.6rem 1.2rem",
-                      fontSize: "0.8rem",
-                      display: "flex",
-                      alignItems: "center",
-                      gap: "8px"
-                    }}
-                  >
-                    <svg 
-                      width="14" 
-                      height="14" 
-                      viewBox="0 0 24 24" 
-                      fill="none" 
-                      stroke="currentColor" 
-                      strokeWidth="2.5"
-                    >
-                      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                      <polyline points="7 10 12 15 17 10"></polyline>
-                      <line x1="12" y1="15" x2="12" y2="3"></line>
-                    </svg>
-                    {isImportingMl ? "Importando..." : "Importar do Mercado Livre"}
-                  </button>
-                )}
               </div>
             </div>
 
@@ -1964,34 +1843,7 @@ A credencial de acesso temporária (access_token) do Mercado Livre expirou ou n�
                         className="admin-input"
                       />
                     </div>
-                    <button
-                      onClick={handleImportShopeeProducts}
-                      disabled={isImportingShopee}
-                      className="btn-gold"
-                      style={{
-                        padding: "0.75rem",
-                        fontSize: "0.85rem",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        gap: "8px",
-                        marginTop: "0.5rem"
-                      }}
-                    >
-                      <svg 
-                        width="14" 
-                        height="14" 
-                        viewBox="0 0 24 24" 
-                        fill="none" 
-                        stroke="currentColor" 
-                        strokeWidth="2.5"
-                      >
-                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                        <polyline points="7 10 12 15 17 10"></polyline>
-                        <line x1="12" y1="15" x2="12" y2="3"></line>
-                      </svg>
-                      {isImportingShopee ? "Importando Catálogo..." : "Importar Catálogo da Shopee"}
-                    </button>
+
                   </div>
                 ) : (
                   <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
@@ -2121,36 +1973,7 @@ A credencial de acesso temporária (access_token) do Mercado Livre expirou ou n�
                     : "ⓘ Credenciais não configuradas. Preencha os campos e salve."}
                 </div>
 
-                {config.mlConnected && (
-                  <button
-                    onClick={handleImportMlProducts}
-                    disabled={isImportingMl}
-                    className="btn-gold"
-                    style={{
-                      padding: "0.75rem",
-                      fontSize: "0.85rem",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      gap: "8px",
-                      marginTop: "0.5rem"
-                    }}
-                  >
-                    <svg 
-                      width="14" 
-                      height="14" 
-                      viewBox="0 0 24 24" 
-                      fill="none" 
-                      stroke="currentColor" 
-                      strokeWidth="2.5"
-                    >
-                      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                      <polyline points="7 10 12 15 17 10"></polyline>
-                      <line x1="12" y1="15" x2="12" y2="3"></line>
-                    </svg>
-                    {isImportingMl ? "Importando Catálogo..." : "Importar Catálogo do Mercado Livre"}
-                  </button>
-                )}
+
               </div>
             </div>
           </div>
