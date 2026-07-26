@@ -18,20 +18,20 @@ export async function POST(request: NextRequest) {
       p => p.id === productId || p.sku === productId || p.mlItemId === productId || p.shopeeItemId === productId
     );
 
-    if (product) {
-      // Delete from sales channels (Mercado Livre, Shopee) if connected
-      try {
-        await deleteProductFromChannels(product);
-      } catch (chErr) {
-        console.error(`Failed to delete product ${product.sku} from sales channels:`, chErr);
-      }
-    }
-
-    // Delete permanently from local storage and Neon DB
+    // PRIMEIRO: Excluir do banco + tombstone IMEDIATAMENTE (garante que nunca volta)
     const deleted = await deleteDBProduct(productId);
 
     if (!deleted && !product) {
       return NextResponse.json({ error: "Produto não encontrado no banco de dados" }, { status: 404 });
+    }
+
+    // DEPOIS: Tentar excluir dos canais em background (não bloqueia a resposta)
+    if (product) {
+      // Fire-and-forget com timeout de 5s para não travar
+      const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error("Channel delete timeout")), 5000));
+      Promise.race([deleteProductFromChannels(product), timeoutPromise]).catch(err => {
+        console.warn(`Channel deletion for ${product.sku} failed or timed out:`, err);
+      });
     }
 
     return NextResponse.json(
@@ -52,3 +52,4 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Erro interno no servidor ao excluir produto", details: error.message }, { status: 500 });
   }
 }
+
