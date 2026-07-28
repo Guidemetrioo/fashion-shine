@@ -314,7 +314,7 @@ export async function saveDBProducts(products: DBProduct[]): Promise<void> {
             ${p.tiktokCategoryId ?? null},
             ${p.tiktokBrandId ?? null}
           )
-          ON CONFLICT (id)
+          ON CONFLICT (sku)
           DO UPDATE SET
             name = EXCLUDED.name,
             sku = EXCLUDED.sku,
@@ -392,7 +392,7 @@ export async function saveDBProducts(products: DBProduct[]): Promise<void> {
             id, name, sku, base_price, shopee_stock, shopee_synced, shopee_item_id, ml_stock, ml_synced, ml_item_id, total_stock, last_sync, description, image_url,
             shopee_category_id, shopee_brand_id, shopee_is_pre_order, shopee_days_to_ship, shopee_logistics, tiktok_category_id, tiktok_brand_id
           ) VALUES ${placeholders.join(",")}
-          ON CONFLICT (id)
+          ON CONFLICT (sku)
           DO UPDATE SET
             name = EXCLUDED.name,
             sku = EXCLUDED.sku,
