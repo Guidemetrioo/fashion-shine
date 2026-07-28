@@ -102,6 +102,62 @@ export default function AdminDashboard() {
   // Persistent checked/reviewed products tracking
   const [checkedProductIds, setCheckedProductIds] = useState<string[]>([]);
 
+  // Inline editing state for product Name and Price
+  const [editingNameId, setEditingNameId] = useState<string | null>(null);
+  const [editingNameValue, setEditingNameValue] = useState("");
+  const [editingPriceId, setEditingPriceId] = useState<string | null>(null);
+  const [editingPriceValue, setEditingPriceValue] = useState("");
+
+  const handleSaveName = async (productId: string) => {
+    if (!editingNameValue.trim()) return;
+    const newName = editingNameValue.trim();
+
+    setProducts(prev => prev.map(p => {
+      if (p.id === productId || p.sku === productId) {
+        return { ...p, name: newName };
+      }
+      return p;
+    }));
+
+    setEditingNameId(null);
+
+    try {
+      await fetch("/api/products/update", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ productId, name: newName })
+      });
+      addLog(`Estoque Central: Nome do produto atualizado para "${newName}".`, "all", "success");
+    } catch (err) {
+      console.error("Failed to save product name update:", err);
+    }
+  };
+
+  const handleSavePrice = async (productId: string) => {
+    const numVal = parseFloat(editingPriceValue.replace(",", "."));
+    if (isNaN(numVal) || numVal < 0) return;
+
+    setProducts(prev => prev.map(p => {
+      if (p.id === productId || p.sku === productId) {
+        return { ...p, basePrice: numVal };
+      }
+      return p;
+    }));
+
+    setEditingPriceId(null);
+
+    try {
+      await fetch("/api/products/update", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ productId, basePrice: numVal })
+      });
+      addLog(`Estoque Central: Preço base atualizado para R$ ${numVal.toFixed(2)}.`, "all", "success");
+    } catch (err) {
+      console.error("Failed to save product price update:", err);
+    }
+  };
+
 
 
 
@@ -1401,7 +1457,71 @@ A credencial de acesso temporária (access_token) do Mercado Livre expirou ou n�
                       </td>
                       <td>
                         <div style={{ display: "flex", flexDirection: "column" }}>
-                          <span style={{ fontWeight: "700", color: "#1a1a1a", fontSize: "0.92rem" }}>{prod.name}</span>
+                          {editingNameId === prod.id ? (
+                            <div style={{ display: "flex", alignItems: "center", gap: "6px", marginBottom: "4px" }}>
+                              <input
+                                type="text"
+                                value={editingNameValue}
+                                onChange={(e) => setEditingNameValue(e.target.value)}
+                                onKeyDown={(e) => {
+                                  if (e.key === "Enter") handleSaveName(prod.id);
+                                  if (e.key === "Escape") setEditingNameId(null);
+                                }}
+                                autoFocus
+                                className="admin-input"
+                                style={{ padding: "4px 8px", fontSize: "0.88rem", fontWeight: "600", color: "#1a1a1a", width: "100%", maxWidth: "300px" }}
+                              />
+                              <button
+                                onClick={() => handleSaveName(prod.id)}
+                                style={{ background: "#10b981", color: "#ffffff", border: "none", borderRadius: "4px", padding: "4px 8px", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}
+                                title="Salvar Nome"
+                              >
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                                  <polyline points="20 6 9 17 4 12"></polyline>
+                                </svg>
+                              </button>
+                              <button
+                                onClick={() => setEditingNameId(null)}
+                                style={{ background: "transparent", color: "#6b7280", border: "1px solid #d1d5db", borderRadius: "4px", padding: "4px 6px", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}
+                                title="Cancelar"
+                              >
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                                  <line x1="18" y1="6" x2="6" y2="18"></line>
+                                  <line x1="6" y1="6" x2="18" y2="18"></line>
+                                </svg>
+                              </button>
+                            </div>
+                          ) : (
+                            <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                              <span style={{ fontWeight: "700", color: "#1a1a1a", fontSize: "0.92rem" }}>{prod.name}</span>
+                              <button
+                                onClick={() => {
+                                  setEditingNameId(prod.id);
+                                  setEditingNameValue(prod.name);
+                                }}
+                                style={{
+                                  background: "transparent",
+                                  border: "none",
+                                  cursor: "pointer",
+                                  color: "#8c7138",
+                                  padding: "2px 4px",
+                                  borderRadius: "4px",
+                                  display: "inline-flex",
+                                  alignItems: "center",
+                                  justifyContent: "center",
+                                  opacity: 0.6,
+                                  transition: "opacity 0.2s, background 0.2s"
+                                }}
+                                onMouseEnter={(e) => { e.currentTarget.style.opacity = "1"; e.currentTarget.style.background = "rgba(140, 113, 56, 0.12)"; }}
+                                onMouseLeave={(e) => { e.currentTarget.style.opacity = "0.6"; e.currentTarget.style.background = "transparent"; }}
+                                title="Editar Nome do Produto"
+                              >
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                  <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path>
+                                </svg>
+                              </button>
+                            </div>
+                          )}
                           <span style={{ fontSize: "0.75rem", color: "#555555", fontFamily: "monospace", marginTop: "2px", fontWeight: "600" }}>SKU: {prod.sku}</span>
                         </div>
                       </td>
@@ -1448,7 +1568,74 @@ A credencial de acesso temporária (access_token) do Mercado Livre expirou ou n�
                           )}
                         </div>
                       </td>
-                      <td style={{ fontWeight: "700", color: "#1a1a1a" }}>R$ {prod.basePrice.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</td>
+                      <td style={{ fontWeight: "700", color: "#1a1a1a" }}>
+                        {editingPriceId === prod.id ? (
+                          <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
+                            <span style={{ fontSize: "0.85rem", color: "#6b7280" }}>R$</span>
+                            <input
+                              type="text"
+                              value={editingPriceValue}
+                              onChange={(e) => setEditingPriceValue(e.target.value)}
+                              onKeyDown={(e) => {
+                                if (e.key === "Enter") handleSavePrice(prod.id);
+                                if (e.key === "Escape") setEditingPriceId(null);
+                              }}
+                              autoFocus
+                              className="admin-input"
+                              style={{ padding: "4px 6px", fontSize: "0.85rem", fontWeight: "600", width: "75px", color: "#1a1a1a" }}
+                            />
+                            <button
+                              onClick={() => handleSavePrice(prod.id)}
+                              style={{ background: "#10b981", color: "#ffffff", border: "none", borderRadius: "4px", padding: "4px 6px", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}
+                              title="Salvar Preço"
+                            >
+                              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                                <polyline points="20 6 9 17 4 12"></polyline>
+                              </svg>
+                            </button>
+                            <button
+                              onClick={() => setEditingPriceId(null)}
+                              style={{ background: "transparent", color: "#6b7280", border: "1px solid #d1d5db", borderRadius: "4px", padding: "4px 6px", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}
+                              title="Cancelar"
+                            >
+                              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                                <line x1="18" y1="6" x2="6" y2="18"></line>
+                                <line x1="6" y1="6" x2="18" y2="18"></line>
+                              </svg>
+                            </button>
+                          </div>
+                        ) : (
+                          <div style={{ display: "inline-flex", alignItems: "center", gap: "6px" }}>
+                            <span>R$ {prod.basePrice.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</span>
+                            <button
+                              onClick={() => {
+                                setEditingPriceId(prod.id);
+                                setEditingPriceValue(prod.basePrice.toString().replace(".", ","));
+                              }}
+                              style={{
+                                background: "transparent",
+                                border: "none",
+                                cursor: "pointer",
+                                color: "#8c7138",
+                                padding: "2px 4px",
+                                borderRadius: "4px",
+                                display: "inline-flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                                opacity: 0.6,
+                                transition: "opacity 0.2s, background 0.2s"
+                              }}
+                              onMouseEnter={(e) => { e.currentTarget.style.opacity = "1"; e.currentTarget.style.background = "rgba(140, 113, 56, 0.12)"; }}
+                              onMouseLeave={(e) => { e.currentTarget.style.opacity = "0.6"; e.currentTarget.style.background = "transparent"; }}
+                              title="Editar Preço"
+                            >
+                              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path>
+                              </svg>
+                            </button>
+                          </div>
+                        )}
+                      </td>
                       <td style={{ fontSize: "0.85rem", color: "#555555", fontWeight: "500" }}>{prod.lastSync === "Just now" ? "Agora mesmo" : prod.lastSync}</td>
                       <td style={{ textAlign: "center" }}>
                         <div style={{ display: "inline-flex", alignItems: "center", gap: "4px" }}>

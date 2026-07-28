@@ -175,7 +175,7 @@ export async function getDBProducts(): Promise<DBProduct[]> {
         tiktokCategoryId: row.tiktok_category_id ?? undefined,
         tiktokBrandId: row.tiktok_brand_id ?? undefined,
       }))
-      .filter(p => !deletedSet.has(p.id) && !deletedSet.has(p.sku) && (!p.mlItemId || !deletedSet.has(p.mlItemId)) && (!p.shopeeItemId || !deletedSet.has(p.shopeeItemId)));
+      .filter((p: DBProduct) => !deletedSet.has(p.id) && !deletedSet.has(p.sku) && (!p.mlItemId || !deletedSet.has(p.mlItemId)) && (!p.shopeeItemId || !deletedSet.has(p.shopeeItemId)));
 
     // Backup locally
     fs.writeFileSync(PRODUCTS_FILE, JSON.stringify(mapped, null, 2), "utf8");
@@ -263,7 +263,7 @@ export async function deleteDBProduct(identifier: string): Promise<boolean> {
           tiktokCategoryId: row.tiktok_category_id ?? undefined,
           tiktokBrandId: row.tiktok_brand_id ?? undefined,
         }))
-        .filter(p => !deletedSet.has(p.id) && !deletedSet.has(p.sku) && (!p.mlItemId || !deletedSet.has(p.mlItemId)) && (!p.shopeeItemId || !deletedSet.has(p.shopeeItemId)));
+        .filter((p: DBProduct) => !deletedSet.has(p.id) && !deletedSet.has(p.sku) && (!p.mlItemId || !deletedSet.has(p.mlItemId)) && (!p.shopeeItemId || !deletedSet.has(p.shopeeItemId)));
 
       fs.writeFileSync(PRODUCTS_FILE, JSON.stringify(mapped, null, 2), "utf8");
     } catch (err) {
@@ -314,7 +314,7 @@ export async function saveDBProducts(products: DBProduct[]): Promise<void> {
             ${p.tiktokCategoryId ?? null},
             ${p.tiktokBrandId ?? null}
           )
-          ON CONFLICT (sku)
+          ON CONFLICT (id)
           DO UPDATE SET
             name = EXCLUDED.name,
             sku = EXCLUDED.sku,
@@ -392,7 +392,7 @@ export async function saveDBProducts(products: DBProduct[]): Promise<void> {
             id, name, sku, base_price, shopee_stock, shopee_synced, shopee_item_id, ml_stock, ml_synced, ml_item_id, total_stock, last_sync, description, image_url,
             shopee_category_id, shopee_brand_id, shopee_is_pre_order, shopee_days_to_ship, shopee_logistics, tiktok_category_id, tiktok_brand_id
           ) VALUES ${placeholders.join(",")}
-          ON CONFLICT (sku)
+          ON CONFLICT (id)
           DO UPDATE SET
             name = EXCLUDED.name,
             sku = EXCLUDED.sku,
