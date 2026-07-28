@@ -1417,7 +1417,7 @@ A credencial de acesso tempor√°ria (access_token) do Mercado Livre expirou ou n√
                 <thead>
                   <tr>
                     <th style={{ width: "65px", textAlign: "center" }}>Foto</th>
-                    <th>Nome do Produto & SKU</th>
+                    <th style={{ minWidth: "350px" }}>Nome do Produto & SKU</th>
                     <th>Estoque</th>
                     <th>Status</th>
                     <th>Pre√ßo Base</th>
@@ -1455,41 +1455,57 @@ A credencial de acesso tempor√°ria (access_token) do Mercado Livre expirou ou n√
                           </div>
                         )}
                       </td>
-                      <td>
+                      <td style={{ minWidth: "350px" }}>
                         <div style={{ display: "flex", flexDirection: "column" }}>
                           {editingNameId === prod.id ? (
-                            <div style={{ display: "flex", alignItems: "center", gap: "6px", marginBottom: "4px" }}>
-                              <input
-                                type="text"
+                            <div style={{ display: "flex", alignItems: "flex-start", gap: "6px", marginBottom: "4px", width: "100%" }}>
+                              <textarea
                                 value={editingNameValue}
                                 onChange={(e) => setEditingNameValue(e.target.value)}
                                 onKeyDown={(e) => {
-                                  if (e.key === "Enter") handleSaveName(prod.id);
+                                  if (e.key === "Enter" && !e.shiftKey) {
+                                    e.preventDefault();
+                                    handleSaveName(prod.id);
+                                  }
                                   if (e.key === "Escape") setEditingNameId(null);
                                 }}
                                 autoFocus
+                                rows={2}
                                 className="admin-input"
-                                style={{ padding: "4px 8px", fontSize: "0.88rem", fontWeight: "600", color: "#1a1a1a", width: "100%", maxWidth: "300px" }}
+                                style={{
+                                  padding: "6px 8px",
+                                  fontSize: "0.88rem",
+                                  fontWeight: "600",
+                                  color: "#1a1a1a",
+                                  width: "100%",
+                                  minWidth: "300px",
+                                  borderRadius: "6px",
+                                  resize: "vertical",
+                                  fontFamily: "inherit",
+                                  lineHeight: "1.3"
+                                }}
                               />
-                              <button
-                                onClick={() => handleSaveName(prod.id)}
-                                style={{ background: "#10b981", color: "#ffffff", border: "none", borderRadius: "4px", padding: "4px 8px", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}
-                                title="Salvar Nome"
-                              >
-                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-                                  <polyline points="20 6 9 17 4 12"></polyline>
-                                </svg>
-                              </button>
-                              <button
-                                onClick={() => setEditingNameId(null)}
-                                style={{ background: "transparent", color: "#6b7280", border: "1px solid #d1d5db", borderRadius: "4px", padding: "4px 6px", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}
-                                title="Cancelar"
-                              >
-                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                                  <line x1="18" y1="6" x2="6" y2="18"></line>
-                                  <line x1="6" y1="6" x2="18" y2="18"></line>
-                                </svg>
-                              </button>
+                              <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+                                <button
+                                  onClick={() => handleSaveName(prod.id)}
+                                  style={{ background: "#10b981", color: "#ffffff", border: "none", borderRadius: "4px", padding: "6px 8px", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}
+                                  title="Salvar Nome (Enter)"
+                                >
+                                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                                    <polyline points="20 6 9 17 4 12"></polyline>
+                                  </svg>
+                                </button>
+                                <button
+                                  onClick={() => setEditingNameId(null)}
+                                  style={{ background: "transparent", color: "#6b7280", border: "1px solid #d1d5db", borderRadius: "4px", padding: "6px 8px", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}
+                                  title="Cancelar (Esc)"
+                                >
+                                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                                  </svg>
+                                </button>
+                              </div>
                             </div>
                           ) : (
                             <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
