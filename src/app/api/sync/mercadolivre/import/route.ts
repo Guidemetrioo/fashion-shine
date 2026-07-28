@@ -28,31 +28,47 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    // 1. Search item IDs of the seller
-    const searchRes = await fetchMeli(`/users/${tokens.mercadolivre.userId}/items/search?limit=100`);
+    // 1. Search ALL item IDs of the seller (paginate through results)
+    const allItemIds: string[] = [];
+    let offset = 0;
+    const limit = 100;
+    let hasMore = true;
 
-    if (!searchRes.ok) {
-      // Fallback for mock/test accounts or API errors
-      console.warn(`ML API product list returned status ${searchRes.status}. Using stored catalog products.`);
-      const dbProducts = await getDBProducts();
-      return NextResponse.json({
-        success: true,
-        importedCount: 0,
-        updatedCount: dbProducts.length,
-        totalCount: dbProducts.length,
-        message: "Catalog items synced from database."
-      });
+    while (hasMore) {
+      const searchRes = await fetchMeli(`/users/${tokens.mercadolivre.userId}/items/search?limit=${limit}&offset=${offset}`);
+
+      if (!searchRes.ok) {
+        console.warn(`ML API product list returned status ${searchRes.status} at offset ${offset}. Using stored catalog products.`);
+        const dbProducts = await getDBProducts();
+        return NextResponse.json({
+          success: true,
+          importedCount: 0,
+          updatedCount: dbProducts.length,
+          totalCount: dbProducts.length,
+          message: "Catalog items synced from database."
+        });
+      }
+
+      const searchData = await searchRes.json();
+      const batchIds: string[] = searchData.results || [];
+      allItemIds.push(...batchIds);
+
+      const total = searchData.paging?.total || 0;
+      offset += limit;
+      hasMore = offset < total && batchIds.length > 0;
     }
 
-    const searchData = await searchRes.json();
-    const itemIds: string[] = searchData.results || [];
+    const itemIds = allItemIds;
 
     if (itemIds.length === 0) {
+      // Even if ML returns 0 items, keep existing system products
+      const dbProducts = await getDBProducts();
       return NextResponse.json({ 
         success: true, 
         importedCount: 0, 
-        updatedCount: 0, 
-        message: "No products found in Mercado Livre account." 
+        updatedCount: dbProducts.length,
+        totalCount: dbProducts.length,
+        message: "No new products found in Mercado Livre account. Existing catalog preserved." 
       });
     }
 
@@ -140,20 +156,30 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Find products to delete (mock items not returned by Mercado Livre search)
+    // Keep ALL products in the database.
+    // Only remove products that are clearly mock/test items (not real ML items AND not system-registered).
+    // NEVER remove products with FS-JOIA or prod-ml- prefixes — these were registered by the system.
     const realMlItemIds = new Set(allMlProducts.map(p => p.body?.id).filter(Boolean));
     const productsToKeep: DBProduct[] = [];
     const idsToDelete: string[] = [];
 
     for (const p of dbProducts) {
-      const isMlProduct = p.id.startsWith("ml-prod-") || p.mlItemId;
+      // System-registered products are ALWAYS kept (FS-JOIA SKUs, prod-ml- IDs)
+      const isSystemRegistered = p.sku.startsWith("FS-JOIA") || p.id.startsWith("prod-ml-") || p.id.startsWith("prod-");
       const isRealMlProduct = p.mlItemId && realMlItemIds.has(p.mlItemId);
       const hasShopee = p.shopeeSynced || (p.shopeeStock && p.shopeeStock > 0);
 
-      if (isMlProduct && !isRealMlProduct && !hasShopee) {
-        idsToDelete.push(p.id);
-      } else {
+      if (isSystemRegistered || isRealMlProduct || hasShopee) {
+        // Keep it
         productsToKeep.push(p);
+      } else {
+        // Only delete pure ml-prod- imports that are NOT returned by ML anymore
+        const isMlOnlyProduct = p.id.startsWith("ml-prod-");
+        if (isMlOnlyProduct && !isRealMlProduct) {
+          idsToDelete.push(p.id);
+        } else {
+          productsToKeep.push(p);
+        }
       }
     }
 
