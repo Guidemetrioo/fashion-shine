@@ -99,6 +99,9 @@ export default function AdminDashboard() {
   // Persistent deleted items tracking across serverless sessions
   const [deletedSkus, setDeletedSkus] = useState<string[]>([]);
 
+  // Maximized Image Modal State
+  const [maximizedImage, setMaximizedImage] = useState<{ url: string; title?: string; sku?: string } | null>(null);
+
   // Persistent checked/reviewed products tracking
   const [checkedProductIds, setCheckedProductIds] = useState<string[]>([]);
 
@@ -1430,11 +1433,18 @@ A credencial de acesso temporária (access_token) do Mercado Livre expirou ou n�
                     <tr key={prod.id}>
                       <td style={{ textAlign: "center" }}>
                         {prod.imageUrl ? (
-                          <img 
-                            src={prod.imageUrl} 
-                            alt={prod.name} 
-                            style={{ width: "48px", height: "48px", objectFit: "cover", borderRadius: "6px", border: "1px solid rgba(255,255,255,0.12)" }} 
-                          />
+                          <div
+                            onClick={() => prod.imageUrl && setMaximizedImage({ url: prod.imageUrl, title: prod.name, sku: prod.sku })}
+                            style={{ position: "relative", cursor: "pointer", display: "inline-block" }}
+                            title="Clique para maximizar a foto"
+                          >
+                            <img 
+                              src={prod.imageUrl} 
+                              alt={prod.name} 
+                              className="clickable-photo"
+                              style={{ width: "48px", height: "48px", objectFit: "cover", borderRadius: "6px", border: "1px solid rgba(255,255,255,0.12)", transition: "transform 0.2s ease, border-color 0.2s ease" }} 
+                            />
+                          </div>
                         ) : (
                           <div style={{
                             width: "48px",
@@ -2560,7 +2570,9 @@ A credencial de acesso temporária (access_token) do Mercado Livre expirou ou n�
                       <img 
                         src={imagePreview} 
                         alt="Preview" 
-                        style={{ width: "100%", height: "100%", objectFit: "contain" }} 
+                        onClick={() => setMaximizedImage({ url: imagePreview, title: newProdName || "Visualização da Foto", sku: newProdSku })}
+                        title="Clique para maximizar em tela cheia"
+                        style={{ width: "100%", height: "100%", objectFit: "contain", cursor: "pointer" }} 
                       />
                       <div 
                         onClick={(e) => {
@@ -3721,7 +3733,95 @@ A credencial de acesso temporária (access_token) do Mercado Livre expirou ou n�
         </div>
       )}
 
+      {/* Modal de Foto Maximizada em Tela Cheia (Lightbox) */}
+      {maximizedImage && (
+        <div 
+          style={{
+            position: "fixed",
+            inset: 0,
+            zIndex: 999999,
+            backgroundColor: "rgba(0, 0, 0, 0.88)",
+            backdropFilter: "blur(12px)",
+            WebkitBackdropFilter: "blur(12px)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            padding: "20px",
+            animation: "fadeIn 0.2s ease-out"
+          }}
+          onClick={() => setMaximizedImage(null)}
+        >
+          <div 
+            style={{
+              position: "relative",
+              maxWidth: "90vw",
+              maxHeight: "90vh",
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              justifyContent: "center",
+              background: "rgba(18, 18, 20, 0.95)",
+              border: "1px solid rgba(212, 175, 55, 0.4)",
+              borderRadius: "16px",
+              padding: "24px",
+              boxShadow: "0 24px 60px rgba(0,0,0,0.8)"
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Botão Fechar */}
+            <button
+              onClick={() => setMaximizedImage(null)}
+              style={{
+                position: "absolute",
+                top: "12px",
+                right: "12px",
+                background: "rgba(255, 255, 255, 0.12)",
+                border: "1px solid rgba(255, 255, 255, 0.2)",
+                color: "#fff",
+                borderRadius: "50%",
+                width: "36px",
+                height: "36px",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                cursor: "pointer",
+                fontSize: "1.2rem",
+                transition: "all 0.2s ease"
+              }}
+              title="Fechar (Clique fora ou X)"
+            >
+              ✕
+            </button>
 
+            {/* Imagem Expandida */}
+            <img
+              src={maximizedImage.url}
+              alt={maximizedImage.title || "Foto Expandida"}
+              style={{
+                maxWidth: "85vw",
+                maxHeight: "75vh",
+                objectFit: "contain",
+                borderRadius: "8px",
+                boxShadow: "0 8px 30px rgba(0,0,0,0.5)"
+              }}
+            />
+
+            {/* Título & SKU */}
+            {maximizedImage.title && (
+              <div style={{ marginTop: "16px", textAlign: "center", color: "#fff" }}>
+                <h4 style={{ margin: 0, fontSize: "1.1rem", fontWeight: 600, color: "var(--gold, #d4af37)" }}>
+                  {maximizedImage.title}
+                </h4>
+                {maximizedImage.sku && (
+                  <span style={{ fontSize: "0.85rem", color: "rgba(255,255,255,0.6)", marginTop: "4px", display: "block" }}>
+                    SKU: {maximizedImage.sku}
+                  </span>
+                )}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
 
     </div>
   );

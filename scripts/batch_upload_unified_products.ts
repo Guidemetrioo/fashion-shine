@@ -39,9 +39,7 @@ const CATEGORIES: CategoryConfig[] = [
   { folder: "Óculos", category_id: "MLB8378", skuPrefix: "FS-OCULOS", name: "Óculos de Sol" }
 ];
 
-// Otimizador SEO de Títulos (Respeita limite de 60 caracteres do Mercado Livre)
 function generateSeoTitle(categoryName: string, folderName: string): string {
-  // Limpa caracteres especiais do nome da pasta para usar no título
   const cleanName = folderName.replace(/_/g, " ").replace(/\d+/g, "").trim();
   const skuRef = folderName.split("_").pop() || "01";
 
@@ -57,7 +55,6 @@ function generateSeoTitle(categoryName: string, folderName: string): string {
   return `Óculos de Sol ${cleanName} Proteção UV400 Ref ${skuRef}`.slice(0, 60);
 }
 
-// Otimizador SEO de Descrições Ricas com Galeria de Fotos
 function generateSeoDescription(title: string, categoryName: string, sku: string, photoCount: number): string {
   const photoNote = photoCount > 1 
     ? `\n📷 ANÚNCIO COM GALERIA COMPLETA: Inclui ${photoCount} fotos em alta resolução mostrando diferentes ângulos e detalhes reais da peça.`
@@ -121,12 +118,13 @@ Garantia de satisfação e envio imediato com nota fiscal.`;
 async function uploadUnifiedProducts() {
   const args = process.argv.slice(2);
   const isDryRun = args.includes("--dry-run");
+  const isForce = args.includes("--force");
   const limitArgIndex = args.indexOf("--limit");
   const limit = limitArgIndex >= 0 ? parseInt(args[limitArgIndex + 1], 10) : 0;
 
   console.log("=================================================");
   console.log("🚀 UPLOAD DE PRODUTOS UNIFICADOS (COM MÚLTIPLAS FOTOS)");
-  console.log(`Modo Dry-Run: ${isDryRun} | Limite: ${limit > 0 ? limit : "Sem limite (Todos)"}`);
+  console.log(`Modo Dry-Run: ${isDryRun} | Forçar Recadastro (--force): ${isForce} | Limite: ${limit > 0 ? limit : "Sem limite (Todos)"}`);
   console.log("=================================================\n");
 
   const tokens = await getTokens();
@@ -135,7 +133,8 @@ async function uploadUnifiedProducts() {
   }
 
   const existingProducts = await getDBProducts();
-  const existingSkus = new Set(existingProducts.map(p => p.sku));
+  const existingSkuMap = new Map<string, number>();
+  existingProducts.forEach((p, idx) => existingSkuMap.set(p.sku, idx));
 
   let totalUploaded = 0;
   let totalErrors = 0;
@@ -148,7 +147,6 @@ async function uploadUnifiedProducts() {
       continue;
     }
 
-    // Lê todas as subpastas de produtos (ex: Brinco_Dourado_Longo_01)
     const productFolders = fs.readdirSync(catFolderPath).filter(f => {
       const fullPath = path.join(catFolderPath, f);
       return fs.statSync(fullPath).isDirectory();
@@ -174,10 +172,13 @@ async function uploadUnifiedProducts() {
 
       const sku = `FS-${prodFolder.toUpperCase()}`;
 
-      // Evitar recadastrar SKU que já está no banco de dados local
-      if (existingSkus.has(sku)) {
-        console.log(`⏩ SKU ${sku} já cadastrado no sistema. Pulando...`);
-        continue;
+      // Se não estiver no modo --force e o SKU já tiver mlItemId ativo na base local, pula
+      if (!isForce && existingSkuMap.has(sku)) {
+        const existingProd = existingProducts[existingSkuMap.get(sku)!];
+        if (existingProd && existingProd.mlItemId) {
+          console.log(`⏩ SKU ${sku} já possui ML ID (${existingProd.mlItemId}). Pulando... (Use --force para recadastrar)`);
+          continue;
+        }
       }
 
       const seoTitle = generateSeoTitle(cat.name, prodFolder);
@@ -245,7 +246,7 @@ async function uploadUnifiedProducts() {
           buying_mode: "buy_it_now",
           listing_type_id: "gold_special",
           condition: "new",
-          pictures: pictureIds, // Array de TODAS as fotos
+          pictures: pictureIds,
           description: { plain_text: seoDescription },
           attributes: [
             { id: "BRAND", value_name: BRAND_NAME },
@@ -261,7 +262,6 @@ async function uploadUnifiedProducts() {
           body: JSON.stringify(mlPayload)
         });
 
-        // Fallback de categoria geral se a categoria específica falhar
         if (!itemRes.ok) {
           const errData = await itemRes.json();
           console.warn(`⚠️ Tentativa com categoria ${targetCategory} retornou erro. Tentando fallback MLB1440...`);
@@ -282,9 +282,9 @@ async function uploadUnifiedProducts() {
         console.log(`🎉 Sucesso! Produto unificado criado no ML: ${mlItemId} (${pictureIds.length} fotos)`);
         console.log(`Link: ${itemData.permalink}`);
 
-        // 3. Salvar no Banco de Dados local
+        // 3. Salvar/Atualizar no Banco de Dados local
         const newProduct: DBProduct = {
-          id: `ml-prod-${mlItemId}`,
+          id: `prod-${sku}`,
           name: seoTitle,
           sku: sku,
           basePrice: PRICE,
@@ -299,14 +299,19 @@ async function uploadUnifiedProducts() {
           imageUrl: firstPictureUrl || `http://http2.mlstatic.com/D_NQ_NP_${pictureIds[0].id}-F.jpg`
         };
 
-        existingProducts.push(newProduct);
-        existingSkus.add(sku);
+        if (existingSkuMap.has(sku)) {
+          const existingIdx = existingSkuMap.get(sku)!;
+          existingProducts[existingIdx] = newProduct;
+        } else {
+          existingProducts.push(newProduct);
+          existingSkuMap.set(sku, existingProducts.length - 1);
+        }
+
         await saveDBProducts(existingProducts);
 
         totalUploaded++;
-        console.log(`💾 Produto unificado ${sku} salvo no sistema.`);
+        console.log(`💾 Produto unificado ${sku} atualizado no sistema.`);
 
-        // Pausa para evitar rate limit da API
         await new Promise(r => setTimeout(r, 800));
 
       } catch (err: any) {
