@@ -73,12 +73,12 @@ export async function processSinglePhoto(filename: string, dryRun: boolean = fal
     pictures: [{ id: pictureId }],
     description: {
       plain_text: `Joia / Semijoia da marca Fashion Shine.\n\n` +
-                 `Ficha técnica:\n` +
-                 `- Marca: ${BRAND_NAME}\n` +
-                 `- Tamanho: ${SIZE}\n` +
-                 `- Preço: R$ ${PRICE},00\n` +
-                 `- Código de Referência: ${sku}\n\n` +
-                 `Produto novo, com excelente acabamento e alta durabilidade.`
+        `Ficha técnica:\n` +
+        `- Marca: ${BRAND_NAME}\n` +
+        `- Tamanho: ${SIZE}\n` +
+        `- Preço: R$ ${PRICE},00\n` +
+        `- Código de Referência: ${sku}\n\n` +
+        `Produto novo, com excelente acabamento e alta durabilidade.`
     },
     attributes: [
       { id: "BRAND", value_name: BRAND_NAME },
