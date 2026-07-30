@@ -31,6 +31,7 @@ async function verifyNeon() {
       SELECT count(*) as count FROM products 
       WHERE (
         sku LIKE 'FS-BRINCO_%' OR 
+        sku LIKE 'FS-COLAR_%' OR 
         sku LIKE 'FS-COLARE_%' OR 
         sku LIKE 'FS-PULSEIRA_%' OR 
         sku LIKE 'FS-OCULOS_%'

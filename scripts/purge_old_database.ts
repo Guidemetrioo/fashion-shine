@@ -23,6 +23,7 @@ import { DBProduct } from "../src/utils/productStorage";
 function isUnifiedSku(sku: string = "") {
   const upper = sku.toUpperCase();
   return upper.startsWith("FS-BRINCO_") || 
+         upper.startsWith("FS-COLAR_") || 
          upper.startsWith("FS-COLARE_") || 
          upper.startsWith("FS-PULSEIRA_") || 
          upper.startsWith("FS-OCULOS_");
@@ -56,6 +57,7 @@ async function purgeOldDatabase() {
         DELETE FROM products 
         WHERE NOT (
           sku LIKE 'FS-BRINCO_%' OR 
+          sku LIKE 'FS-COLAR_%' OR 
           sku LIKE 'FS-COLARE_%' OR 
           sku LIKE 'FS-PULSEIRA_%' OR 
           sku LIKE 'FS-OCULOS_%'
