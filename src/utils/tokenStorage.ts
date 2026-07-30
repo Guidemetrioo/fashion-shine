@@ -276,7 +276,52 @@ export async function saveTokens(tokens: {
   mercadolivre?: Partial<StoredTokens["mercadolivre"]>;
   tiktok?: Partial<StoredTokens["tiktok"]>;
 }): Promise<StoredTokens> {
-  const current = getLocalTokens();
+  // Read current state from DB (not local file) to avoid data loss on serverless
+  let current: StoredTokens;
+  if (isNeonConfigured()) {
+    try {
+      const data = await sql`SELECT * FROM integration_tokens`;
+      const mlRow = data?.find((r: any) => r.channel === "mercadolivre");
+      const shopeeRow = data?.find((r: any) => r.channel === "shopee");
+      const tiktokRow = data?.find((r: any) => r.channel === "tiktok");
+      current = {
+        shopee: {
+          connected: shopeeRow?.connected ?? false,
+          accessToken: shopeeRow?.access_token ?? "",
+          refreshToken: shopeeRow?.refresh_token ?? "",
+          expiresAt: Number(shopeeRow?.expires_at ?? 0),
+          shopId: shopeeRow?.shop_id ?? "",
+          partnerId: shopeeRow?.partner_id ?? "",
+          partnerKey: shopeeRow?.partner_key ?? "",
+        },
+        mercadolivre: {
+          connected: mlRow?.connected ?? false,
+          accessToken: mlRow?.access_token ?? "",
+          refreshToken: mlRow?.refresh_token ?? "",
+          expiresAt: Number(mlRow?.expires_at ?? 0),
+          userId: mlRow?.user_id ?? "",
+          nickname: mlRow?.nickname ?? "",
+          clientId: mlRow?.client_id ?? "",
+          clientSecret: mlRow?.client_secret ?? "",
+        },
+        tiktok: {
+          connected: tiktokRow?.connected ?? false,
+          accessToken: tiktokRow?.access_token ?? "",
+          refreshToken: tiktokRow?.refresh_token ?? "",
+          expiresAt: Number(tiktokRow?.expires_at ?? 0),
+          openId: tiktokRow?.user_id ?? "",
+          clientKey: tiktokRow?.client_id ?? "",
+          clientSecret: tiktokRow?.client_secret ?? "",
+        },
+      };
+    } catch (err) {
+      console.warn("saveTokens: Failed to read from Neon, falling back to local:", err);
+      current = getLocalTokens();
+    }
+  } else {
+    current = getLocalTokens();
+  }
+
   const updated = {
     ...current,
     shopee: { ...current.shopee, ...tokens.shopee },

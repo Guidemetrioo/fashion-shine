@@ -4,7 +4,7 @@ import { getTokens, getLocalTokens, saveTokens } from "../../../../utils/tokenSt
 export const dynamic = "force-dynamic";
 
 export async function GET() {
-  const tokens = getLocalTokens();
+  const tokens = await getTokens();
 
   const mlClientId = tokens.mercadolivre.clientId || process.env.ML_CLIENT_ID || "";
   const mlClientSecret = tokens.mercadolivre.clientSecret || process.env.ML_CLIENT_SECRET || "";
