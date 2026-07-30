@@ -501,13 +501,29 @@ A credencial de acesso temporária (access_token) do Mercado Livre expirou ou n�
       }
     }, 10000);
 
-    // Check query params for status = ml_connected
+    // Check query params for OAuth status results
     const params = new URLSearchParams(window.location.search);
-    if (params.get("status") === "ml_connected") {
-      addLog("Mercado Livre API: Account connected via real OAuth 2.0 handshake!", "mercadolivre", "success");
+    const oauthStatus = params.get("status");
+    
+    if (oauthStatus === "ml_connected") {
+      addLog("Mercado Livre API: Conta conectada com sucesso via OAuth 2.0!", "mercadolivre", "success");
+      setActiveTab("settings");
       // Clean query params
       const url = new URL(window.location.href);
       url.searchParams.delete("status");
+      window.history.replaceState({}, document.title, url.pathname + url.search);
+    } else if (oauthStatus === "ml_error") {
+      const reason = params.get("reason") || "Erro desconhecido na autenticação OAuth do Mercado Livre.";
+      addLog(`Mercado Livre OAuth Error: ${reason}`, "mercadolivre", "error");
+      setActiveTab("settings");
+      // Show user-friendly alert with the error
+      setTimeout(() => {
+        alert(`❌ Falha na conexão com o Mercado Livre:\n\n${reason}\n\nVerifique suas credenciais na aba Integrações e tente novamente.`);
+      }, 500);
+      // Clean query params
+      const url = new URL(window.location.href);
+      url.searchParams.delete("status");
+      url.searchParams.delete("reason");
       window.history.replaceState({}, document.title, url.pathname + url.search);
     }
 
