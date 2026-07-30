@@ -296,7 +296,8 @@ async function uploadUnifiedProducts() {
           totalStock: STOCK,
           lastSync: new Date().toLocaleTimeString("pt-BR"),
           description: seoDescription,
-          imageUrl: firstPictureUrl || `http://http2.mlstatic.com/D_NQ_NP_${pictureIds[0].id}-F.jpg`
+          imageUrl: firstPictureUrl || `http://http2.mlstatic.com/D_NQ_NP_${pictureIds[0].id}-F.jpg`,
+          images: pictureIds.map(p => `http://http2.mlstatic.com/D_NQ_NP_${p.id}-F.jpg`)
         };
 
         if (existingSkuMap.has(sku)) {

@@ -56,6 +56,7 @@ export interface ChannelProduct {
   lastSync: string;
   description?: string;
   imageUrl?: string;
+  images?: string[];
   isChecked?: boolean;
   // Mercado Livre required API fields
   condition?: "new" | "used";

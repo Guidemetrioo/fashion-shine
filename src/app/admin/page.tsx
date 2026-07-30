@@ -99,8 +99,8 @@ export default function AdminDashboard() {
   // Persistent deleted items tracking across serverless sessions
   const [deletedSkus, setDeletedSkus] = useState<string[]>([]);
 
-  // Maximized Image Modal State
-  const [maximizedImage, setMaximizedImage] = useState<{ url: string; title?: string; sku?: string } | null>(null);
+  // Maximized Image Modal State (com suporte a carrossel)
+  const [maximizedImage, setMaximizedImage] = useState<{ url: string; title?: string; sku?: string; images?: string[]; currentIndex?: number } | null>(null);
 
   // Persistent checked/reviewed products tracking
   const [checkedProductIds, setCheckedProductIds] = useState<string[]>([]);
@@ -1434,9 +1434,15 @@ A credencial de acesso temporária (access_token) do Mercado Livre expirou ou n�
                       <td style={{ textAlign: "center" }}>
                         {prod.imageUrl ? (
                           <div
-                            onClick={() => prod.imageUrl && setMaximizedImage({ url: prod.imageUrl, title: prod.name, sku: prod.sku })}
+                            onClick={() => prod.imageUrl && setMaximizedImage({ 
+                              url: prod.imageUrl, 
+                              title: prod.name, 
+                              sku: prod.sku, 
+                              images: (prod.images && prod.images.length > 0) ? prod.images : [prod.imageUrl], 
+                              currentIndex: 0 
+                            })}
                             style={{ position: "relative", cursor: "pointer", display: "inline-block" }}
-                            title="Clique para maximizar a foto"
+                            title="Clique para maximizar a foto e ver o carrossel completo"
                           >
                             <img 
                               src={prod.imageUrl} 
@@ -1444,6 +1450,23 @@ A credencial de acesso temporária (access_token) do Mercado Livre expirou ou n�
                               className="clickable-photo"
                               style={{ width: "48px", height: "48px", objectFit: "cover", borderRadius: "6px", border: "1px solid rgba(255,255,255,0.12)", transition: "transform 0.2s ease, border-color 0.2s ease" }} 
                             />
+                            {prod.images && prod.images.length > 1 && (
+                              <span style={{
+                                position: "absolute",
+                                bottom: "2px",
+                                right: "2px",
+                                background: "rgba(0, 0, 0, 0.82)",
+                                color: "var(--gold, #d4af37)",
+                                fontSize: "0.65rem",
+                                fontWeight: "700",
+                                padding: "1px 4px",
+                                borderRadius: "4px",
+                                border: "1px solid rgba(212, 175, 55, 0.4)",
+                                pointerEvents: "none"
+                              }}>
+                                📷 {prod.images.length}
+                              </span>
+                            )}
                           </div>
                         ) : (
                           <div style={{
@@ -3733,7 +3756,7 @@ A credencial de acesso temporária (access_token) do Mercado Livre expirou ou n�
         </div>
       )}
 
-      {/* Modal de Foto Maximizada em Tela Cheia (Lightbox) */}
+      {/* Modal de Foto Maximizada em Tela Cheia (Lightbox Carrossel) */}
       {maximizedImage && (
         <div 
           style={{
@@ -3754,8 +3777,8 @@ A credencial de acesso temporária (access_token) do Mercado Livre expirou ou n�
           <div 
             style={{
               position: "relative",
-              maxWidth: "90vw",
-              maxHeight: "90vh",
+              maxWidth: "92vw",
+              maxHeight: "92vh",
               display: "flex",
               flexDirection: "column",
               alignItems: "center",
@@ -3786,37 +3809,143 @@ A credencial de acesso temporária (access_token) do Mercado Livre expirou ou n�
                 justifyContent: "center",
                 cursor: "pointer",
                 fontSize: "1.2rem",
-                transition: "all 0.2s ease"
+                transition: "all 0.2s ease",
+                zIndex: 10
               }}
               title="Fechar (Clique fora ou X)"
             >
               ✕
             </button>
 
-            {/* Imagem Expandida */}
-            <img
-              src={maximizedImage.url}
-              alt={maximizedImage.title || "Foto Expandida"}
-              style={{
-                maxWidth: "85vw",
-                maxHeight: "75vh",
-                objectFit: "contain",
-                borderRadius: "8px",
-                boxShadow: "0 8px 30px rgba(0,0,0,0.5)"
-              }}
-            />
+            {/* Container Principal de Imagem + Setas */}
+            <div style={{ position: "relative", display: "flex", alignItems: "center", justifyContent: "center", width: "100%" }}>
+              
+              {/* Seta Esquerda */}
+              {maximizedImage.images && maximizedImage.images.length > 1 && (
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    const imgs = maximizedImage.images || [maximizedImage.url];
+                    const curr = maximizedImage.currentIndex || 0;
+                    const prevIdx = (curr - 1 + imgs.length) % imgs.length;
+                    setMaximizedImage({ ...maximizedImage, url: imgs[prevIdx], currentIndex: prevIdx });
+                  }}
+                  style={{
+                    position: "absolute",
+                    left: "-15px",
+                    background: "rgba(0, 0, 0, 0.75)",
+                    border: "1px solid var(--gold, #d4af37)",
+                    color: "var(--gold, #d4af37)",
+                    borderRadius: "50%",
+                    width: "44px",
+                    height: "44px",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    cursor: "pointer",
+                    fontSize: "1.4rem",
+                    zIndex: 10,
+                    boxShadow: "0 4px 12px rgba(0,0,0,0.5)"
+                  }}
+                  title="Foto Anterior"
+                >
+                  ‹
+                </button>
+              )}
 
-            {/* Título & SKU */}
+              {/* Imagem Principal */}
+              <img
+                src={maximizedImage.url}
+                alt={maximizedImage.title || "Foto Expandida"}
+                style={{
+                  maxWidth: "80vw",
+                  maxHeight: "65vh",
+                  objectFit: "contain",
+                  borderRadius: "8px",
+                  boxShadow: "0 8px 30px rgba(0,0,0,0.5)",
+                  transition: "opacity 0.2s ease"
+                }}
+              />
+
+              {/* Seta Direita */}
+              {maximizedImage.images && maximizedImage.images.length > 1 && (
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    const imgs = maximizedImage.images || [maximizedImage.url];
+                    const curr = maximizedImage.currentIndex || 0;
+                    const nextIdx = (curr + 1) % imgs.length;
+                    setMaximizedImage({ ...maximizedImage, url: imgs[nextIdx], currentIndex: nextIdx });
+                  }}
+                  style={{
+                    position: "absolute",
+                    right: "-15px",
+                    background: "rgba(0, 0, 0, 0.75)",
+                    border: "1px solid var(--gold, #d4af37)",
+                    color: "var(--gold, #d4af37)",
+                    borderRadius: "50%",
+                    width: "44px",
+                    height: "44px",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    cursor: "pointer",
+                    fontSize: "1.4rem",
+                    zIndex: 10,
+                    boxShadow: "0 4px 12px rgba(0,0,0,0.5)"
+                  }}
+                  title="Próxima Foto"
+                >
+                  ›
+                </button>
+              )}
+            </div>
+
+            {/* Miniaturas de Navegação do Carrossel */}
+            {maximizedImage.images && maximizedImage.images.length > 1 && (
+              <div style={{ display: "flex", gap: "8px", marginTop: "14px", overflowX: "auto", maxWidth: "80vw", padding: "4px" }}>
+                {maximizedImage.images.map((imgUrl, idx) => (
+                  <img
+                    key={idx}
+                    src={imgUrl}
+                    alt={`Thumb ${idx + 1}`}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setMaximizedImage({ ...maximizedImage, url: imgUrl, currentIndex: idx });
+                    }}
+                    style={{
+                      width: "48px",
+                      height: "48px",
+                      objectFit: "cover",
+                      borderRadius: "6px",
+                      cursor: "pointer",
+                      border: (maximizedImage.currentIndex || 0) === idx ? "2px solid var(--gold, #d4af37)" : "1px solid rgba(255,255,255,0.2)",
+                      opacity: (maximizedImage.currentIndex || 0) === idx ? 1 : 0.5,
+                      transition: "all 0.2s ease"
+                    }}
+                  />
+                ))}
+              </div>
+            )}
+
+            {/* Título, SKU & Contador de Fotos */}
             {maximizedImage.title && (
-              <div style={{ marginTop: "16px", textAlign: "center", color: "#fff" }}>
-                <h4 style={{ margin: 0, fontSize: "1.1rem", fontWeight: 600, color: "var(--gold, #d4af37)" }}>
+              <div style={{ marginTop: "12px", textAlign: "center", color: "#fff" }}>
+                <h4 style={{ margin: 0, fontSize: "1.05rem", fontWeight: 600, color: "var(--gold, #d4af37)" }}>
                   {maximizedImage.title}
                 </h4>
-                {maximizedImage.sku && (
-                  <span style={{ fontSize: "0.85rem", color: "rgba(255,255,255,0.6)", marginTop: "4px", display: "block" }}>
-                    SKU: {maximizedImage.sku}
-                  </span>
-                )}
+                <div style={{ display: "flex", gap: "12px", justifyContent: "center", alignItems: "center", marginTop: "4px" }}>
+                  {maximizedImage.sku && (
+                    <span style={{ fontSize: "0.8rem", color: "rgba(255,255,255,0.6)" }}>
+                      SKU: {maximizedImage.sku}
+                    </span>
+                  )}
+                  {maximizedImage.images && maximizedImage.images.length > 1 && (
+                    <span style={{ fontSize: "0.8rem", color: "var(--gold, #d4af37)", fontWeight: 600 }}>
+                      Foto {(maximizedImage.currentIndex || 0) + 1} de {maximizedImage.images.length}
+                    </span>
+                  )}
+                </div>
               </div>
             )}
           </div>

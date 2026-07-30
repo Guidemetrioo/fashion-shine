@@ -21,6 +21,7 @@ export interface DBProduct {
   lastSync: string;
   description?: string;
   imageUrl?: string;
+  images?: string[];
   isChecked?: boolean;
   shopeeCategoryId?: string;
   shopeeBrandId?: string;
