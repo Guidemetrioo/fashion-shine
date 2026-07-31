@@ -4,6 +4,10 @@ import { getLocalProducts } from "@/utils/productStorage";
 
 export const dynamic = "force-dynamic";
 
+export async function GET() {
+  return POST();
+}
+
 export async function POST() {
   if (!isNeonConfigured()) {
     return NextResponse.json({ error: "Neon database not configured" }, { status: 500 });
