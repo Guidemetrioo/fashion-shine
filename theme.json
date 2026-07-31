@@ -1,0 +1,15 @@
+{
+  "colors": {
+    "background": "#EFEBE0",
+    "foreground": "#2d2b27",
+    "foregroundMuted": "#78736a",
+    "gold": "#b3975a",
+    "goldLight": "#e5dcc6",
+    "goldHover": "#a18347",
+    "darkAccent": "#fbfaf8"
+  },
+  "fonts": {
+    "serif": "Playfair Display",
+    "sans": "Outfit"
+  }
+}
