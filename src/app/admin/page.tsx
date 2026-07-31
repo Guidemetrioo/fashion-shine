@@ -1464,7 +1464,7 @@ A credencial de acesso temporÃ¡ria (access_token) do Mercado Livre expirou ou nÃ
                               src={prod.imageUrl} 
                               alt={prod.name} 
                               className="clickable-photo"
-                              style={{ width: "48px", height: "48px", objectFit: "cover", borderRadius: "6px", border: "1px solid rgba(255,255,255,0.12)", transition: "transform 0.2s ease, border-color 0.2s ease" }} 
+                              style={{ width: "48px", height: "48px", objectFit: "contain", background: "#ffffff", padding: "2px", borderRadius: "6px", border: "1px solid rgba(255,255,255,0.12)", transition: "transform 0.2s ease, border-color 0.2s ease" }} 
                             />
                             {prod.images && prod.images.length > 1 && (
                               <span style={{
@@ -3932,7 +3932,9 @@ A credencial de acesso temporÃ¡ria (access_token) do Mercado Livre expirou ou nÃ
                     style={{
                       width: "48px",
                       height: "48px",
-                      objectFit: "cover",
+                      objectFit: "contain",
+                      background: "#ffffff",
+                      padding: "2px",
                       borderRadius: "6px",
                       cursor: "pointer",
                       border: (maximizedImage.currentIndex || 0) === idx ? "2px solid var(--gold, #d4af37)" : "1px solid rgba(255,255,255,0.2)",
