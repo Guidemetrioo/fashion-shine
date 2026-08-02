@@ -66,11 +66,17 @@ export async function POST(request: NextRequest) {
 
 async function exchangeCodeForTokens(code: string, appUrl: string): Promise<{ error?: string; nickname?: string }> {
   const tokens = await getTokens();
-  let clientId = tokens.mercadolivre.clientId || process.env.ML_CLIENT_ID || "2359144603208389";
+  let clientId = process.env.ML_CLIENT_ID || tokens.mercadolivre.clientId || "2359144603208389";
   if (clientId === "3352061070183940" || clientId === "insira-seu-client-id-aqui") {
     clientId = "2359144603208389";
   }
-  const clientSecret = tokens.mercadolivre.clientSecret || process.env.ML_CLIENT_SECRET || "r7L5K7dgAo4zVXr8Dm36RX8qae980Fea";
+  let clientSecret = process.env.ML_CLIENT_SECRET || "";
+  if (!clientSecret && clientId === "2359144603208389") {
+    clientSecret = "r7L5K7dgAo4zVXr8Dm36RX8qae980Fea";
+  }
+  if (!clientSecret) {
+    clientSecret = tokens.mercadolivre.clientSecret || "r7L5K7dgAo4zVXr8Dm36RX8qae980Fea";
+  }
 
   try {
     // redirect_uri MUST match character-by-character what was sent in the authorization request
