@@ -70,7 +70,10 @@ async function exchangeCodeForTokens(code: string, appUrl: string): Promise<{ er
   if (clientId === "3352061070183940" || clientId === "insira-seu-client-id-aqui") {
     clientId = "2359144603208389";
   }
-  let clientSecret = process.env.ML_CLIENT_SECRET || "QdbVlKroptiGi8jiacjYIhwtfbcEj1ac";
+  let clientSecret = process.env.ML_CLIENT_SECRET;
+  if (!clientSecret || clientSecret === "r7L5K7dgAo4zVXr8Dm36RX8qae980Fea" || clientId === "2359144603208389") {
+    clientSecret = "QdbVlKroptiGi8jiacjYIhwtfbcEj1ac";
+  }
 
   try {
     // redirect_uri MUST match character-by-character what was sent in the authorization request

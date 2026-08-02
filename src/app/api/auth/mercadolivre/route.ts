@@ -15,7 +15,10 @@ export async function GET(request: NextRequest) {
   const vercelUrl = process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "";
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || vercelUrl || requestOrigin || "http://localhost:3000";
 
-  let clientSecret = process.env.ML_CLIENT_SECRET || "QdbVlKroptiGi8jiacjYIhwtfbcEj1ac";
+  let clientSecret = process.env.ML_CLIENT_SECRET;
+  if (!clientSecret || clientSecret === "r7L5K7dgAo4zVXr8Dm36RX8qae980Fea" || clientId === "2359144603208389") {
+    clientSecret = "QdbVlKroptiGi8jiacjYIhwtfbcEj1ac";
+  }
 
   // redirect_uri MUST match character-by-character what is registered in your App on Mercado Livre Dev Portal
   const defaultRedirectUri = `${appUrl}/api/auth/mercadolivre/callback`;
