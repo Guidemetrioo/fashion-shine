@@ -253,7 +253,8 @@ async function uploadUnifiedProducts() {
             { id: "MODEL", value_name: sku },
             { id: "SELLER_SKU", value_name: sku },
             { id: "MATERIAL", value_name: cat.name === "Óculos de Sol" ? "Acetato / Metal" : "Banhado a Ouro 18k" },
-            { id: "SALE_FORMAT", value_name: "Unidade" },
+            { id: "SALE_FORMAT", value_id: "1359391" },  // "Unidade"
+            { id: "UNITS_PER_PACK", value_name: "1" },
             { id: "EMPTY_GTIN_REASON", value_name: "O produto não tem código cadastrado" },
             // WITH_GEMSTONE is required for earrings (MLB1432)
             ...(cat.category_id === "MLB1432" ? [{ id: "WITH_GEMSTONE", value_name: "Não" }] : [])

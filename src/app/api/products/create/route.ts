@@ -124,7 +124,8 @@ export async function POST(request: NextRequest) {
         { id: "SELLER_SKU", value_name: sku.trim() },
         { id: "MATERIAL", value_name: material.trim() },
         { id: "GENDER", value_name: gender.trim() },
-        { id: "SALE_FORMAT", value_name: "Unidade" },
+        { id: "SALE_FORMAT", value_id: "1359391" },  // "Unidade"
+        { id: "UNITS_PER_PACK", value_name: "1" },
       ];
 
       // GTIN handling: provide reason if not supplied
