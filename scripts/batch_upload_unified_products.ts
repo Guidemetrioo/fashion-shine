@@ -34,7 +34,7 @@ interface CategoryConfig {
 
 const CATEGORIES: CategoryConfig[] = [
   { folder: "Brincos", category_id: "MLB1432", skuPrefix: "FS-BRINCO", name: "Brincos" },
-  { folder: "Colares", category_id: "MLB457416", skuPrefix: "FS-COLAR", name: "Colares" },
+  { folder: "Colares", category_id: "MLB457383", skuPrefix: "FS-COLAR", name: "Colares" },
   { folder: "Pulseiras", category_id: "MLB1434", skuPrefix: "FS-PULSEIRA", name: "Pulseiras" },
   { folder: "Óculos", category_id: "MLB8378", skuPrefix: "FS-OCULOS", name: "Óculos de Sol" }
 ];
@@ -252,7 +252,11 @@ async function uploadUnifiedProducts() {
             { id: "BRAND", value_name: BRAND_NAME },
             { id: "MODEL", value_name: sku },
             { id: "SELLER_SKU", value_name: sku },
-            { id: "MATERIAL", value_name: cat.name === "Óculos de Sol" ? "Acetato / Metal" : "Banhado a Ouro 18k" }
+            { id: "MATERIAL", value_name: cat.name === "Óculos de Sol" ? "Acetato / Metal" : "Banhado a Ouro 18k" },
+            { id: "SALE_FORMAT", value_name: "Unidade" },
+            { id: "EMPTY_GTIN_REASON", value_name: "O produto não tem código cadastrado" },
+            // WITH_GEMSTONE is required for earrings (MLB1432)
+            ...(cat.category_id === "MLB1432" ? [{ id: "WITH_GEMSTONE", value_name: "Não" }] : [])
           ]
         };
 

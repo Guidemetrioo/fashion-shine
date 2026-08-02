@@ -143,12 +143,12 @@ export async function getTokens(): Promise<StoredTokens> {
     }
   }
 
-  // Override old/empty credentials with the new Mercado Livre application keys
-  if (tokens.mercadolivre.clientId === "6534119322003352" || !tokens.mercadolivre.clientId) {
-    tokens.mercadolivre.clientId = "2359144603208389";
+  // Fallback to environment variables if DB/local credentials are empty
+  if (!tokens.mercadolivre.clientId) {
+    tokens.mercadolivre.clientId = process.env.ML_CLIENT_ID || "";
   }
-  if (tokens.mercadolivre.clientSecret === "qMwiSB3NuHA3PnRRCUC4KhgtXK50NjaA" || !tokens.mercadolivre.clientSecret) {
-    tokens.mercadolivre.clientSecret = "QdbVlKroptiGi8jiacjYIhwtfbcEj1ac";
+  if (!tokens.mercadolivre.clientSecret) {
+    tokens.mercadolivre.clientSecret = process.env.ML_CLIENT_SECRET || "";
   }
 
   // Auto-refresh Mercado Livre token if connected and expired/expiring soon

@@ -227,13 +227,13 @@ export default function AdminDashboard() {
     const isAnel = ["anel", "anéis", "aneis", "aliança", "aliancas", "solitário", "solitarios"].some(word => lowerName.includes(word));
 
     if (isColar) {
-      setMeliCategoryId("MLB1434");
+      setMeliCategoryId("MLB457383"); // Joias > Colares
     } else if (isBrinco) {
-      setMeliCategoryId("MLB1432");
+      setMeliCategoryId("MLB1432"); // Joias > Brincos
     } else if (isPulseira) {
-      setMeliCategoryId("MLB1471");
+      setMeliCategoryId("MLB1434"); // Joias > Pulseiras e Braceletes
     } else if (isAnel) {
-      setMeliCategoryId("MLB1436");
+      setMeliCategoryId("MLB1438"); // Joias > Anéis
     }
   };
 
@@ -2840,10 +2840,13 @@ A credencial de acesso temporária (access_token) do Mercado Livre expirou ou n�
                     className="admin-input"
                     style={{ background: "#ffffff", border: "1px solid rgba(212, 175, 55, 0.25)", color: "var(--foreground)", padding: "0.65rem 0.85rem", borderRadius: "8px", fontSize: "0.85rem" }}
                   >
-                    <option value="MLB1434">Colares e Pingentes (MLB1434)</option>
-                    <option value="MLB1432">Brincos e Argolas (MLB1432)</option>
-                    <option value="MLB1471">Pulseiras e Braceletes (MLB1471)</option>
-                    <option value="MLB1436">Anéis e Alianças (MLB1436)</option>
+                    <option value="MLB457383">Colares (MLB457383)</option>
+                    <option value="MLB1432">Brincos (MLB1432)</option>
+                    <option value="MLB1434">Pulseiras e Braceletes (MLB1434)</option>
+                    <option value="MLB1438">Anéis (MLB1438)</option>
+                    <option value="MLB7017">Pingentes (MLB7017)</option>
+                    <option value="MLB8378">Óculos de Sol (MLB8378)</option>
+                    <option value="MLB1440">Joias - Outros (MLB1440)</option>
                   </select>
                 </div>
 

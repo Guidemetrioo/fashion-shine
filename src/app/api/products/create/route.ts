@@ -121,16 +121,24 @@ export async function POST(request: NextRequest) {
       const mlAttributes = [
         { id: "BRAND", value_name: brand.trim() },
         { id: "MODEL", value_name: sku.trim() },
+        { id: "SELLER_SKU", value_name: sku.trim() },
         { id: "MATERIAL", value_name: material.trim() },
-        { id: "GENDER", value_name: gender.trim() }
+        { id: "GENDER", value_name: gender.trim() },
+        { id: "SALE_FORMAT", value_name: "Unidade" },
       ];
 
+      // GTIN handling: provide reason if not supplied
       if (gtin && gtin.trim() !== "" && gtin.trim().toLowerCase() !== "não se aplica" && gtin.trim().toLowerCase() !== "naoseaplica") {
         mlAttributes.push({ id: "GTIN", value_name: gtin.trim() });
+      } else {
+        mlAttributes.push({ id: "EMPTY_GTIN_REASON", value_name: "O produto não tem código cadastrado" });
       }
 
-      if (categoryId === "MLB1432" || withGemstone) {
-        mlAttributes.push({ id: "WITH_GEMSTONE", value_name: withGemstone ? withGemstone.trim() : "Sim" });
+      // WITH_GEMSTONE is required for earrings (MLB1432) - always include it
+      if (categoryId === "MLB1432") {
+        mlAttributes.push({ id: "WITH_GEMSTONE", value_name: withGemstone ? "Sim" : "Não" });
+      } else if (withGemstone) {
+        mlAttributes.push({ id: "WITH_GEMSTONE", value_name: "Sim" });
       }
 
       if (color && color.trim()) {

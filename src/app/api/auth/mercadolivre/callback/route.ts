@@ -7,7 +7,8 @@ export async function GET(request: NextRequest) {
   const error = searchParams.get("error");
 
   const requestOrigin = request.nextUrl ? request.nextUrl.origin : "";
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL || requestOrigin || "http://localhost:3000";
+  const vercelUrl = process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "";
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || vercelUrl || requestOrigin || "http://localhost:3000";
 
   // Handle ML OAuth error redirect (e.g., user denied access)
   if (error) {
