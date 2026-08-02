@@ -24,8 +24,10 @@ export async function GET(request: NextRequest) {
     return NextResponse.redirect(errorUrl);
   }
 
-  // redirect_uri MUST match exactly what's registered in the ML Developer Portal
-  const redirectUri = `${appUrl}/admin`;
+  // redirect_uri MUST match character-by-character what is registered in your App on Mercado Livre Dev Portal
+  const defaultRedirectUri = `${appUrl}/api/auth/mercadolivre/callback`;
+  const redirectUri = process.env.ML_REDIRECT_URI || defaultRedirectUri;
+  
   const mlAuthUrl = `https://auth.mercadolivre.com.br/authorization?client_id=${clientId}&response_type=code&redirect_uri=${encodeURIComponent(redirectUri)}`;
 
   return NextResponse.redirect(mlAuthUrl);

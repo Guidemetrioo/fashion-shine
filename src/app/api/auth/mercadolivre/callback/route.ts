@@ -74,9 +74,10 @@ async function exchangeCodeForTokens(code: string, appUrl: string): Promise<{ er
   }
 
   try {
-    // redirect_uri MUST match exactly what was sent in the authorization request
-    // AND what's registered in the ML Developer Portal
-    const redirectUri = `${appUrl}/admin`;
+    // redirect_uri MUST match character-by-character what was sent in the authorization request
+    // AND what is registered in your App on Mercado Livre Dev Portal
+    const defaultRedirectUri = `${appUrl}/api/auth/mercadolivre/callback`;
+    const redirectUri = process.env.ML_REDIRECT_URI || defaultRedirectUri;
 
     const response = await fetch("https://api.mercadolibre.com/oauth/token", {
       method: "POST",
