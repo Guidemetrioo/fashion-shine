@@ -24,7 +24,8 @@ export async function GET(request: NextRequest) {
     return NextResponse.redirect(errorUrl);
   }
 
-  const redirectUri = `${appUrl}/api/auth/mercadolivre/callback`;
+  // redirect_uri MUST match exactly what's registered in the ML Developer Portal
+  const redirectUri = `${appUrl}/admin`;
   const mlAuthUrl = `https://auth.mercadolivre.com.br/authorization?client_id=${clientId}&response_type=code&redirect_uri=${encodeURIComponent(redirectUri)}`;
 
   return NextResponse.redirect(mlAuthUrl);

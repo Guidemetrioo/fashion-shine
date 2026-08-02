@@ -504,8 +504,50 @@ A credencial de acesso temporária (access_token) do Mercado Livre expirou ou n�
     // Check query params for OAuth status results
     const params = new URLSearchParams(window.location.search);
     const oauthStatus = params.get("status");
+    const oauthCode = params.get("code");
     
-    if (oauthStatus === "ml_connected") {
+    // Handle ML OAuth redirect: ML sends ?code=xxx to /admin (registered redirect_uri)
+    if (oauthCode) {
+      addLog("Mercado Livre: Recebido código de autorização, trocando por token...", "mercadolivre", "warning");
+      setActiveTab("settings");
+      // Clean URL immediately to prevent re-processing on refresh
+      const cleanUrl = new URL(window.location.href);
+      cleanUrl.searchParams.delete("code");
+      window.history.replaceState({}, document.title, cleanUrl.pathname + cleanUrl.search);
+      
+      // Exchange code for token via callback API
+      (async () => {
+        try {
+          const res = await fetch("/api/auth/mercadolivre/callback", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ code: oauthCode }),
+          });
+          const data = await res.json();
+          if (res.ok && data.success) {
+            addLog(`✅ Mercado Livre conectado com sucesso! Conta: ${data.nickname || "Fashion Shine"}`, "mercadolivre", "success");
+            // Refresh integration status
+            const statusRes = await fetch("/api/auth/status");
+            if (statusRes.ok) {
+              const statusData = await statusRes.json();
+              setConfig(prev => ({
+                ...prev,
+                mlConnected: statusData.mercadolivre.connected,
+              }));
+              setIsMlConfigured(statusData.mercadolivre.configured);
+              if (statusData.mercadolivre.connected) {
+                setMlAccountName(statusData.mercadolivre.nickname);
+              }
+            }
+          } else {
+            addLog(`❌ Erro ao conectar ML: ${data.error || "Falha desconhecida"}`, "mercadolivre", "error");
+            alert(`❌ Falha na conexão com o Mercado Livre:\n\n${data.error}\n\nVerifique suas credenciais e tente novamente.`);
+          }
+        } catch (err: any) {
+          addLog(`❌ Erro de rede ao trocar código OAuth: ${err.message}`, "mercadolivre", "error");
+        }
+      })();
+    } else if (oauthStatus === "ml_connected") {
       addLog("Mercado Livre API: Conta conectada com sucesso via OAuth 2.0!", "mercadolivre", "success");
       setActiveTab("settings");
       // Clean query params
