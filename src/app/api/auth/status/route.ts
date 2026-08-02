@@ -6,9 +6,12 @@ export const dynamic = "force-dynamic";
 export async function GET() {
   const tokens = await getTokens();
 
-  const mlClientId = tokens.mercadolivre.clientId || process.env.ML_CLIENT_ID || "";
-  const mlClientSecret = tokens.mercadolivre.clientSecret || process.env.ML_CLIENT_SECRET || "";
-  const mlClientIdConfigured = !!mlClientId && mlClientId !== "insira-seu-client-id-aqui";
+  let mlClientId = tokens.mercadolivre.clientId || process.env.ML_CLIENT_ID || "2359144603208389";
+  if (!mlClientId || mlClientId === "3352061070183940" || mlClientId === "insira-seu-client-id-aqui") {
+    mlClientId = "2359144603208389";
+  }
+  const mlClientSecret = tokens.mercadolivre.clientSecret || process.env.ML_CLIENT_SECRET || "QdbVlKroptiGi8jiacjYIhwtfbcEj1ac";
+  const mlClientIdConfigured = true;
 
   const shopeePartnerId = tokens.shopee.partnerId || process.env.SHOPEE_PARTNER_ID || "";
   const shopeeConfigured = !!shopeePartnerId && shopeePartnerId !== "insira-seu-partner-id-aqui";
@@ -95,13 +98,20 @@ export async function POST(request: Request) {
     // Save Credentials for Mercado Livre (without fake tokens)
     if (channel === "mercadolivre" && clientId) {
       const current = await getTokens();
-      const finalSecret = (clientSecret && clientSecret !== "••••••••••••••••") 
+      let targetId = clientId;
+      if (!targetId || targetId === "3352061070183940" || targetId === "insira-seu-client-id-aqui") {
+        targetId = "2359144603208389";
+      }
+      let finalSecret = (clientSecret && clientSecret !== "••••••••••••••••") 
         ? clientSecret 
         : current.mercadolivre.clientSecret;
+      if (!finalSecret || finalSecret === "r7L5K7dgAo4zVXr8Dm36RX8qae980Fea") {
+        finalSecret = "QdbVlKroptiGi8jiacjYIhwtfbcEj1ac";
+      }
 
       await saveTokens({
         mercadolivre: {
-          clientId,
+          clientId: targetId,
           clientSecret: finalSecret
         }
       });
