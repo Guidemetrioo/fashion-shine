@@ -44,6 +44,7 @@ function buildAttributes(sku: string, categoryId: string): any[] {
 
   if (upperSku.includes("OCULOS")) {
     attrs.push({ id: "MATERIAL", value_name: "Acetato / Metal" });
+    attrs.push({ id: "GENDER", value_name: "Sem gênero" });
   } else {
     attrs.push({ id: "MATERIAL", value_name: "Banhado a Ouro 18k" });
   }
@@ -52,6 +53,14 @@ function buildAttributes(sku: string, categoryId: string): any[] {
   if (categoryId === "MLB1432") {
     attrs.push({ id: "WITH_GEMSTONE", value_name: "Não" });
   }
+
+  // NECKLACE_STYLES and GENDER are required for Colares (MLB457383)
+  if (categoryId === "MLB457383") {
+    attrs.push({ id: "NECKLACE_STYLES", value_name: "Moderno" });
+    attrs.push({ id: "GENDER", value_name: "Feminino" });
+  }
+
+  // GENDER is required for Óculos (MLB8378) - already added above
 
   return attrs;
 }
