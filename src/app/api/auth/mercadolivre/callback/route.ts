@@ -66,12 +66,11 @@ export async function POST(request: NextRequest) {
 
 async function exchangeCodeForTokens(code: string, appUrl: string): Promise<{ error?: string; nickname?: string }> {
   const tokens = await getTokens();
-  const clientId = tokens.mercadolivre.clientId || process.env.ML_CLIENT_ID || "";
-  const clientSecret = tokens.mercadolivre.clientSecret || process.env.ML_CLIENT_SECRET || "";
-
-  if (!clientId || !clientSecret) {
-    return { error: "Credenciais de API incompletas. Configure Client ID e Client Secret no painel." };
+  let clientId = tokens.mercadolivre.clientId || process.env.ML_CLIENT_ID || "2359144603208389";
+  if (clientId === "3352061070183940" || clientId === "insira-seu-client-id-aqui") {
+    clientId = "2359144603208389";
   }
+  const clientSecret = tokens.mercadolivre.clientSecret || process.env.ML_CLIENT_SECRET || "r7L5K7dgAo4zVXr8Dm36RX8qae980Fea";
 
   try {
     // redirect_uri MUST match character-by-character what was sent in the authorization request
