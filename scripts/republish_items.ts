@@ -35,7 +35,8 @@ function buildAttributes(sku: string, categoryId: string): any[] {
     { id: "BRAND", value_name: "Fashion Shine" },
     { id: "MODEL", value_name: sku },
     { id: "SELLER_SKU", value_name: sku },
-    { id: "SALE_FORMAT", value_name: "Unidade" },
+    { id: "SALE_FORMAT", value_id: "1359391" },  // "Unidade"
+    { id: "UNITS_PER_PACK", value_name: "1" },
     { id: "EMPTY_GTIN_REASON", value_name: "O produto não tem código cadastrado" },
   ];
 
@@ -175,16 +176,7 @@ async function republishAllItems() {
       } else {
         const closeErr = await closeRes.json();
         console.log(`   ⚠️ Não conseguiu fechar: ${closeErr.message || JSON.stringify(closeErr)}`);
-        // Try deleting instead
-        const deleteRes = await fetchMeli(`/items/${oldItemId}`, {
-          method: "PUT",
-          body: JSON.stringify({ deleted: true })
-        });
-        if (!deleteRes.ok) {
-          console.log(`   ❌ Também não conseguiu excluir. Pulando para o próximo.`);
-          errors++;
-          continue;
-        }
+        console.log(`   ⏩ Continuando com a criação do novo anúncio mesmo assim...`);
       }
 
       await new Promise(r => setTimeout(r, 500));
@@ -202,7 +194,7 @@ async function republishAllItems() {
       // Step 3: Create new item with correct category and attributes
       console.log(`   🟢 Criando novo anúncio com categoria ${correctCategory}...`);
       const newPayload: any = {
-        title: title,
+        family_name: title,
         category_id: correctCategory,
         price: price,
         currency_id: "BRL",
@@ -217,6 +209,8 @@ async function republishAllItems() {
       if (itemDescription) {
         newPayload.description = { plain_text: itemDescription };
       }
+
+      console.log(`   📋 Payload: ${JSON.stringify({ category_id: newPayload.category_id, title: newPayload.title, attrs: correctAttrs.map((a: any) => a.id).join(',') })}`);
 
       const createRes = await fetchMeli("/items", {
         method: "POST",
@@ -242,7 +236,7 @@ async function republishAllItems() {
         republished++;
       } else {
         const errData = await createRes.json();
-        console.log(`   ❌ Erro ao criar: ${errData.message || JSON.stringify(errData)}`);
+        console.log(`   ❌ Erro ao criar: ${JSON.stringify(errData, null, 2).slice(0, 500)}`);
         errors++;
       }
 
