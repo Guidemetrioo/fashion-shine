@@ -480,8 +480,7 @@ export async function mirrorProductsToMercadoLivre(): Promise<MirrorResult> {
   // Graceful fallback for mock/demo environment tokens
   if (
     tokens.mercadolivre.accessToken.startsWith("mock_") ||
-    !tokens.mercadolivre.userId ||
-    tokens.mercadolivre.userId === "3145268548"
+    !tokens.mercadolivre.userId
   ) {
     console.log("[Mirror] Simulated ML sync successful.");
     return { updated: dbProducts.length, published: 0, closed: 0, errors: [] };
