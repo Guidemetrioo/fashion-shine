@@ -30,6 +30,8 @@ export interface DBProduct {
   shopeeLogistics?: string[];
   tiktokCategoryId?: string;
   tiktokBrandId?: string;
+  tiktokItemId?: string;
+  tiktokSynced?: boolean;
 }
 
 export function getLocalProducts(): DBProduct[] {

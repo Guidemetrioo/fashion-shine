@@ -33,6 +33,9 @@ export interface StoredTokens {
     openId: string;
     clientKey: string;
     clientSecret: string;
+    pixelId?: string;
+    eventsAccessToken?: string;
+    catalogId?: string;
   };
 }
 
@@ -64,6 +67,9 @@ const defaultTokens: StoredTokens = {
     openId: "",
     clientKey: "",
     clientSecret: "",
+    pixelId: "",
+    eventsAccessToken: "",
+    catalogId: "",
   },
 };
 
