@@ -178,6 +178,14 @@ export async function getDBProducts(): Promise<DBProduct[]> {
       }))
       .filter((p: DBProduct) => !deletedSet.has(p.id) && !deletedSet.has(p.sku) && (!p.mlItemId || !deletedSet.has(p.mlItemId)) && (!p.shopeeItemId || !deletedSet.has(p.shopeeItemId)));
 
+    if (mapped.length === 0) {
+      console.log("[ProductStorage] Neon DB returned 0 products. Falling back to local catalog products...");
+      const local = getLocalProducts().filter(p => !deletedSet.has(p.id) && !deletedSet.has(p.sku) && (!p.mlItemId || !deletedSet.has(p.mlItemId)) && (!p.shopeeItemId || !deletedSet.has(p.shopeeItemId)));
+      if (local.length > 0) {
+        saveDBProducts(local).catch(err => console.error("Auto-seed Neon DB error:", err));
+        return local;
+      }
+    }
     // Backup locally
     fs.writeFileSync(PRODUCTS_FILE, JSON.stringify(mapped, null, 2), "utf8");
     return mapped;

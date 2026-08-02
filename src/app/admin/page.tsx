@@ -1361,6 +1361,36 @@ A credencial de acesso temporária (access_token) do Mercado Livre expirou ou n�
                   <span style={{ fontSize: "1.1rem", fontWeight: "bold" }}>+</span> Novo Produto
                 </button>
                 <button
+                  onClick={async () => {
+                    try {
+                      const res = await fetch("/api/admin/seed-products", { method: "POST" });
+                      const data = await res.json();
+                      await fetch("/api/sync/mercadolivre/import", { method: "POST" });
+                      const prodRes = await fetch("/api/sync/products");
+                      const prodData = await prodRes.json();
+                      if (prodData.products) setProducts(prodData.products);
+                      alert(`✅ Catálogo de ${data.seeded || 73} produtos carregado e sincronizado com sucesso!`);
+                    } catch (err: any) {
+                      alert("Erro ao carregar produtos: " + err.message);
+                    }
+                  }}
+                  style={{
+                    padding: "0.6rem 1.2rem",
+                    fontSize: "0.8rem",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "6px",
+                    background: "#2e7d32",
+                    color: "#ffffff",
+                    border: "none",
+                    borderRadius: "6px",
+                    fontWeight: 600,
+                    cursor: "pointer"
+                  }}
+                >
+                  📥 Carregar Catálogo
+                </button>
+                <button
                   disabled={isMirroring}
                   onClick={async () => {
                     setIsMirroring(true);

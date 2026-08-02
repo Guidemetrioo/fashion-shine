@@ -2397,22 +2397,16 @@
     "shopeeIsPreOrder": false,
     "shopeeLogistics": []
   },
-  {
-    "id": "ml-prod-MLB4966360263",
-    "name": "Pulseira Feminina Semijoia Banhada Ouro Ref 4950",
-    "sku": "FS-PULSEIRA-4950",
-    "basePrice": 40,
-    "shopeeStock": 0,
-    "shopeeSynced": false,
-    "mlStock": 1,
-    "mlSynced": true,
-    "mlItemId": "MLB4966360263",
-    "totalStock": 1,
-    "lastSync": "19:04:31",
-    "description": "Pulseira Feminina Semijoia Banhada Ouro Ref 4950 - Fashion Shine\n\nSemijoia fina de altíssima qualidade com banho nobre antialérgico, desenvolvida para realçar a beleza e elegância feminina em qualquer ocasião.\n\nFICHA TÉCNICA:\n- Marca: Fashion Shine\n- Categoria: Pulseiras\n- Banho: Ouro 18k / Ródio Nobre Hipoalergênico (Livre de Níquel)\n- Código SKU: FS-PULSEIRA-4950\n- Preço: R$ 40,00\n- Condição: Produto Novo e Embalado\n- Estoque: Pronta Entrega (1 unidade)\n\nDIFERENCIAIS DA MARCA FASHION SHINE:\n✔ Verniz de proteção de alta durabilidade (brilho prolongado).\n✔ Design moderno, leve e sofisticado.\n✔ Acabamento artesanal com rigoroso controle de qualidade.\n✔ Excelente opção para presentear alguém especial.\n\nDICAS DE CONSERVAÇÃO:\n- Evite contato direto com perfumes, cremes e produtos químicos.\n- Retire suas peças antes de tomar banho de mar ou piscina.\n- Guarde individualmente em local seco e protegido da luz.\n\nGarantia de satisfação e envio imediato com nota fiscal.",
-    "imageUrl": "http://http2.mlstatic.com/D_NQ_NP_696372-MLB115307914301_072026-F.jpg",
-    "isChecked": false,
-    "shopeeIsPreOrder": false,
-    "shopeeLogistics": []
-  }
+  "prod-FS-BRINCO_AZUL_LONGO_02",
+  "FS-BRINCO_AZUL_LONGO_02",
+  "MLB7296470206",
+  "prod-FS-BRINCO_DOURADO_LONGO_08",
+  "FS-BRINCO_DOURADO_LONGO_08",
+  "MLB7296496868",
+  "prod-FS-COLARE_DOURADO_LONGO_10",
+  "FS-COLARE_DOURADO_LONGO_10",
+  "MLB4972154219",
+  "prod-FS-COLARE_VERDE_LONGO_13",
+  "FS-COLARE_VERDE_LONGO_13",
+  "MLB4972148325"
 ]
