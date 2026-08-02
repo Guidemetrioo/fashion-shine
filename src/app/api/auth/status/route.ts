@@ -94,7 +94,7 @@ export async function POST(request: Request) {
 
     // Save Credentials for Mercado Livre (without fake tokens)
     if (channel === "mercadolivre" && clientId) {
-      const current = getLocalTokens();
+      const current = await getTokens();
       const finalSecret = (clientSecret && clientSecret !== "••••••••••••••••") 
         ? clientSecret 
         : current.mercadolivre.clientSecret;
@@ -110,7 +110,7 @@ export async function POST(request: Request) {
 
     // Save Credentials for Shopee
     if (channel === "shopee" && partnerId) {
-      const current = getLocalTokens();
+      const current = await getTokens();
       const finalKey = (partnerKey && partnerKey !== "••••••••••••••••")
         ? partnerKey
         : current.shopee.partnerKey;

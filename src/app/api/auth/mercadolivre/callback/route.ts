@@ -96,9 +96,10 @@ async function exchangeCodeForTokens(code: string, appUrl: string): Promise<{ er
     const data = await response.json();
 
     if (!response.ok) {
-      console.error("ML Token Exchange Error:", data);
-      const errorDetail = data.message || data.error || "Falha na troca do código de autorização";
-      return { error: errorDetail };
+      console.error("ML Token Exchange Error:", JSON.stringify(data));
+      const causeMsg = Array.isArray(data.cause) ? data.cause.map((c: any) => c.message || c.code).join(", ") : "";
+      const errorDetail = data.error_description || data.message || causeMsg || data.error || "Falha na troca do código de autorização";
+      return { error: `${errorDetail} [ID: ${clientId}]` };
     }
 
     // Get seller nickname
