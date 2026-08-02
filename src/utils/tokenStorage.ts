@@ -147,8 +147,8 @@ export async function getTokens(): Promise<StoredTokens> {
   if (!tokens.mercadolivre.clientId || tokens.mercadolivre.clientId === "3352061070183940") {
     tokens.mercadolivre.clientId = process.env.ML_CLIENT_ID || "2359144603208389";
   }
-  if (!tokens.mercadolivre.clientSecret) {
-    tokens.mercadolivre.clientSecret = process.env.ML_CLIENT_SECRET || "r7L5K7dgAo4zVXr8Dm36RX8qae980Fea";
+  if (!tokens.mercadolivre.clientSecret || tokens.mercadolivre.clientSecret === "r7L5K7dgAo4zVXr8Dm36RX8qae980Fea") {
+    tokens.mercadolivre.clientSecret = process.env.ML_CLIENT_SECRET || "QdbVlKroptiGi8jiacjYIhwtfbcEj1ac";
   }
 
   // Auto-refresh Mercado Livre token if connected and expired/expiring soon
